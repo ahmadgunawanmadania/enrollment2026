@@ -9,7 +9,7 @@
  * Aman dibuka langsung di browser: https://<app>.vercel.app/api/health
  */
 
-const DEPLOY_VERSION = '2026-08-11-fix-search-batch-commit-v4';
+const DEPLOY_VERSION = '2026-08-11-fix-search-batch-commit-v5';
 
 module.exports = async function (req, res) {
   const report = {
@@ -130,6 +130,32 @@ module.exports = async function (req, res) {
     report.endpointUpdateSearch = 'OK (HTTP ' + statusCode + ', body: ' + JSON.stringify(bodyJson).slice(0, 250) + ')';
   } catch (e) {
     report.endpointUpdateSearch = 'ERROR: ' + (e && e.stack ? e.stack : e);
+  }
+
+  // 10) Muat SEMUA modul endpoint api/*.js — mendeteksi file yang rusak/terpotong
+  //     (mis. baris import handler hilang seperti yang terjadi pada
+  //     updatePendaftaranSearchField).
+  report.apiModules = {};
+  const apiFiles = [
+    'getKelasOptions',
+    'handleNewRegistration',
+    'handleUpdateRegistration',
+    'simpanStatusLanjutan',
+    'getUpdateLogs',
+    'getNotificationSettings',
+    'saveNotificationSettings',
+    'bulkUploadSiswaLanjutan',
+    'migrateDataToFirebase',
+    'updatePendaftaranSearchField',
+    'updateSiswaLanjutanSearchField'
+  ];
+  for (const f of apiFiles) {
+    try {
+      require('./' + f);
+      report.apiModules[f] = 'OK';
+    } catch (e) {
+      report.apiModules[f] = 'ERROR: ' + (e && e.message ? e.message : e);
+    }
   }
 
   // 7) Simulasi pemanggilan getNotificationSettings PERSIS seperti endpoint aslinya
