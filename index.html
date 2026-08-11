@@ -1014,8 +1014,19 @@
             signal: controller ? controller.signal : undefined
           })
             .then(function (res) {
-              return res.json().catch(function () {
-                return { __error: true, message: 'Respons server tidak valid (HTTP ' + res.status + ').' };
+              if (res.ok) {
+                return res.json().catch(function () {
+                  return { __error: true, message: 'Respons server tidak valid (HTTP ' + res.status + ').' };
+                });
+              }
+              // HTTP error (mis. 500): tampilkan teks error asli dari server
+              // (halaman error Vercel memuat penyebab, mis. "Cannot find module ...")
+              return res.text().catch(function () { return ''; }).then(function (text) {
+                var parsed = null;
+                try { parsed = JSON.parse(text); } catch (e) { parsed = null; }
+                if (parsed && parsed.__error) return parsed;
+                var snippet = String(text || '').replace(/\s+/g, ' ').trim().slice(0, 400);
+                return { __error: true, message: 'HTTP ' + res.status + (snippet ? ': ' + snippet : '') };
               });
             })
             .then(function (data) {
@@ -2283,26 +2294,57 @@
       }, 4000);
     }
 
+    let migrationBatchCount = 0;
+    let migrationTotals = { master: 0, siswa: 0, status: 0 };
+
     function startMigration() {
         if (!confirm("Apakah Anda yakin ingin memulai migrasi data dari Google Sheets ke Firebase? Proses ini tidak dapat dibatalkan dan hanya boleh dijalankan satu kali.")) {
             return;
         }
+        migrationBatchCount = 0;
+        migrationTotals = { master: 0, siswa: 0, status: 0 };
         showLoading(true);
         showToast("Memulai migrasi data... Ini mungkin memakan waktu beberapa menit.", "info");
+        migrateBatch({ step: 'master', offset: 0 });
+    }
+
+    // Migrasi berjalan bertahap: setiap panggilan API hanya memproses sebagian
+    // kecil baris (MIGRATION_BATCH di server) agar muat dalam batas waktu
+    // serverless Vercel (10 detik di paket Hobby). UI memanggil batch berikutnya
+    // sampai server menjawab { done: true }.
+    function migrateBatch(state) {
+        migrationBatchCount++;
+        const loadingTextEl = document.getElementById('loadingText');
+        if (loadingTextEl) loadingTextEl.textContent = `Migrasi berjalan... (batch ke-${migrationBatchCount})`;
+
         google.script.run
             .withSuccessHandler(response => {
-                showLoading(false);
-                if (response.success) {
-                    showToast(response.message, 'success');
-                } else {
-                    showToast('Migrasi Gagal: ' + response.message, 'error');
+                if (!response || !response.success) {
+                    showLoading(false);
+                    if (loadingTextEl) loadingTextEl.textContent = 'Processing data...';
+                    showToast(response && response.message ? 'Migrasi Gagal: ' + response.message : 'Migrasi Gagal tanpa keterangan.', 'error');
+                    return;
                 }
+
+                if (response.step && response.processed) {
+                    migrationTotals[response.step] = (migrationTotals[response.step] || 0) + response.processed;
+                }
+
+                if (response.done) {
+                    showLoading(false);
+                    if (loadingTextEl) loadingTextEl.textContent = 'Processing data...';
+                    showToast(`Migrasi selesai: ${migrationTotals.master} pendaftaran, ${migrationTotals.siswa} siswa master, ${migrationTotals.status} status lanjutan di-upload ke Firestore.`, 'success');
+                    return;
+                }
+
+                // Lanjut ke batch berikutnya
+                migrateBatch(response.nextState);
             })
             .withFailureHandler(err => {
                 showLoading(false);
                 showToast('Error kritis saat migrasi: ' + err.message, 'error');
             })
-            .migrateDataToFirebase();
+            .migrateDataToFirebase(state);
     }
 
     // Initialize the view to the dashboard on first load
