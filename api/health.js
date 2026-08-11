@@ -9,7 +9,7 @@
  * Aman dibuka langsung di browser: https://<app>.vercel.app/api/health
  */
 
-const DEPLOY_VERSION = '2026-08-11-fix-search-batch-commit-v3';
+const DEPLOY_VERSION = '2026-08-11-fix-search-batch-commit-v4';
 
 module.exports = async function (req, res) {
   const report = {
@@ -113,6 +113,23 @@ module.exports = async function (req, res) {
     report.updateSearchField = 'OK: ' + JSON.stringify(result).slice(0, 250);
   } catch (e) {
     report.updateSearchField = 'ERROR: ' + (e.message || e);
+  }
+
+  // 9) Muat dan jalankan MODUL ENDPOINT updatePendaftaranSearchField PERSIS
+  //    (termasuk lib/handler.js) — untuk meniru /api/updatePendaftaranSearchField.
+  //    Jika file endpoint di deployment ini rusak (mis. SyntaxError), terlihat di sini.
+  try {
+    const endpoint = require('./updatePendaftaranSearchField');
+    let statusCode = null;
+    let bodyJson = null;
+    const fakeRes = {
+      status: function (code) { statusCode = code; return fakeRes; },
+      json: function (body) { bodyJson = body; return fakeRes; }
+    };
+    await endpoint({ body: [null] }, fakeRes);
+    report.endpointUpdateSearch = 'OK (HTTP ' + statusCode + ', body: ' + JSON.stringify(bodyJson).slice(0, 250) + ')';
+  } catch (e) {
+    report.endpointUpdateSearch = 'ERROR: ' + (e && e.stack ? e.stack : e);
   }
 
   // 7) Simulasi pemanggilan getNotificationSettings PERSIS seperti endpoint aslinya
