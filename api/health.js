@@ -9,7 +9,7 @@
  * Aman dibuka langsung di browser: https://<app>.vercel.app/api/health
  */
 
-const DEPLOY_VERSION = '2026-08-11-fix-search-batch-commit';
+const DEPLOY_VERSION = '2026-08-11-fix-search-batch-commit-v2';
 
 module.exports = async function (req, res) {
   const report = {
@@ -91,6 +91,16 @@ module.exports = async function (req, res) {
     report.listDocs = 'OK (1 dokumen: ' + firstId + ', nextPageToken: ' + (nextPageToken ? 'ada' : 'tidak ada') + ')';
   } catch (e) {
     report.listDocs = 'ERROR: ' + (e.message || e);
+  }
+
+  // 7c) Uji endpoint commit Firestore dengan commit KOSONG (tidak menulis apa pun)
+  //     — membuktikan URL :commit + auth berfungsi (dipakai Perbaikan Pencarian Nama).
+  try {
+    const { commitWrites } = require('../lib/firestore');
+    const r = await commitWrites([]);
+    report.commitWrites = 'OK (commitTime: ' + (r.commitTime || '-') + ')';
+  } catch (e) {
+    report.commitWrites = 'ERROR: ' + (e.message || e);
   }
 
   // 7) Simulasi pemanggilan getNotificationSettings PERSIS seperti endpoint aslinya
