@@ -1,0 +1,20 @@
+# Environment / secret (JANGAN pernah di-commit)
+.env
+.env.*
+!.env.example
+
+# File JSON Service Account Firebase (berisi private key)
+*.json
+!package.json
+!vercel.json
+
+# Dependensi
+node_modules/
+
+# Vercel lokal
+.vercel/
+
+# Log & OS
+*.log
+.DS_Store
+Thumbs.db
