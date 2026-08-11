@@ -1,4 +1,4 @@
-const { handler } = require('../lib/handler');
+
 const { migrateDataToFirebase } = require('../lib/registration');
 
 module.exports = handler(() => migrateDataToFirebase());
