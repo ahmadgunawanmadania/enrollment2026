@@ -29,7 +29,7 @@ module.exports = async function (req, res) {
 
   // 2) Modul lib (lazy require — tidak boleh mematikan endpoint ini)
   report.libModules = {};
-  for (const mod of ['google-auth', 'firestore', 'sheets', 'settings', 'registration']) {
+  for (const mod of ['google-auth', 'firestore', 'sheets', 'settings', 'registration', 'handler']) {
     try {
       require('../lib/' + mod);
       report.libModules[mod] = 'OK';
@@ -78,6 +78,24 @@ module.exports = async function (req, res) {
     report.sheets = 'OK (kolom: ' + String(headers.join(', ')).slice(0, 300) + ')';
   } catch (e) {
     report.sheets = 'ERROR: ' + (e.message || e);
+  }
+
+  // 7) Simulasi pemanggilan getNotificationSettings PERSIS seperti endpoint aslinya
+  //    (melewati lib/handler.js) — untuk meniru perilaku /api/getNotificationSettings.
+  try {
+    const { handler } = require('../lib/handler');
+    const { getNotificationSettings } = require('../lib/settings');
+    const fn = handler(() => getNotificationSettings());
+    let statusCode = null;
+    let bodyJson = null;
+    const fakeRes = {
+      status: function (code) { statusCode = code; return fakeRes; },
+      json: function (body) { bodyJson = body; return fakeRes; }
+    };
+    await fn({ body: [] }, fakeRes);
+    report.handlerInvocation = 'OK (HTTP ' + statusCode + ', data: ' + JSON.stringify(bodyJson).slice(0, 150) + ')';
+  } catch (e) {
+    report.handlerInvocation = 'ERROR: ' + (e.message || e);
   }
 
   res.status(200).json(report);
