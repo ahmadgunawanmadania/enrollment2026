@@ -1,0 +1,2844 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Academic Distinction | Enrollment System</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config"> tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            'primary': '#224390',        // Deep Academic Blue
+            'secondary': '#C2185B',      // Vibrant Magenta
+            'tertiary': '#00897B',       // Deep Teal
+            'background': '#FAF8FF',     // Soft Lavender White
+            'surface': '#FAF8FF',
+            'surface-container': '#EEEDF4',
+            'surface-container-low': '#F4F3FA',
+            'surface-container-lowest': '#FFFFFF',
+            'on-surface': '#1A1B21',
+            'on-surface-variant': '#444651',
+            'outline': '#757682',
+            'outline-variant': '#C5C5D3',
+            'success': '#004A31',        // Deep Green
+            'error': '#BA1A1A',          // Bright Red
+            'warning': '#FFC107',        // Amber
+            'on-primary': '#FFFFFF',
+            'on-secondary': '#FFFFFF',
+            'on-tertiary': '#FFFFFF',
+            'on-success': '#FFFFFF',
+            'on-error': '#FFFFFF',
+            'on-warning': '#1A1B21',
+            'primary-container': 'rgba(34, 67, 144, 0.1)',
+            'on-primary-container': '#224390',
+            'secondary-container': 'rgba(194, 24, 91, 0.1)',
+            'on-secondary-container': '#C2185B',
+            'tertiary-container': 'rgba(0, 137, 123, 0.1)',
+            'on-tertiary-container': '#00897B',
+          },
+          borderRadius: {
+            "DEFAULT": "8px",
+            "lg": "8px",
+            "xl": "12px",
+            "full": "9999px"
+          }
+        }
+      }
+    } </script>
+<style>
+    body { font-family: 'Inter', sans-serif; }
+    .loader {
+      border: 3px solid #e3e1e9; border-top: 3px solid #00236f; 
+      border-radius: 50%; width: 32px; height: 32px; animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .nav-transition { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+    .notification-item {
+      border-bottom: 1px solid #EEEDF4; /* surface-container */
+      padding: 12px 16px;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    .notification-item:last-child {
+      border-bottom: none;
+    }
+    .notification-item strong {
+      color: #1A1B21; /* on-surface */
+    }
+    .notification-item small {
+      font-size: 11px;
+      color: #757682; /* outline */
+    }
+    .notification-item code {
+      background-color: #F4F3FA; /* surface-container-low */
+      padding: 1px 4px;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen">
+<!-- Loading Overlay -->
+<div class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-[60] hidden flex items-center justify-center" id="loadingOverlay">
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-2xl flex flex-col items-center">
+<div class="loader mb-4"></div>
+<p class="text-sm font-semibold text-primary" id="loadingText">Processing data...</p>
+</div>
+</div>
+<!-- Toast Notification -->
+<div class="fixed top-6 right-6 z-[70] transform transition-all duration-300 opacity-0 translate-y-[-20px] pointer-events-none" id="toastBox">
+<div class="px-6 py-4 rounded-lg shadow-xl text-white font-medium flex items-center gap-3" id="toastMessage">
+<span class="material-symbols-outlined">info</span>
+<span id="toastText" class="">Message</span>
+</div>
+</div>
+<!-- Side Navigation Bar -->
+<aside class="fixed left-0 top-0 bottom-0 w-64 bg-surface-container-low border-r border-outline-variant flex-col z-40 hidden lg:flex">
+<div class="p-6">
+<div class="flex items-center gap-3 mb-1">
+<div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined">school</span>
+</div>
+<div>
+<h1 class="text-lg font-bold text-primary leading-tight">Madania Enrollment System</h1>
+<p class="text-[10px] uppercase tracking-wider text-outline font-bold">Enrollment Portal</p>
+</div>
+</div>
+<p class="text-xs text-on-surface-variant mt-2 px-1">Academic Year 2026/27</p>
+</div>
+<nav class="flex-1 px-3 space-y-1 mt-4">
+<button class="nav-transition w-full flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container font-medium" id="btnDaftar" onclick="switchTab('tabDaftar')">
+<span class="material-symbols-outlined text-[20px]">person_add</span>
+<span class="text-sm">Registration</span>
+</button>
+<button class="nav-transition w-full flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container font-medium" id="btnLanjutan" onclick="switchTab('tabLanjutan')">
+<span class="material-symbols-outlined text-[20px]">escalator_warning</span>
+<span class="text-sm">Continuing Students</span>
+</button>
+<button class="nav-transition w-full flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container font-medium" id="btnUpdate" onclick="switchTab('tabUpdate')">
+<span class="material-symbols-outlined text-[20px]">manage_search</span>
+<span class="text-sm">Search &amp; Update</span>
+</button>
+<button class="nav-transition w-full flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container font-medium" id="btnRekap" onclick="switchTab('tabRekap')">
+<span class="material-symbols-outlined text-[20px]">analytics</span>
+<span class="text-sm">Recapitulation</span>
+</button>
+<button class="nav-transition w-full flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container font-medium" id="btnLanjutanRekap" onclick="switchTab('tabLanjutanRekap')">
+<span class="material-symbols-outlined text-[20px]">list_alt</span>
+<span class="text-sm">Continuing Students Recap</span>
+</button>
+<button class="nav-transition w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-primary-container text-on-primary-container font-semibold" id="btnDashboard" onclick="switchTab('tabDashboard')">
+<span class="material-symbols-outlined text-[20px]">monitoring</span>
+<span class="text-sm">Dashboard</span>
+</button>
+</nav>
+<div class="p-6 border-t border-outline-variant">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-dim flex items-center justify-center">
+<span class="material-symbols-outlined text-base text-on-surface-variant">person</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-sm font-semibold truncate">Administrator</p>
+<p class="text-xs text-outline truncate">Admission Officer</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-0 lg:ml-64 flex flex-col lg:min-h-screen pb-20 lg:pb-0">
+<!-- Header/TopBar -->
+<header class="h-16 border-b border-outline-variant bg-surface px-4 lg:px-8 flex items-center justify-between sticky top-0 z-30">
+<!-- Mobile Logo -->
+<div class="flex items-center gap-2 lg:hidden">
+<div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-base">school</span>
+</div>
+<span class="text-base font-bold text-primary">Madania Enrollment</span>
+</div>
+<!-- Desktop Title -->
+<div class="hidden lg:flex items-center gap-2">
+<span class="text-lg font-bold text-on-surface" id="currentTabLabel">Dashboard</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="relative">
+<button id="notification-bell" class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div id="notification-panel" class="hidden absolute top-full right-0 z-40 mt-2 w-96 max-h-[450px] overflow-y-auto bg-surface-container-lowest rounded-xl shadow-lg border border-outline-variant">
+<div class="p-5 text-center text-sm text-on-surface-variant">Memuat log...</div>
+</div>
+</div>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full" id="btnSettings" onclick="switchTab('tabSettings')">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</header>
+<div class="p-4 md:p-8 max-w-7xl mx-auto w-full">
+<!-- RECAP TAB CONTENT -->
+<div class="animate-in fade-in slide-in-from-bottom-4 duration-300" id="tabDashboard">
+<div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
+<div class="flex-1">
+<h2 class="text-lg md:text-xl font-bold text-on-surface">Overview Dashboard</h2>
+<p class="text-sm text-on-surface-variant">Ringkasan statistik pendaftaran dan status siswa lanjutan.</p>
+</div>
+<div class="flex flex-wrap justify-end gap-2">
+<select class="w-full sm:w-auto px-4 py-2.5 rounded-lg border border-outline-variant bg-surface-container-lowest text-sm" id="dashboardFilterJenjang" onchange="handleDashboardJenjangChange()">
+<option value="">Semua Jenjang</option>
+<option value="TK">TK</option>
+<option value="SD">SD</option>
+<option value="SMP">SMP</option>
+<option value="SMA">SMA</option>
+</select>
+<select class="px-4 py-2.5 rounded-lg border border-outline-variant bg-surface-container-lowest text-sm" disabled="" id="dashboardFilterKelas">
+<option value="">Semua Kelas</option>
+</select>
+<button class="w-full sm:w-auto flex items-center gap-2 bg-primary text-on-primary font-semibold py-2.5 px-4 rounded-lg hover:opacity-90" onclick="getDashboardData()">
+<span class="material-symbols-outlined text-sm">filter_alt</span>
+          Filter
+        </button>
+<button class="w-full sm:w-auto flex items-center gap-2 bg-tertiary text-on-tertiary font-semibold py-2.5 px-4 rounded-lg hover:opacity-90" onclick="resetDashboardFilters()">
+<span class="material-symbols-outlined text-sm">refresh</span>
+          Reset
+        </button>
+</div>
+</div>
+<!-- Summary Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+<!-- Card: Target Pendaftar -->
+<div class="bg-surface-container-lowest p-4 md:p-6 rounded-xl border border-outline-variant shadow-sm relative">
+<h3 class="text-base font-bold text-on-surface mb-1">Target Pendaftar (Baru &amp; Pindahan)</h3>
+<p class="text-xs text-on-surface-variant mb-2">Target: 225 Siswa</p>
+<div class="h-36 flex items-center justify-center relative">
+<canvas id="targetChart"></canvas>
+<div class="absolute flex flex-col items-center justify-center" id="targetText">
+<span class="text-3xl sm:text-4xl font-black text-primary">0%</span>
+<span class="text-sm font-semibold text-on-surface-variant">0</span>
+</div>
+</div>
+</div>
+<!-- Card: Siswa Lanjutan -->
+<div class="bg-surface-container-lowest p-4 md:p-6 rounded-xl border border-outline-variant shadow-sm flex flex-col justify-center items-center text-center">
+<h3 class="text-base font-bold text-on-surface mb-4">Konfirmasi Siswa Lanjutan</h3>
+<p class="text-4xl sm:text-5xl font-black text-primary" id="persenLanjutan">0<span class="text-3xl">%</span></p>
+<p class="text-sm text-on-surface-variant mt-2" id="jumlahLanjutan">0 dari 0 siswa</p>
+</div>
+<!-- Card: Jumlah Booking -->
+<div class="bg-surface-container-lowest p-4 md:p-6 rounded-xl border border-outline-variant shadow-sm flex flex-col justify-center items-center text-center">
+<h3 class="text-base font-bold text-on-surface mb-4">Jumlah Booking Fee</h3>
+<p class="text-4xl sm:text-5xl font-black text-secondary" id="jumlahBooking">0</p>
+<p class="text-sm text-on-surface-variant mt-2">Total pendaftar yang sudah booking</p>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+<div class="bg-surface-container-lowest p-4 md:p-6 rounded-xl border border-outline-variant shadow-sm">
+<h3 class="text-base font-bold text-on-surface mb-4">Pendaftar per Jenjang</h3>
+<div class="h-64 flex items-center justify-center">
+<canvas id="jenjangChart"></canvas>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-4 md:p-6 rounded-xl border border-outline-variant shadow-sm">
+<h3 class="text-base font-bold text-on-surface mb-4">Pendaftar per Kategori</h3>
+<div class="h-64 flex items-center justify-center">
+<canvas id="kategoriChart"></canvas>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-4 md:p-6 rounded-xl border border-outline-variant shadow-sm col-span-1 lg:col-span-2 mt-8">
+<h3 class="text-base font-bold text-on-surface mb-4">Status Siswa Lanjutan</h3>
+<div class="h-72 flex items-center justify-center">
+<canvas id="statusLanjutanChart"></canvas>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+<div class="bg-surface-container-lowest p-4 md:p-6 rounded-xl border border-outline-variant shadow-sm">
+<h3 class="text-base font-bold text-on-surface mb-4">Distribusi Pendaftaran per Bulan</h3>
+<div class="h-72 flex items-center justify-center">
+<canvas id="timeDistributionChart"></canvas>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-4 md:p-6 rounded-xl border border-outline-variant shadow-sm">
+<h3 class="text-base font-bold text-on-surface mb-4">Distribusi Booking per Bulan</h3>
+<div class="h-72 flex items-center justify-center">
+<canvas id="bookingTimeChart"></canvas>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- SETTINGS TAB CONTENT -->
+<div class="hidden animate-in fade-in slide-in-from-bottom-4 duration-300" id="tabSettings">
+<div class="bg-surface-container-lowest p-4 md:p-8 rounded-xl border border-outline-variant shadow-sm max-w-2xl mx-auto">
+<div class="flex items-center gap-3 mb-6 border-b border-outline-variant pb-4">
+<span class="material-symbols-outlined text-primary">settings</span>
+<h2 class="text-lg font-bold text-on-surface">Pengaturan Notifikasi</h2>
+</div>
+<div class="space-y-5">
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Daftar Email Penerima Notifikasi</label>
+<p class="text-xs text-on-surface-variant mb-2">Masukkan satu atau lebih alamat email, pisahkan dengan koma (,). Email akan dikirim untuk pendaftaran baru, pindahan, dan pengunduran diri.</p>
+<textarea class="w-full px-4 py-2.5 rounded-lg border border-outline-variant" id="notificationEmails" placeholder="admin1@email.com, manajer@email.com" rows="2"></textarea>
+</div>
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Daftar No. WhatsApp Penerima Notifikasi</label>
+<p class="text-xs text-on-surface-variant mb-2">Gunakan format internasional (cth: 628123456789), pisahkan dengan koma (,).</p>
+<textarea class="w-full px-4 py-2.5 rounded-lg border border-outline-variant" id="notificationWhatsapps" placeholder="6281234567890, 6289876543210" rows="2"></textarea>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">WhatsApp API Key</label>
+<div class="relative">
+<input class="w-full px-4 py-2.5 rounded-lg border border-outline-variant pr-10" id="whatsappApiKey" placeholder="Token atau API Key Anda" type="password">
+<button class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-on-surface-variant" onclick="togglePasswordVisibility('whatsappApiKey')" type="button">
+<span class="material-symbols-outlined text-base" id="whatsappApiKeyIcon">visibility_off</span>
+</button>
+</div>
+</div>
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">WhatsApp Instance ID</label>
+<input class="w-full px-4 py-2.5 rounded-lg border border-outline-variant" id="whatsappInstanceId" placeholder="ID Instance/Device Anda" type="text">
+</div>
+</div>
+<div class="flex justify-end mt-4">
+<button class="px-8 py-3 bg-primary text-white font-bold rounded-lg shadow-lg hover:bg-primary-container hover:text-on-primary-container transition-all flex items-center justify-center gap-2" onclick="saveSettings()" type="button">
+<span class="material-symbols-outlined">save</span>
+                Simpan Pengaturan
+              </button>
+</div>
+</div>
+    <div class="bg-surface-container-lowest p-4 md:p-8 rounded-xl border border-outline-variant shadow-sm max-w-2xl mx-auto mt-8">
+        <div class="flex items-center gap-3 mb-6 border-b border-outline-variant pb-4">
+            <span class="material-symbols-outlined text-warning">database</span>
+            <h2 class="text-lg font-bold text-on-surface">Sinkronisasi Data Lama</h2>
+        </div>
+        <div class="space-y-5">
+            <p class="text-sm text-on-surface-variant">
+                Gunakan tombol ini untuk menyalin semua data historis dari Google Sheets ke database Firebase. Proses ini hanya perlu dijalankan <strong>satu kali</strong>. Ini mungkin memakan waktu beberapa menit tergantung pada jumlah data.
+            </p>
+            <p class="text-sm font-bold text-error">
+                PENTING: Pastikan tidak ada yang menginput data baru saat proses ini berjalan untuk menghindari konflik.
+            </p>
+            <div class="flex justify-end mt-4">
+                <button class="px-8 py-3 bg-warning text-on-warning font-bold rounded-lg shadow-lg hover:opacity-90 transition-all flex items-center justify-center gap-2" onclick="startMigration()" type="button">
+                    <span class="material-symbols-outlined">sync</span>
+                    Mulai Migrasi ke Firebase
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="bg-surface-container-lowest p-4 md:p-8 rounded-xl border border-outline-variant shadow-sm max-w-2xl mx-auto mt-8">
+        <div class="flex items-center gap-3 mb-6 border-b border-outline-variant pb-4">
+            <span class="material-symbols-outlined text-primary">upload</span>
+            <h2 class="text-lg font-bold text-on-surface">Upload Data Massal</h2>
+        </div>
+        <div class="space-y-5">
+            <p class="text-sm text-on-surface-variant">
+                Gunakan tombol ini untuk meng-upload semua data dari sheet <strong>Siswa_Lanjutan</strong> ke database Firebase. Ini akan menimpa data yang ada dan memastikan daftar siswa untuk form "Continuing Students" selalu ter-update.
+            </p>
+            <div class="flex justify-end mt-4">
+                <button class="px-8 py-3 bg-primary text-white font-bold rounded-lg shadow-lg hover:opacity-90 transition-all flex items-center justify-center gap-2" onclick="startBulkUploadSiswaLanjutan()" type="button">
+                    <span class="material-symbols-outlined">cloud_upload</span>
+                    Upload Data Siswa Lanjutan
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="bg-surface-container-lowest p-4 md:p-8 rounded-xl border border-outline-variant shadow-sm max-w-2xl mx-auto mt-8">
+        <div class="flex items-center gap-3 mb-6 border-b border-outline-variant pb-4">
+            <span class="material-symbols-outlined text-secondary">search_check</span>
+            <h2 class="text-lg font-bold text-on-surface">Perbaikan Pencarian Nama</h2>
+        </div>
+        <div class="space-y-5">
+            <p class="text-sm text-on-surface-variant">
+                Jika pencarian nama untuk data lama tidak berfungsi, jalankan proses update di bawah ini. Lakukan <strong>satu per satu</strong> untuk menghindari waktu proses yang terlalu lama.
+            </p>
+            <div class="space-y-4 pt-4 border-t border-outline-variant">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div>
+                        <h3 class="font-semibold text-on-surface">1. Update Data Pendaftar Baru & Pindahan</h3>
+                        <p class="text-xs text-on-surface-variant">Menambahkan field pencarian untuk koleksi 'pendaftaran'.</p>
+                    </div>
+                    <button class="px-6 py-2.5 bg-secondary text-white font-bold rounded-lg shadow-md hover:opacity-90 transition-all flex items-center justify-center gap-2" onclick="runSearchUpdate('pendaftaran')" type="button">
+                        <span class="material-symbols-outlined">sync_saved_locally</span>
+                        Jalankan Update
+                    </button>
+                </div>
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div>
+                        <h3 class="font-semibold text-on-surface">2. Update Data Siswa Lanjutan</h3>
+                        <p class="text-xs text-on-surface-variant">Menambahkan field pencarian untuk koleksi 'siswaLanjutan'.</p>
+                    </div>
+                    <button class="px-6 py-2.5 bg-secondary text-white font-bold rounded-lg shadow-md hover:opacity-90 transition-all flex items-center justify-center gap-2" onclick="runSearchUpdate('siswaLanjutan')" type="button">
+                        <span class="material-symbols-outlined">sync_saved_locally</span>
+                        Jalankan Update
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<div class="hidden animate-in fade-in slide-in-from-bottom-4 duration-300" id="tabRekap">
+<div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
+<div class="flex-1">
+<h2 class="text-lg md:text-xl font-bold text-on-surface">Data Rekapitulasi</h2>
+<p class="text-sm text-on-surface-variant">Laporan pendaftaran dan status pembayaran terkini.</p>
+</div>
+<div class="flex flex-wrap justify-end gap-2 sm:gap-4">
+<select class="w-full sm:w-48 px-4 py-2.5 rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-transparent bg-surface-container-lowest" id="rekapFilterJenjang" onchange="applyRekapFilter()">
+<option value="Semua">Semua Jenjang</option>
+<option value="TK">TK</option>
+<option value="SD">SD</option>
+<option value="SMP">SMP</option>
+<option value="SMA">SMA</option>
+          </select>
+<button class="w-full sm:w-auto flex items-center gap-2 bg-tertiary text-on-tertiary font-semibold py-2.5 px-5 rounded-lg hover:opacity-90 shadow-sm" onclick="getRekapData()">
+<span class="material-symbols-outlined text-sm">refresh</span>
+            Muat Ulang
+          </button>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="bg-surface-container border-b border-outline-variant">
+<th class="px-2 py-2 md:px-6 md:py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Nama Siswa</th>
+<th class="px-2 py-2 md:px-6 md:py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Jenjang</th>
+<th class="px-2 py-2 md:px-6 md:py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-center">Booking</th>
+<th class="px-2 py-2 md:px-6 md:py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-right">Total Bayar</th>
+<th class="px-2 py-2 md:px-6 md:py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-right">Persentase</th>
+<th class="px-2 py-2 md:px-6 md:py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-right">Sisa Bayar</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant" id="rekapTableBody">
+<tr>
+<td class="px-4 py-10 md:px-6 md:py-12 text-center text-on-surface-variant" colspan="6">
+<div class="flex flex-col items-center gap-2">
+<span class="material-symbols-outlined text-4xl opacity-20">inventory_2</span>
+<p class="">Klik "Muat Ulang" untuk menampilkan data.</p>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- CONTINUING STUDENTS RECAP TAB CONTENT -->
+<div class="hidden animate-in fade-in slide-in-from-bottom-4 duration-300" id="tabLanjutanRekap">
+<div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
+<div class="flex-1">
+<h2 class="text-lg md:text-xl font-bold text-on-surface">Rekap Status Siswa Lanjutan</h2>
+<p class="text-sm text-on-surface-variant">Laporan status kelanjutan siswa.</p>
+</div>
+<div class="flex flex-col sm:flex-row sm:flex-wrap sm:justify-end gap-2 sm:gap-4">
+<select class="w-full sm:w-48 px-4 py-2.5 rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-transparent bg-surface-container-lowest" id="lanjutanRekapFilterStatus" onchange="applyLanjutanRekapFilter()">
+<option value="Semua">Semua Status</option>
+<option value="Lanjut">Lanjut</option>
+<option value="Ragu-ragu">Ragu-ragu</option>
+<option value="Tidak Lanjut">Tidak Lanjut</option>
+<option value="Belum Konfirmasi">Belum Konfirmasi</option>
+</select>
+<select class="w-full sm:w-48 px-4 py-2.5 rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-transparent bg-surface-container-lowest" id="lanjutanRekapFilterKelasAsal" onchange="applyLanjutanRekapFilter()">
+<option value="Semua">Semua Jenjang Asal</option>
+<option value="TK">TK</option>
+<option value="SD">SD</option>
+<option value="SMP">SMP</option>
+</select>
+<button class="w-full sm:w-auto flex items-center gap-2 bg-tertiary text-on-tertiary font-semibold py-2.5 px-5 rounded-lg hover:opacity-90 shadow-sm" onclick="getLanjutanRekapData()">
+<span class="material-symbols-outlined text-sm">refresh</span>
+            Muat Ulang
+          </button>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="bg-surface-container border-b border-outline-variant">
+<th class="px-2 py-2 md:px-6 md:py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Nama Siswa</th>
+<th class="px-2 py-2 md:px-6 md:py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Kelas Asal</th>
+<th class="px-2 py-2 md:px-6 md:py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Status</th>
+<th class="px-2 py-2 md:px-6 md:py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-right">Total Bayar</th>
+<th class="px-2 py-2 md:px-6 md:py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-right">Persentase</th>
+<th class="px-2 py-2 md:px-6 md:py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-right">Sisa Bayar</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant" id="lanjutanRekapTableBody">
+<tr>
+<td class="px-4 py-10 md:px-6 md:py-12 text-center text-on-surface-variant" colspan="6">
+<div class="flex flex-col items-center gap-2">
+<span class="material-symbols-outlined text-4xl opacity-20">inventory_2</span>
+<p class="">Klik "Muat Ulang" untuk menampilkan data.</p>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- LANJUTAN TAB CONTENT -->
+<div class="hidden animate-in fade-in slide-in-from-bottom-4 duration-300" id="tabLanjutan">
+<form class="space-y-6" id="lanjutanForm" onsubmit="submitLanjutanForm(event)">
+<!-- Card: Informasi Siswa Lanjutan -->
+<div class="bg-surface-container-lowest p-4 md:p-6 rounded-xl border border-outline-variant shadow-sm">
+<div class="flex items-center gap-3 mb-6 border-b border-outline-variant pb-4">
+<span class="material-symbols-outlined text-primary">escalator_warning</span>
+<h2 class="text-lg font-bold text-on-surface">Informasi Siswa Lanjutan</h2>
+</div>
+<div class="space-y-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Jenjang Asal Siswa <span class="text-error">*</span></label>
+<select class="w-full px-4 py-2.5 rounded-lg border border-outline-variant" id="lanjutan_kelasAsal" name="lanjutan_kelasAsal" onchange="handleLanjutanKelasAsalChange()" required="">
+<option value="">-- Pilih Jenjang Asal --</option>
+<option value="TK">Early Years (TK) → Primary</option>
+<option value="SD">Primary (SD) → Secondary</option>
+<option value="SMP">Secondary (SMP) → Secondary</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Nama Siswa <span class="text-error">*</span></label>
+<select class="w-full px-4 py-2.5 rounded-lg border border-outline-variant" id="lanjutan_nama" name="lanjutan_nama" required="">
+<option value="">-- Pilih Jenjang Asal dulu --</option>
+</select>
+</div>
+</div>
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Kategori Siswa <span class="text-error">*</span></label>
+<select class="w-full px-4 py-2.5 rounded-lg border border-outline-variant" id="lanjutan_kategoriSiswa" name="lanjutan_kategoriSiswa" required="">
+<option value="Reguler">Reguler</option>
+<option value="SEN">SEN</option>
+</select>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Konfirmasi Kelanjutan <span class="text-error">*</span></label>
+<select class="w-full px-4 py-2.5 rounded-lg border border-outline-variant" id="lanjutan_konfirmasi" name="lanjutan_konfirmasi" required="">
+<option value="Belum">Belum</option>
+<option value="Sudah">Sudah</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Status Kelanjutan <span class="text-error">*</span></label>
+<select class="w-full px-4 py-2.5 rounded-lg border border-outline-variant" id="lanjutan_status" name="lanjutan_status" onchange="handleStatusLanjutanChange()" required="">
+<option value="">-- Pilih Status --</option>
+<option value="Lanjut">Lanjut</option>
+<option value="Ragu-ragu">Ragu-ragu</option>
+<option value="Tidak Lanjut">Tidak Lanjut</option>
+</select>
+</div>
+</div>
+<div class="hidden" id="lanjutan_alasanDiv">
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Alasan Ragu-ragu / Tidak Lanjut <span class="text-error">*</span></label>
+<textarea class="w-full px-4 py-2.5 rounded-lg border border-outline-variant" id="lanjutan_alasan" name="lanjutan_alasan" rows="3"></textarea>
+</div>
+</div>
+</div>
+<!-- Container for Admin and Payment -->
+<div class="hidden space-y-6" id="lanjutan_adminPembayaran">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
+<!-- Card: Administrasi -->
+<div class="bg-surface-container-lowest p-4 md:p-6 rounded-xl border border-outline-variant shadow-sm h-full">
+<div class="flex items-center gap-3 mb-6 border-b border-outline-variant pb-4">
+<span class="material-symbols-outlined text-primary">assignment</span>
+<h2 class="text-lg font-bold text-on-surface">Administrasi &amp; Booking</h2>
+</div> 
+<div class="space-y-5">
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">No Formulir</label>
+<input class="w-full px-4 py-2.5 rounded-lg border border-outline-variant" id="lanjutan_noFormulir" name="lanjutan_noFormulir" type="text">
+</div>
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Tgl Formulir</label>
+<input class="w-full px-4 py-2.5 rounded-lg border border-outline-variant" id="lanjutan_tglFormulir" name="lanjutan_tglFormulir" type="date">
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Status Booking <span class="text-error">*</span></label>
+<select class="w-full px-4 py-2.5 rounded-lg border border-outline-variant" id="lanjutan_statusBooking" name="lanjutan_statusBooking" onchange="toggleLanjutanBookingDate()">
+<option value="Tidak">Tidak</option>
+<option value="Ya">Ya</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Tgl Booking</label>
+<input class="w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface-container opacity-50 cursor-not-allowed" disabled="" id="lanjutan_tglBooking" name="lanjutan_tglBooking" type="date">
+</div>
+</div>
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Metode Bayar SSP <span class="text-error">*</span></label>
+<select class="w-full px-4 py-2.5 rounded-lg border border-outline-variant" id="lanjutan_metodeBayar" name="lanjutan_metodeBayar" onchange="toggleLanjutanTerminFields()">
+<option value="">Pilih Metode</option>
+<option value="Lunas Transfer">Lunas (Transfer)</option>
+<option value="Lunas Kartu Kredit">Lunas (Kartu Kredit)</option>
+<option value="Termin">Termin (Cicilan)</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Periode SSP (Tahun) <span class="text-error">*</span></label>
+<select class="w-full px-4 py-2.5 rounded-lg border border-outline-variant" id="lanjutan_periodeSSP" name="lanjutan_periodeSSP" onchange="updateLanjutanFormTariff()">
+<option value="">-- Pilih Jenjang Asal dulu --</option>
+</select>
+</div>
+</div>
+</div>
+</div>
+<!-- Section: SSP Payments -->
+<div class="bg-surface-container-lowest p-4 md:p-8 rounded-xl border border-outline-variant shadow-sm">
+<div class="flex items-center gap-3 mb-8 border-b border-outline-variant pb-4">
+<span class="material-symbols-outlined text-primary">payments</span>
+<h2 class="text-lg font-bold text-on-surface">Detail Pembayaran SSP (Uang Pangkal)</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 mb-8">
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-2">Tarif SSP Awal</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm font-semibold">Rp</span>
+<input class="w-full pl-12 pr-4 py-3 rounded-lg border border-outline-variant text-right font-semibold bg-surface-container" data-numeric-value="0" id="lanjutan_tarifSSP" name="lanjutan_tarifSSP" readonly="" type="text" value="0">
+</div>
+</div>
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-2 flex justify-between items-center">
+<span>Diskon / Beasiswa</span>
+<div class="flex items-center gap-1">
+<input class="w-16 text-xs text-right py-1 rounded border-outline-variant" id="lanjutan_diskonPersen" placeholder="%" type="number">
+<button class="text-xs bg-secondary-container text-on-secondary-container px-2 py-1 rounded-md font-semibold" onclick="applyDiscountPercentage('lanjutan')" type="button">Hitung</button>
+</div>
+</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-error text-sm font-semibold">-Rp</span>
+<input class="w-full pl-12 pr-4 py-3 rounded-lg border border-outline-variant text-right font-semibold text-error" data-numeric-value="0" id="lanjutan_diskon" name="lanjutan_diskon" oninput="handleLanjutanCurrencyInput(this)" type="text" value="0">
+</div>
+</div>
+<div class="bg-primary-container p-3 rounded-lg border border-primary-container">
+<label class="block text-xs font-bold text-primary uppercase tracking-wider mb-2">Tarif Nett Akhir</label>
+<input class="bg-transparent text-xl font-black text-primary text-right outline-none w-full pointer-events-none" id="lanjutan_tarifNett" name="lanjutan_tarifNett" readonly="" type="text" value="0">
+</div>
+</div>
+<div class="hidden" id="lanjutan_terminContainer">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+<!-- Termin 1 -->
+<div class="p-5 border border-outline-variant rounded-xl bg-surface-container">
+<div class="flex items-center gap-2 mb-4">
+<span class="w-6 h-6 rounded-full bg-white border border-outline-variant flex items-center justify-center text-[10px] font-bold text-on-surface-variant">01</span>
+<span class="text-sm font-bold">Termin 1</span>
+</div>
+<input class="w-full px-4 py-2.5 rounded-lg border border-outline-variant mb-3 text-right font-medium" data-numeric-value="0" id="lanjutan_termin1" name="lanjutan_termin1" oninput="handleLanjutanCurrencyInput(this)" type="text" value="0">
+<label class="block text-[10px] uppercase font-bold text-outline mb-1">Tanggal Bayar</label>
+<input class="w-full px-3 py-1.5 text-xs rounded border border-outline-variant bg-white" id="lanjutan_tglT1" name="lanjutan_tglT1" type="date">
+</div>
+<!-- Termin 2 -->
+<div class="p-5 border border-outline-variant rounded-xl bg-surface-container">
+<div class="flex items-center gap-2 mb-4">
+<span class="w-6 h-6 rounded-full bg-white border border-outline-variant flex items-center justify-center text-[10px] font-bold text-on-surface-variant">02</span>
+<span class="text-sm font-bold">Termin 2</span>
+</div>
+<input class="w-full px-4 py-2.5 rounded-lg border border-outline-variant mb-3 text-right font-medium" data-numeric-value="0" id="lanjutan_termin2" name="lanjutan_termin2" oninput="handleLanjutanCurrencyInput(this)" type="text" value="0">
+<label class="block text-[10px] uppercase font-bold text-outline mb-1">Tanggal Bayar</label>
+<input class="w-full px-3 py-1.5 text-xs rounded border border-outline-variant bg-white" id="lanjutan_tglT2" name="lanjutan_tglT2" type="date">
+</div>
+<!-- Termin 3 -->
+<div class="p-5 border border-outline-variant rounded-xl bg-surface-container">
+<div class="flex items-center gap-2 mb-4">
+<span class="w-6 h-6 rounded-full bg-white border border-outline-variant flex items-center justify-center text-[10px] font-bold text-on-surface-variant">03</span>
+<span class="text-sm font-bold">Termin 3</span>
+</div>
+<input class="w-full px-4 py-2.5 rounded-lg border border-outline-variant mb-3 text-right font-medium" data-numeric-value="0" id="lanjutan_termin3" name="lanjutan_termin3" oninput="handleLanjutanCurrencyInput(this)" type="text" value="0">
+<label class="block text-[10px] uppercase font-bold text-outline mb-1">Tanggal Bayar</label>
+<input class="w-full px-3 py-1.5 text-xs rounded border border-outline-variant bg-white" id="lanjutan_tglT3" name="lanjutan_tglT3" type="date">
+</div>
+</div>
+</div>
+<!-- Payment Summary Footer for Lanjutan -->
+<div class="mt-8 flex flex-col md:flex-row justify-between items-center gap-6 p-4 md:p-6 bg-tertiary-container rounded-xl border-2 border-dashed border-tertiary">
+<div class="flex w-full justify-around md:justify-start gap-4 sm:gap-12">
+<div>
+<span class="block text-xs font-bold text-on-tertiary-container uppercase tracking-wider mb-1">Total Dibayar</span>
+<div class="flex items-baseline gap-1">
+<span class="text-sm font-bold text-tertiary">Rp</span>
+<input class="bg-transparent border-none outline-none w-32 sm:w-40 text-xl md:text-2xl font-black text-tertiary pointer-events-none" id="lanjutan_totalBayarTampil" readonly="" type="text" value="0">
+</div>
+</div>
+<div>
+<span class="block text-xs font-bold text-on-tertiary-container uppercase tracking-wider mb-1">Persentase</span>
+<div class="flex items-baseline gap-1">
+<input class="bg-transparent border-none outline-none w-20 text-xl md:text-2xl font-black text-tertiary text-right pointer-events-none" id="lanjutan_persentaseTampil" readonly="" type="text" value="0">
+<span class="text-sm font-bold text-tertiary">%</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Submit Button for Lanjutan Form -->
+<div class="flex flex-col-reverse sm:flex-row justify-end gap-4">
+<button class="w-full sm:w-auto px-6 py-3 border border-outline text-on-surface font-semibold rounded-lg hover:bg-surface-container transition-all" onclick="resetLanjutanForm()" type="button">
+            Reset Form
+          </button>
+<button class="w-full sm:w-auto px-8 py-3 bg-primary text-white font-bold rounded-lg shadow-lg hover:opacity-90 transition-all flex items-center justify-center gap-2" id="btnSubmitLanjutan" type="submit">
+<span class="material-symbols-outlined">save</span>
+            Simpan Status
+          </button>
+</div>
+</form>
+</div>
+<!-- UPDATE SEARCH BOX (now part of the tab) -->
+<div class="hidden mb-8 animate-in fade-in slide-in-from-bottom-2 duration-300" id="tabUpdate">
+<div class="bg-primary-container p-4 md:p-6 rounded-xl border border-primary-container flex flex-col md:flex-row gap-4 items-end">
+<div class="flex-1 w-full">
+<label class="block text-sm font-semibold text-primary mb-2">Pencarian Data</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-outline-variant focus:outline-none focus:ring-2 focus:ring-primary" id="searchId" placeholder="Masukkan ID Pendaftaran atau Nama Siswa" type="text">
+</div>
+</div>
+<button class="w-full md:w-auto bg-primary hover:bg-primary-container hover:text-on-primary-container text-white font-bold py-2.5 px-8 rounded-lg transition-all shadow-md flex items-center justify-center gap-2" onclick="cariDataGAS()">
+<span class="material-symbols-outlined text-[18px]">search</span>
+            Cari Data
+          </button>
+</div>
+<input id="rowIndex" type="hidden">
+<input id="idPendaftaranUpdate" type="hidden">
+</div>
+<!-- MAIN FORM -->
+<form class="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 hidden" id="mainForm" onsubmit="submitForm(event)">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
+<!-- Card: Informasi Murid -->
+<div class="bg-surface-container-lowest p-4 md:p-6 rounded-xl border border-outline-variant shadow-sm h-full">
+<div class="flex items-center gap-3 mb-6 border-b border-outline-variant pb-4">
+<span class="material-symbols-outlined text-primary">person</span>
+<h2 class="text-lg font-bold text-on-surface">Informasi Murid</h2>
+</div>
+<div class="space-y-6">
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Kategori Pendaftaran <span class="text-error">*</span></label>
+<select class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-transparent" id="kategori" name="kategori" onchange="updateMainFormTariff()" required="">
+<option value="">-- Pilih Kategori --</option>
+<option value="Baru 2027/2028">Baru (2027/2028)</option>
+<option value="Pindahan 2026/2027">Pindahan (2026/2027)</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Nama Lengkap Siswa <span class="text-error">*</span></label>
+<input class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-transparent" id="nama" name="nama" required="" type="text">
+</div>
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Kategori Siswa <span class="text-error">*</span></label>
+<select class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-transparent" id="kategoriSiswa" name="kategoriSiswa" required="">
+<option value="Reguler">Reguler</option>
+<option value="SEN">SEN</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Punya Saudara (Sibling)</label>
+<select class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-transparent" id="punyaSibling" name="punyaSibling" onchange="toggleSiblingFields()">
+<option value="Tidak">Tidak</option>
+<option value="Ya">Ya</option>
+</select>
+</div>
+<div class="hidden space-y-6" id="siblingInfoContainer">
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Nama Sibling <span class="text-error">*</span></label>
+<input class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-transparent" id="namaSibling" name="namaSibling" type="text">
+</div>
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Kelas Sibling <span class="text-error">*</span></label>
+<input class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-transparent" id="kelasSibling" name="kelasSibling" type="text">
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Jenjang <span class="text-error">*</span></label>
+<select class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-transparent" id="jenjang" name="jenjang" onchange="handleJenjangChange()" required="">
+<option value="">Pilih Jenjang</option>
+<option value="TK">Early Years (TK)</option>
+<option value="SD">Primary (SD)</option>
+<option value="SMP">Secondary (SMP)</option>
+<option value="SMA">Secondary (SMA)</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Kelas <span class="text-error">*</span></label>
+<select class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-transparent" id="kelas" name="kelas" onchange="handleKelasChange()" required="" disabled="">
+<option value="">-- Pilih Jenjang Dahulu --</option>
+</select></div>
+</div>
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Periode SSP (Tahun) <span class="text-error">*</span></label>
+<select class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-transparent" id="periodeSSP" name="periodeSSP" onchange="updateMainFormTariff()" required="">
+<option value="">Pilih Periode</option>
+<option value="1">1 Tahun</option>
+<option value="2">2 Tahun</option>
+<option value="3">3 Tahun</option>
+<option value="4">4 Tahun</option>
+<option value="5">5 Tahun</option>
+<option value="6">6 Tahun</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Asal Sekolah</label>
+<input class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-transparent" id="asalSekolah" name="asalSekolah" type="text">
+</div>
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Sumber Informasi</label>
+<select class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-transparent" id="asalInfo" name="asalInfo">
+<option value="">Pilih Sumber</option>
+<option value="Brosur">Brosur / Spanduk</option>
+<option value="Instagram/Medsos">Instagram / Medsos</option>
+<option value="Website">Website</option>
+<option value="Rekomendasi">Rekomendasi / Mulut ke Mulut</option>
+<option value="Lainnya">Lainnya</option>
+</select>
+</div>
+</div>
+</div>
+<!-- Card: Administrasi -->
+<div class="bg-surface-container-lowest p-4 md:p-6 rounded-xl border border-outline-variant shadow-sm h-full">
+<div class="flex items-center gap-3 mb-6 border-b border-outline-variant pb-4">
+<span class="material-symbols-outlined text-primary">assignment</span>
+<h2 class="text-lg font-bold text-on-surface">Administrasi &amp; Booking</h2>
+</div>
+<div class="space-y-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">No Formulir</label>
+<input class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-transparent" id="noFormulir" name="noFormulir" type="text">
+</div>
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Tgl Formulir</label>
+<input class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-transparent" id="tglFormulir" name="tglFormulir" type="date">
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Status Booking <span class="text-error">*</span></label>
+<select class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-transparent" id="statusBooking" name="statusBooking" onchange="toggleBookingDate()" required="">
+<option value="Tidak">Tidak</option>
+<option value="Ya">Ya</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Tgl Booking</label>
+<input class="w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface-container opacity-50 cursor-not-allowed" disabled="" id="tglBooking" name="tglBooking" type="date">
+</div>
+</div>
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Metode Bayar SSP <span class="text-error">*</span></label>
+<select class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-transparent" id="metodeBayar" name="metodeBayar" onchange="toggleTerminFields()" required="">
+<option value="">Pilih Metode</option>
+<option value="Lunas Transfer">Lunas (Transfer)</option>
+<option value="Lunas Kartu Kredit">Lunas (Kartu Kredit)</option>
+<option value="Termin">Termin (Cicilan)</option>
+            </select>
+        </div>
+        <!-- NEW FIELD: Status Pendaftaran -->
+        <div>
+            <label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Status Pendaftaran <span class="text-error">*</span></label>
+            <select class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-transparent" id="statusPendaftaran" name="statusPendaftaran" required="">
+                <option value="Aktif">Aktif</option>
+                <option value="Mengundurkan Diri">Mengundurkan Diri</option>
+</select>
+</div>
+<div class="hidden" id="keteranganUpdateDiv">
+<label class="block text-sm font-bold text-secondary mb-1.5 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">history_edu</span>
+                  Catatan Perubahan (Log) <span class="text-error">*</span>
+</label>
+<textarea class="w-full px-4 py-2.5 rounded-lg border-2 border-secondary/30 focus:ring-2 focus:ring-secondary focus:border-transparent" id="keteranganUpdate" name="keteranganUpdate" placeholder="Alasan update, cth: Pelunasan cicilan termin 2..." rows="2"></textarea>
+</div>
+</div>
+</div>
+</div>
+<!-- Section: SSP Payments -->
+<div class="bg-surface-container-lowest p-4 md:p-8 rounded-xl border border-outline-variant shadow-sm">
+<div class="flex items-center gap-3 mb-8 border-b border-outline-variant pb-4">
+<span class="material-symbols-outlined text-primary">payments</span>
+<h2 class="text-lg font-bold text-on-surface">Detail Pembayaran SSP (Uang Pangkal)</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 mb-8">
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-2">Tarif SSP Awal</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm font-semibold">Rp</span>
+<input class="w-full pl-12 pr-4 py-3 rounded-lg border border-outline-variant text-right font-semibold bg-surface-container" data-numeric-value="0" id="tarifSSP" name="tarifSSP" readonly="" type="text" value="0">
+</div>
+</div>
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-2 flex justify-between items-center">
+<span>Diskon / Beasiswa</span>
+<div class="flex items-center gap-1">
+<input class="w-16 text-xs text-right py-1 rounded border-outline-variant" id="diskonPersen" placeholder="%" type="number">
+<button class="text-xs bg-secondary-container text-on-secondary-container px-2 py-1 rounded-md font-semibold" onclick="applyDiscountPercentage('main')" type="button">Hitung</button>
+</div>
+</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-error text-sm font-semibold">-Rp</span>
+<input class="w-full pl-12 pr-4 py-3 rounded-lg border border-outline-variant text-right font-semibold text-error" id="diskon" name="diskon" oninput="handleCurrencyInput(this)" type="text" value="0" data-numeric-value="0">
+</div>
+</div>
+<div class="bg-primary-container p-3 rounded-lg border border-primary-container">
+<label class="block text-xs font-bold text-primary uppercase tracking-wider mb-2">Tarif Nett Akhir</label>
+<div class="flex items-center justify-between">
+<span class="text-sm font-bold text-primary">Rp</span>
+<input class="bg-transparent text-xl font-black text-primary text-right outline-none w-full pointer-events-none" id="tarifNett" name="tarifNett" readonly="" type="text" value="0">
+</div>
+</div>
+</div>
+<div class="hidden" id="terminContainer">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+<!-- Termin Cards -->
+<div class="p-5 border border-outline-variant rounded-xl bg-surface-container hover:border-primary/30 transition-all">
+<div class="flex items-center gap-2 mb-4">
+<span class="w-6 h-6 rounded-full bg-white border border-outline-variant flex items-center justify-center text-[10px] font-bold text-on-surface-variant">01</span>
+<span class="text-sm font-bold">Termin 1</span>
+</div>
+<input class="w-full px-4 py-2.5 rounded-lg border border-outline-variant mb-3 text-right font-medium" id="termin1" name="termin1" oninput="handleCurrencyInput(this)" type="text" value="0" data-numeric-value="0">
+<label class="block text-[10px] uppercase font-bold text-outline mb-1">Tanggal Bayar</label>
+<input class="w-full px-3 py-1.5 text-xs rounded border border-outline-variant bg-white" id="tglT1" name="tglT1" type="date">
+</div>
+<div class="p-5 border border-outline-variant rounded-xl bg-surface-container hover:border-primary/30 transition-all">
+<div class="flex items-center gap-2 mb-4">
+<span class="w-6 h-6 rounded-full bg-white border border-outline-variant flex items-center justify-center text-[10px] font-bold text-on-surface-variant">02</span>
+<span class="text-sm font-bold">Termin 2</span>
+</div>
+<input class="w-full px-4 py-2.5 rounded-lg border border-outline-variant mb-3 text-right font-medium" id="termin2" name="termin2" oninput="handleCurrencyInput(this)" type="text" value="0" data-numeric-value="0">
+<label class="block text-[10px] uppercase font-bold text-outline mb-1">Tanggal Bayar</label>
+<input class="w-full px-3 py-1.5 text-xs rounded border border-outline-variant bg-white" id="tglT2" name="tglT2" type="date">
+</div>
+<div class="p-5 border border-outline-variant rounded-xl bg-surface-container hover:border-primary/30 transition-all">
+<div class="flex items-center gap-2 mb-4">
+<span class="w-6 h-6 rounded-full bg-white border border-outline-variant flex items-center justify-center text-[10px] font-bold text-on-surface-variant">03</span>
+<span class="text-sm font-bold">Termin 3</span>
+</div>
+<input class="w-full px-4 py-2.5 rounded-lg border border-outline-variant mb-3 text-right font-medium" id="termin3" name="termin3" oninput="handleCurrencyInput(this)" type="text" value="0" data-numeric-value="0">
+<label class="block text-[10px] uppercase font-bold text-outline mb-1">Tanggal Bayar</label>
+<input class="w-full px-3 py-1.5 text-xs rounded border border-outline-variant bg-white" id="tglT3" name="tglT3" type="date">
+</div>
+</div>
+</div>
+<!-- Payment Summary Footer -->
+<div class="mt-8 flex flex-col md:flex-row justify-between items-center gap-6 p-4 md:p-6 bg-tertiary-container rounded-xl border-2 border-dashed border-tertiary">
+<div class="flex w-full justify-around md:justify-start gap-4 sm:gap-12">
+<div>
+<span class="block text-xs font-bold text-on-tertiary-container uppercase tracking-wider mb-1">Total Dibayar</span>
+<div class="flex items-baseline gap-1">
+<span class="text-sm font-bold text-tertiary">Rp</span>
+<input class="bg-transparent border-none outline-none w-32 sm:w-40 text-xl md:text-2xl font-black text-tertiary pointer-events-none" id="totalBayarTampil" readonly="" type="text" value="0">
+</div>
+</div>
+<div>
+<span class="block text-xs font-bold text-on-tertiary-container uppercase tracking-wider mb-1">Persentase</span>
+<div class="flex items-baseline gap-1">
+<input class="bg-transparent border-none outline-none w-20 text-xl md:text-2xl font-black text-tertiary text-right pointer-events-none" id="persentaseTampil" readonly="" type="text" value="0">
+<span class="text-sm font-bold text-tertiary">%</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col-reverse sm:flex-row gap-4 w-full md:w-auto">
+<button class="w-full md:w-auto px-6 py-3 border border-outline text-on-surface font-semibold rounded-lg hover:bg-surface-container transition-all" onclick="resetFormLokal()" type="button">
+                Reset Form
+              </button>
+<button class="w-full md:w-auto px-8 py-3 bg-primary text-white font-bold rounded-lg shadow-lg hover:opacity-90 transition-all flex items-center justify-center gap-2" id="btnSubmitMain" type="submit">
+<span class="material-symbols-outlined">save</span>
+                Simpan Pendaftaran
+              </button>
+</div>
+</div>
+</div>
+</form>
+</div>
+</main>
+<!-- Bottom Navigation (Mobile) -->
+<div id="mobile-nav" class="lg:hidden sticky bottom-0 bg-surface-container-lowest border-t border-outline-variant flex justify-evenly z-50">
+<button id="mobile-btnDaftar" onclick="switchTab('tabDaftar')" class="flex-1 flex items-center justify-center py-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-2xl">person_add</span>
+</button>
+<button id="mobile-btnLanjutan" onclick="switchTab('tabLanjutan')" class="flex-1 flex items-center justify-center py-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-2xl">escalator_warning</span>
+</button>
+<button id="mobile-btnDashboard" onclick="switchTab('tabDashboard')" class="flex-1 flex items-center justify-center py-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-2xl">monitoring</span>
+</button>
+<button id="mobile-btnRekap" onclick="switchTab('tabRekap')" class="flex-1 flex items-center justify-center py-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-2xl">analytics</span>
+</button>
+<button id="mobile-btnLanjutanRekap" onclick="switchTab('tabLanjutanRekap')" class="flex-1 flex items-center justify-center py-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-2xl">list_alt</span>
+</button>
+<button id="mobile-btnUpdate" onclick="switchTab('tabUpdate')" class="flex-1 flex items-center justify-center py-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-2xl">manage_search</span>
+</button>
+</div>
+<script>
+    // ============================================================
+    // SHIM google.script.run — untuk deployment Vercel
+    // ------------------------------------------------------------
+    // Jika halaman dijalankan di Google Apps Script, blok ini TIDAK
+    // aktif (google.script.run sudah disediakan runtime GAS).
+    // Jika dijalankan di Vercel, pemanggilan google.script.run.*
+    // diteruskan ke API /api/<namaFungsi> dengan POST JSON berisi
+    // array argumen, dan respons dikirim ke withSuccessHandler /
+    // withFailureHandler seperti perilaku GAS.
+    // ============================================================
+    if (!(window.google && window.google.script && window.google.script.run)) {
+      (function () {
+        var successHandler = null;
+        var failureHandler = null;
+
+        function call(fnName, args) {
+          var onSuccess = successHandler;
+          var onFailure = failureHandler;
+          successHandler = null;
+          failureHandler = null;
+
+          fetch('/api/' + fnName, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(args)
+          })
+            .then(function (res) {
+              return res.json().catch(function () {
+                return { __error: true, message: 'Respons server tidak valid.' };
+              });
+            })
+            .then(function (data) {
+              if (data && data.__error) {
+                if (onFailure) onFailure({ message: data.message || 'Terjadi kesalahan server.' });
+                else console.error('[api/' + fnName + '] ' + (data.message || 'error'));
+              } else if (onSuccess) {
+                onSuccess(data);
+              }
+            })
+            .catch(function (err) {
+              if (onFailure) onFailure(err);
+              else console.error('[api/' + fnName + '] ' + (err && err.message ? err.message : err));
+            });
+        }
+
+        var api = {
+          withSuccessHandler: function (cb) { successHandler = cb; return api; },
+          withFailureHandler: function (cb) { failureHandler = cb; return api; }
+        };
+
+        window.google = window.google || {};
+        window.google.script = window.google.script || {};
+        window.google.script.run = new Proxy(api, {
+          get: function (target, prop) {
+            if (prop === 'withSuccessHandler' || prop === 'withFailureHandler') {
+              return target[prop];
+            }
+            return function () {
+              var args = Array.prototype.slice.call(arguments);
+              call(prop, args);
+              return target;
+            };
+          }
+        });
+      })();
+    }
+
+    let modeSaatIni = 'daftar'; 
+
+    // --- FIREBASE INITIALIZATION ---
+    // Ganti dengan konfigurasi dari proyek Firebase Anda
+ const firebaseConfig = {
+  apiKey: "AIzaSyBYL1aaL25eG6GApXSVgrnDuyaZx3ECNic",
+  authDomain: "madania-enrollment-system.firebaseapp.com",
+  projectId: "madania-enrollment-system",
+  storageBucket: "madania-enrollment-system.firebasestorage.app",
+  messagingSenderId: "243481639130",
+  appId: "1:243481639130:web:f9e1c0df503311c101cde3"
+};
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    // --- END OF FIREBASE INITIALIZATION ---
+
+    let isRekapLoading = false;
+    let rekapDataCache = [];
+    let lanjutanRekapDataCache = []; // New cache for continuing students recap
+    let targetChartInstance;
+    let timeDistributionChartInstance;
+    let bookingTimeChartInstance;
+    let jenjangChartInstance, kategoriChartInstance, statusLanjutanChartInstance;
+
+    // UI & TAB LOGIC
+    function switchTab(tabName) {
+      const btnDaftar = document.getElementById('btnDaftar');
+      const btnUpdate = document.getElementById('btnUpdate');
+      const btnLanjutan = document.getElementById('btnLanjutan');
+      const btnRekap = document.getElementById('btnRekap');
+      const btnLanjutanRekap = document.getElementById('btnLanjutanRekap');
+      const btnDashboard = document.getElementById('btnDashboard');
+      
+      const boxUpdate = document.getElementById('tabUpdate');
+      const boxRekap = document.getElementById('tabRekap');
+      const boxLanjutan = document.getElementById('tabLanjutan');
+      const mainForm = document.getElementById('mainForm');
+      const btnSubmit = document.getElementById('btnSubmitMain');
+      const currentTabLabel = document.getElementById('currentTabLabel');
+      const keteranganDiv = document.getElementById('keteranganUpdateDiv');
+      const keteranganInput = document.getElementById('keteranganUpdate'); // This might be null if not in update mode
+      const tabLanjutanRekapDiv = document.getElementById('tabLanjutanRekap');
+      const tabDashboardDiv = document.getElementById('tabDashboard');
+      const tabSettingsDiv = document.getElementById('tabSettings');
+
+      // --- Reset Styles ---
+      // Reset Desktop Sidebar Buttons
+      [btnDaftar, btnUpdate, btnRekap, btnLanjutan, btnLanjutanRekap, btnDashboard].forEach(btn => {
+        if (btn) btn.className = "nav-transition w-full flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container font-medium";
+      });
+      // Reset Mobile Bottom Navigation Buttons
+      const mobileNav = document.getElementById('mobile-nav');
+      if (mobileNav) {
+          Array.from(mobileNav.children).forEach(btn => {
+              btn.className = "flex-1 flex items-center justify-center py-3 text-on-surface-variant";
+          });
+      }
+      
+      // --- Define active classes ---
+      const activeDesktopBase = "nav-transition w-full flex items-center gap-3 px-4 py-3 rounded-lg font-semibold ";
+      const activeMobileClass = "flex-1 flex items-center justify-center py-3 text-primary font-bold";
+
+      // --- Hide all tab content divs ---
+      boxUpdate.classList.add('hidden');
+      boxRekap.classList.add('hidden');
+      boxLanjutan.classList.add('hidden');
+      tabLanjutanRekapDiv.classList.add('hidden');
+      tabDashboardDiv.classList.add('hidden');
+      tabSettingsDiv.classList.add('hidden');
+      mainForm.classList.add('hidden');
+
+      if (tabName === 'tabDaftar') {
+        modeSaatIni = 'daftar';
+        resetFormLokal();
+        btnDaftar.className = activeDesktopBase + "bg-primary-container text-on-primary-container";
+        if (document.getElementById('mobile-btnDaftar')) document.getElementById('mobile-btnDaftar').className = activeMobileClass;
+        mainForm.classList.remove('hidden');
+        keteranganDiv.classList.add('hidden');
+        keteranganInput.removeAttribute('required');
+        currentTabLabel.innerText = "New Registration";
+        btnSubmit.innerHTML = '<span class="material-symbols-outlined">save</span> Simpan Pendaftaran';
+        btnSubmit.className = "w-full md:w-auto px-8 py-3 bg-primary text-white font-bold rounded-lg shadow-lg hover:opacity-90 transition-all flex items-center justify-center gap-2";
+      } else if (tabName === 'tabUpdate') {
+        modeSaatIni = 'update';
+        resetFormLokal();
+        btnUpdate.className = activeDesktopBase + "bg-secondary-container text-on-secondary-container";
+        if (document.getElementById('mobile-btnUpdate')) document.getElementById('mobile-btnUpdate').className = activeMobileClass;
+        boxUpdate.classList.remove('hidden');
+        mainForm.classList.remove('hidden');
+        keteranganDiv.classList.remove('hidden');
+        keteranganInput.setAttribute('required', 'true');
+        currentTabLabel.innerText = "Search & Update Records";
+        btnSubmit.innerHTML = '<span class="material-symbols-outlined">edit_document</span> Simpan Perubahan';
+        btnSubmit.className = "w-full md:w-auto px-8 py-3 bg-secondary text-white font-bold rounded-lg shadow-lg hover:opacity-90 transition-all flex items-center justify-center gap-2";
+      } else if (tabName === 'tabRekap') {
+        modeSaatIni = 'rekap';
+        btnRekap.className = activeDesktopBase + "bg-tertiary-container text-on-tertiary-container";
+        if (document.getElementById('mobile-btnRekap')) document.getElementById('mobile-btnRekap').className = activeMobileClass;
+        boxRekap.classList.remove('hidden');
+        currentTabLabel.innerText = "Data Recapitulation";
+        getRekapData();
+      } else if (tabName === 'tabLanjutan') {
+        modeSaatIni = 'lanjutan';
+        resetLanjutanForm();
+        btnLanjutan.className = activeDesktopBase + "bg-secondary-container text-on-secondary-container";
+        if (document.getElementById('mobile-btnLanjutan')) document.getElementById('mobile-btnLanjutan').className = activeMobileClass;
+        boxLanjutan.classList.remove('hidden');
+        currentTabLabel.innerText = "Continuing Student Registration";
+        getSiswaLanjutanList(); // Initial load for dropdown
+      } else if (tabName === 'tabLanjutanRekap') {
+        modeSaatIni = 'lanjutanRekap';
+        btnLanjutanRekap.className = activeDesktopBase + "bg-tertiary-container text-on-tertiary-container";
+        if (document.getElementById('mobile-btnLanjutanRekap')) document.getElementById('mobile-btnLanjutanRekap').className = activeMobileClass;
+        tabLanjutanRekapDiv.classList.remove('hidden');
+        currentTabLabel.innerText = "Continuing Students Recapitulation";
+        getLanjutanRekapData();
+      } else if (tabName === 'tabDashboard') {
+        modeSaatIni = 'dashboard';
+        btnDashboard.className = activeDesktopBase + "bg-primary-container text-on-primary-container";
+        if (document.getElementById('mobile-btnDashboard')) document.getElementById('mobile-btnDashboard').className = activeMobileClass;
+        tabDashboardDiv.classList.remove('hidden');
+        currentTabLabel.innerText = "Dashboard";
+        getDashboardData();
+      } else if (tabName === 'tabSettings') {
+        modeSaatIni = 'settings';
+        tabSettingsDiv.classList.remove('hidden');
+        currentTabLabel.innerText = "Settings";
+        getSettings();
+      }
+    }
+
+    function toggleBookingDate() {
+      const status = document.getElementById('statusBooking').value;
+      const tglInput = document.getElementById('tglBooking');
+      if (status === 'Ya') {
+        tglInput.disabled = false;
+        tglInput.classList.remove('bg-surface-container', 'opacity-50', 'cursor-not-allowed');
+      } else {
+        tglInput.disabled = true;
+        tglInput.value = '';
+        tglInput.classList.add('bg-surface-container', 'opacity-50', 'cursor-not-allowed');
+      }
+    }
+
+    function toggleSiblingFields() {
+        const siblingSelect = document.getElementById('punyaSibling');
+        const siblingInfoContainer = document.getElementById('siblingInfoContainer');
+        const namaSiblingInput = document.getElementById('namaSibling');
+        const kelasSiblingInput = document.getElementById('kelasSibling');
+
+        if (siblingSelect.value === 'Ya') {
+            siblingInfoContainer.classList.remove('hidden');
+            namaSiblingInput.setAttribute('required', 'true');
+            kelasSiblingInput.setAttribute('required', 'true');
+        } else {
+            siblingInfoContainer.classList.add('hidden');
+            namaSiblingInput.removeAttribute('required');
+            kelasSiblingInput.removeAttribute('required');
+            namaSiblingInput.value = '';
+            kelasSiblingInput.value = '';
+        }
+    }
+
+    function toggleTerminFields() {
+        const metodeBayar = document.getElementById('metodeBayar').value;
+        const terminContainer = document.getElementById('terminContainer');
+        
+        if (metodeBayar === 'Termin') {
+            terminContainer.classList.remove('hidden');
+        } else {
+            terminContainer.classList.add('hidden');
+            // Reset values when hidden to avoid submitting incorrect data
+            setCurrencyValue('termin1', 0);
+            setCurrencyValue('termin2', 0);
+            setCurrencyValue('termin3', 0);
+            setValueIfExist('tglT1', '');
+            setValueIfExist('tglT2', '');
+            setValueIfExist('tglT3', '');
+        }
+        calcKeuangan(); // Recalculate total payment whenever method changes
+    }
+
+    function toggleLanjutanTerminFields() {
+        const metodeBayar = document.getElementById('lanjutan_metodeBayar').value;
+        const terminContainer = document.getElementById('lanjutan_terminContainer');
+
+        if (metodeBayar === 'Termin') {
+            terminContainer.classList.remove('hidden');
+        } else {
+            terminContainer.classList.add('hidden');
+            // Reset values when hidden
+            setCurrencyValue('lanjutan_termin1', 0);
+            setCurrencyValue('lanjutan_termin2', 0);
+            setCurrencyValue('lanjutan_termin3', 0);
+            setValueIfExist('lanjutan_tglT1', '');
+            setValueIfExist('lanjutan_tglT2', '');
+            setValueIfExist('lanjutan_tglT3', '');
+        }
+        calcLanjutanKeuangan();
+    }
+
+    function toggleLanjutanBookingDate() {
+        const status = document.getElementById('lanjutan_statusBooking').value;
+        const tglInput = document.getElementById('lanjutan_tglBooking');
+        if (status === 'Ya') {
+            tglInput.disabled = false;
+            tglInput.classList.remove('bg-surface-container', 'opacity-50', 'cursor-not-allowed');
+            tglInput.setAttribute('required', 'true');
+        } else {
+            tglInput.disabled = true;
+            tglInput.value = '';
+            tglInput.classList.add('bg-surface-container', 'opacity-50', 'cursor-not-allowed');
+            tglInput.removeAttribute('required');
+        }
+    }
+    // New helper function for currency formatting
+    function formatRupiahInput(inputElement, numericValue) {
+        if (isNaN(numericValue)) {
+            inputElement.value = '';
+            inputElement.dataset.numericValue = '0';
+            return;
+        }
+        const formatted = new Intl.NumberFormat('id-ID', {
+            style: 'decimal', // Use decimal style for input, without currency symbol
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(numericValue);
+        inputElement.value = formatted;
+        inputElement.dataset.numericValue = numericValue.toString();
+    }
+
+    // New handler for currency input fields
+    function handleCurrencyInput(inputElement) {
+        let rawValue = inputElement.value;
+        // Remove all non-digit characters
+        let numericValue = parseFloat(rawValue.replace(/[^0-9]/g, '')) || 0;
+        formatRupiahInput(inputElement, numericValue);
+        calcKeuangan();
+    }
+    
+    function handleLanjutanCurrencyInput(inputElement) {
+        let rawValue = inputElement.value;
+        // Remove all non-digit characters
+        let numericValue = parseFloat(rawValue.replace(/[^0-9]/g, '')) || 0;
+        formatRupiahInput(inputElement, numericValue);
+        calcLanjutanKeuangan();
+    }
+
+    function calcKeuangan() {
+      // Mengambil nilai dari data-numeric-value untuk perhitungan
+      const getVal = (id) => parseFloat(document.getElementById(id).dataset.numericValue) || 0;
+      const tarif = getVal('tarifSSP');
+      const diskon = getVal('diskon');
+      const nett = tarif - diskon;
+      // Format tarifNett untuk tampilan
+      document.getElementById('tarifNett').value = formatRupiah(nett);
+      
+      const metodeBayar = document.getElementById('metodeBayar').value;
+      let total = 0;
+
+      if (metodeBayar === 'Termin') {
+        const t1 = getVal('termin1');
+        const t2 = getVal('termin2');
+        const t3 = getVal('termin3');
+        total = t1 + t2 + t3;
+      } else if (metodeBayar.startsWith('Lunas')) {
+        total = nett;
+      }
+      
+      let persen = 0;
+      if (nett > 0) { persen = (total / nett) * 100; }
+      
+      // formatRupiah sudah ada di kode Anda
+      document.getElementById('totalBayarTampil').value = formatRupiah(total);
+      document.getElementById('persentaseTampil').value = persen.toFixed(2);
+    }
+
+    function calcLanjutanKeuangan() {
+      const getVal = (id) => parseFloat(document.getElementById(id).dataset.numericValue) || 0;
+      const tarif = getVal('lanjutan_tarifSSP');
+      const diskon = getVal('lanjutan_diskon');
+      const nett = tarif - diskon;
+      document.getElementById('lanjutan_tarifNett').value = formatRupiah(nett);
+      
+      const metodeBayar = document.getElementById('lanjutan_metodeBayar').value;
+      let total = 0;
+
+      if (metodeBayar === 'Termin') {
+        const t1 = getVal('lanjutan_termin1');
+        const t2 = getVal('lanjutan_termin2');
+        const t3 = getVal('lanjutan_termin3');
+        total = t1 + t2 + t3;
+      } else if (metodeBayar.startsWith('Lunas')) {
+        total = nett;
+      }
+      
+      let persen = 0;
+      if (nett > 0) { persen = (total / nett) * 100; }
+      
+      document.getElementById('lanjutan_totalBayarTampil').value = formatRupiah(total);
+      document.getElementById('lanjutan_persentaseTampil').value = persen.toFixed(2);
+    }
+
+    function applyDiscountPercentage(formType) {
+        const isLanjutan = formType === 'lanjutan';
+        const prefix = isLanjutan ? 'lanjutan_' : '';
+
+        const persenInput = document.getElementById(`${prefix}diskonPersen`);
+        const tarifSSPInput = document.getElementById(`${prefix}tarifSSP`);
+        const diskonInput = document.getElementById(`${prefix}diskon`);
+
+        const persen = parseFloat(persenInput.value);
+        const tarifSSP = parseFloat(tarifSSPInput.dataset.numericValue) || 0;
+
+        if (isNaN(persen) || persen < 0 || persen > 100) {
+            showToast('Masukkan persentase diskon yang valid (0-100).', 'error');
+            return;
+        }
+
+        if (tarifSSP <= 0) {
+            showToast('Tarif SSP Awal harus lebih dari 0 untuk menghitung diskon.', 'error');
+            return;
+        }
+
+        const diskonAmount = Math.round((persen / 100) * tarifSSP);
+        formatRupiahInput(diskonInput, diskonAmount);
+        if (isLanjutan) { calcLanjutanKeuangan(); } else { calcKeuangan(); }
+        showToast(`Diskon ${persen}% (Rp ${formatRupiah(diskonAmount)}) berhasil diterapkan.`, 'success');
+    }
+
+    const TARIF_DATA = {
+        LANJUTAN: {
+          'SMP': 32300000, // Primary ke Lower Secondary, 3 tahun
+          'SMA': 32300000  // Lower Secondary ke Higher Secondary, 3 tahun
+        },
+        BARU: {
+          'Early Years': { '4': 25000000, '3': 20000000, '2': 15000000, '1': 10000000 },
+          'Primary': { '6': 51000000, '5': 42500000, '4': 34800000, '3': 27100000, '2': 19400000, '1': 15300000 },
+          'Secondary': { '6': 64500000, '5': 54900000, '4': 46100000, '3': 42600000, '2': 29200000, '1': 22600000 }
+        },
+        PAKET: {
+            'Kelas 4-9': 57750000,
+            'Kelas 5-9': 54900000,
+            'Kelas 6-9': 46100000
+        }
+    };
+
+    /**
+     * Menghitung tarif SSP di sisi klien berdasarkan input form.
+     * Logika ini mencerminkan fungsi getTarifSSP di Code.gs.
+     */
+    function getTarifSSPClient(jenjang, periode, kategori) {
+      // Prioritaskan tarif paket khusus jika periode cocok
+      if (TARIF_DATA.PAKET[periode]) {
+          return TARIF_DATA.PAKET[periode];
+      }
+
+      const isKategoriBaru = kategori && (kategori.startsWith('Baru') || kategori.startsWith('Pindahan'));
+      const isKategoriLanjutan = kategori === 'Lanjutan Internal';
+
+      if (isKategoriLanjutan) {
+        // Untuk lanjutan, tarifnya tetap dan tidak bergantung pada periode dari form
+        // Berdasarkan gambar, tidak ada tarif lanjutan khusus untuk dari TK ke SD.
+        // Fungsi ini akan mengembalikan 0 untuk kasus tersebut.
+        return TARIF_DATA.LANJUTAN[jenjang] || 0;
+      }
+
+      if (!isKategoriBaru || !jenjang || !periode) {
+          return 0;
+      }
+
+      const periodeInt = parseInt(periode);
+      if (isNaN(periodeInt)) return 0;
+
+      let tarifGroup;
+
+      switch (jenjang) {
+        case 'SD': tarifGroup = 'Primary'; break;
+        case 'SMP': tarifGroup = 'Secondary'; break;
+        case 'SMA': tarifGroup = 'Secondary'; break;
+        case 'TK': tarifGroup = 'Early Years'; break;
+        default: 
+          return 0;
+      }
+
+      const tarif = TARIF_DATA.BARU[tarifGroup] ? TARIF_DATA.BARU[tarifGroup][periodeInt.toString()] : undefined;
+      return tarif || 0;
+    }
+
+    function handleJenjangChange(kelasToSelect) {
+        const jenjang = document.getElementById('jenjang').value;
+        const kelasDropdown = document.getElementById('kelas');
+        
+        // Reset and disable kelas dropdown
+        kelasDropdown.innerHTML = '<option value="">Memuat...</option>';
+        kelasDropdown.disabled = true;
+
+        if (jenjang) {
+            // Fetch class options from server
+            google.script.run
+                .withSuccessHandler(function(kelasOptions) {
+                    kelasDropdown.innerHTML = '<option value="">-- Pilih Kelas --</option>';
+                    kelasOptions.forEach(function(kelas) {
+                        var option = document.createElement('option');
+                        option.value = kelas;
+                        option.textContent = kelas;
+                        kelasDropdown.appendChild(option);
+                    });
+                    kelasDropdown.disabled = false;
+                    if (kelasToSelect) {
+                        kelasDropdown.value = kelasToSelect;
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    kelasDropdown.innerHTML = '<option value="">Gagal memuat</option>';
+                    console.error('Error fetching kelas options: ' + error.message);
+                    showToast('Gagal memuat opsi kelas.', 'error');
+                })
+                .getKelasOptions(jenjang);
+        } else {
+            kelasDropdown.innerHTML = '<option value="">-- Pilih Jenjang Dahulu --</option>';
+            kelasDropdown.disabled = true;
+        }
+        // Update options for 'Periode SSP' dropdown
+        updatePeriodeOptions(jenjang);
+
+    }
+
+    function handleKelasChange() {
+        // Saat kelas berubah, perbarui opsi periode dan hitung ulang tarif
+        const jenjang = document.getElementById('jenjang').value;
+        updatePeriodeOptions(jenjang);
+    }
+
+    function updatePeriodeOptions(jenjang) {
+        const periodeDropdown = document.getElementById('periodeSSP');
+        const currentValue = periodeDropdown.value;
+        periodeDropdown.innerHTML = '<option value="">Pilih Periode</option>';
+
+        let maxPeriode = 0;
+        if (jenjang === 'TK') maxPeriode = 4; // Early Years: 1-4 tahun
+        else if (jenjang === 'SD' || jenjang === 'SMP') maxPeriode = 6; // Primary & Lower Secondary: 1-6 tahun
+        else if (jenjang === 'SMA') maxPeriode = 3; // Higher Secondary: 1-3 tahun
+
+        for (let i = 1; i <= maxPeriode; i++) {
+            periodeDropdown.innerHTML += `<option value="${i}">${i} Tahun</option>`;
+        }
+
+        // Tambahkan opsi paket khusus berdasarkan jenjang dan kelas
+        const kelas = document.getElementById('kelas').value;
+        if (jenjang === 'SD') {
+            if (kelas === 'G4') {
+                periodeDropdown.innerHTML += `<option value="Kelas 4-9">Paket Kelas 4-9</option>`;
+            } else if (kelas === 'G5') {
+                periodeDropdown.innerHTML += `<option value="Kelas 5-9">Paket Kelas 5-9</option>`;
+            } else if (kelas === 'G6') {
+                periodeDropdown.innerHTML += `<option value="Kelas 6-9">Paket Kelas 6-9</option>`;
+            }
+        }
+
+        // Restore previous value if it's still valid
+        if (currentValue && periodeDropdown.querySelector(`option[value="${currentValue}"]`)) {
+            periodeDropdown.value = currentValue;
+        }
+    }
+
+    function updateMainFormTariff() {
+        const kategori = document.getElementById('kategori').value;
+        const jenjang = document.getElementById('jenjang').value;
+        const periode = document.getElementById('periodeSSP').value;
+        const tarif = getTarifSSPClient(jenjang, periode, kategori);
+        setCurrencyValue('tarifSSP', tarif);
+        calcKeuangan();
+    }
+
+    function updateLanjutanFormTariff() {
+      const kelasAsal = document.getElementById('lanjutan_kelasAsal').value;
+      const periode = document.getElementById('lanjutan_periodeSSP').value;
+      if (!kelasAsal || !periode) {
+          setCurrencyValue('lanjutan_tarifSSP', 0);
+          calcLanjutanKeuangan();
+          return;
+      }
+
+      const jenjangMap = { 'TK': 'SD', 'SD': 'SMP', 'SMP': 'SMA' };
+      const jenjangTujuan = jenjangMap[kelasAsal];
+      let tarif = 0;
+
+      if (kelasAsal === 'TK') {
+          // TK -> SD. Gunakan tarif 'Baru' untuk Primary.
+          tarif = getTarifSSPClient(jenjangTujuan, periode, 'Baru 2027/2028');
+      } else if (kelasAsal === 'SD') {
+          // SD -> SMP.
+          if (periode === '3') {
+              // Gunakan tarif 'Lanjutan Internal'.
+              tarif = getTarifSSPClient(jenjangTujuan, periode, 'Lanjutan Internal');
+          } else if (periode === '6') {
+              // Gunakan tarif 'Baru' untuk Secondary.
+              tarif = getTarifSSPClient(jenjangTujuan, periode, 'Baru 2027/2028');
+          }
+      } else if (kelasAsal === 'SMP') {
+          // SMP -> SMA.
+          if (periode === '3') {
+              // Gunakan tarif 'Lanjutan Internal'.
+              tarif = getTarifSSPClient(jenjangTujuan, periode, 'Lanjutan Internal');
+          }
+      }
+
+      setCurrencyValue('lanjutan_tarifSSP', tarif);
+      calcLanjutanKeuangan();
+    }
+
+    function handleLanjutanKelasAsalChange() {
+        const kelasAsal = document.getElementById('lanjutan_kelasAsal').value;
+        getSiswaLanjutanList(); // No callback needed for standard user interaction
+        updateLanjutanPeriodeOptions(kelasAsal);
+        updateLanjutanFormTariff();
+    }
+
+
+    function formatRupiah(angka) {
+      return angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    function updateLanjutanPeriodeOptions(kelasAsal) {
+        const periodeDropdown = document.getElementById('lanjutan_periodeSSP');
+        const currentValue = periodeDropdown.value;
+        periodeDropdown.innerHTML = '<option value="">Pilih Periode</option>';
+
+        if (kelasAsal === 'TK') { // Early Years to Primary
+            // 1 s.d. 6 tahun
+            for (let i = 1; i <= 6; i++) {
+                periodeDropdown.innerHTML += `<option value="${i}">${i} Tahun</option>`;
+            }
+        } else if (kelasAsal === 'SD') { // Primary to Lower Secondary
+            // 3 tahun dan 6 tahun
+            periodeDropdown.innerHTML += `<option value="3">3 Tahun (Lanjutan)</option>`;
+            periodeDropdown.innerHTML += `<option value="6">6 Tahun</option>`;
+        } else if (kelasAsal === 'SMP') { // Lower Secondary to Higher Secondary
+            // 3 tahun
+            periodeDropdown.innerHTML += `<option value="3">3 Tahun (Lanjutan)</option>`;
+        } else {
+            periodeDropdown.innerHTML = '<option value="">-- Pilih Jenjang Asal dulu --</option>';
+        }
+
+        // Restore previous value if it's still valid
+        if (currentValue && periodeDropdown.querySelector(`option[value="${currentValue}"]`)) {
+            periodeDropdown.value = currentValue;
+        }
+    }
+
+    function submitForm(e) {
+        e.preventDefault();
+        const form = document.getElementById('mainForm');
+        const formElements = form.elements;
+        const dataObj = {};
+        for (let i = 0; i < formElements.length; i++) {
+        let item = formElements.item(i);
+        if (item.name) {
+          // Prioritaskan data-numeric-value untuk input mata uang, fallback ke value biasa untuk lainnya
+          dataObj[item.name] = item.dataset.numericValue || item.value;
+        }
+      }
+
+        showLoading(true);
+
+        // --- DATA CALCULATION ---
+        const tarifSSP = parseFloat(document.getElementById('tarifSSP').dataset.numericValue) || 0;
+        const diskon = parseFloat(document.getElementById('diskon').dataset.numericValue) || 0;
+        const tarifNett = tarifSSP - diskon;
+        dataObj.Tarif_SSP = tarifSSP;
+        dataObj.Diskon = diskon;
+        dataObj.Tarif_Nett = tarifNett;
+        dataObj.Total_Bayar = (dataObj.Metode_Bayar_SSP && dataObj.Metode_Bayar_SSP.startsWith('Lunas')) ? tarifNett : ((parseFloat(dataObj.termin1) || 0) + (parseFloat(dataObj.termin2) || 0) + (parseFloat(dataObj.termin3) || 0));
+        dataObj.Persentase_Bayar = (tarifNett > 0) ? (dataObj.Total_Bayar / tarifNett) * 100 : 0;
+        dataObj.Timestamp = firebase.firestore.FieldValue.serverTimestamp(); // Use server timestamp
+        if (dataObj.nama) {
+            dataObj.nama_lowercase = dataObj.nama.toLowerCase();
+        }
+
+        if (modeSaatIni === 'update') {
+            const docId = document.getElementById('idPendaftaranUpdate').value;
+            if (!docId) {
+                handleResponse({ success: false, message: "ID Pendaftaran tidak ditemukan untuk update." });
+                return;
+            }
+            db.collection("pendaftaran").doc(docId).update(dataObj)
+                .then(() => {
+                    google.script.run.withFailureHandler(err => console.error("Gagal backup update: " + err.message)).handleUpdateRegistration(dataObj, docId);
+                    handleResponse({ success: true, message: "Data berhasil diupdate." });
+                })
+                .catch(error => handleResponse({ success: false, message: "Gagal update ke database: " + error.message }));
+
+        } else { // Mode 'daftar'
+            dataObj.Status_Pendaftaran = "Aktif"; // Set default status for new registration
+            db.collection("pendaftaran").add(dataObj)
+                .then((docRef) => {
+                    google.script.run.withFailureHandler(err => console.error("Gagal backup: " + err.message)).handleNewRegistration(dataObj, docRef.id);
+                    handleResponse({ success: true, message: "Data berhasil disimpan dengan ID: " + docRef.id });
+                })
+                .catch(error => handleResponse({ success: false, message: "Gagal menyimpan ke database: " + error.message }));
+        }
+    }
+
+    async function cariDataGAS() {
+        const idStr = document.getElementById('searchId').value.trim();
+        if (!idStr) { showToast("Masukkan ID Pendaftaran atau Nama Siswa!", "error"); return; }
+        showLoading(true);
+        console.log(`Memulai pencarian untuk: "${idStr}"`);
+
+        try {
+            // 1. Coba cari berdasarkan ID di koleksi 'pendaftaran'
+            console.log("Langkah 1: Mencari berdasarkan ID di koleksi 'pendaftaran'...");
+            let doc = await db.collection('pendaftaran').doc(idStr).get();
+            if (doc.exists) {
+                console.log("Langkah 1: Sukses! Data ditemukan berdasarkan ID di 'pendaftaran'.");
+                handleSearchResult({ success: true, data: { ID_Pendaftaran: doc.id, ...doc.data() }, source: 'Master_Data' });
+                return;
+            }
+            console.log("Langkah 1: Tidak ditemukan.");
+
+            // 2. Jika tidak ketemu, coba cari berdasarkan Nama (case-insensitive) di 'pendaftaran'
+            const searchStrLower = idStr.toLowerCase();
+            console.log(`Langkah 2: Mencari berdasarkan nama '${searchStrLower}' di koleksi 'pendaftaran' (field: nama_lowercase)...`);
+            let querySnapshot = await db.collection('pendaftaran').where('nama_lowercase', '==', searchStrLower).limit(1).get();
+            if (!querySnapshot.empty) {
+                const doc = querySnapshot.docs[0];
+                console.log("Langkah 2: Sukses! Data ditemukan berdasarkan nama di 'pendaftaran'.");
+                handleSearchResult({ success: true, data: { ID_Pendaftaran: doc.id, ...doc.data() }, source: 'Master_Data' });
+                return;
+            }
+            console.log("Langkah 2: Tidak ditemukan.");
+
+            // 3. Coba cari berdasarkan ID di 'siswaLanjutan'
+            console.log("Langkah 3: Mencari berdasarkan ID di koleksi 'siswaLanjutan'...");
+            doc = await db.collection('siswaLanjutan').doc(idStr).get();
+            if (doc.exists) {
+                console.log("Langkah 3: Sukses! Data ditemukan berdasarkan ID di 'siswaLanjutan'.");
+                handleSearchResult({ success: true, data: { ID_Siswa: doc.id, ...doc.data() }, source: 'Status_Lanjutan' });
+                return;
+            }
+            console.log("Langkah 3: Tidak ditemukan.");
+
+            // 4. Jika tidak ketemu, coba cari berdasarkan Nama (case-insensitive) di 'siswaLanjutan'
+            console.log(`Langkah 4: Mencari berdasarkan nama '${searchStrLower}' di koleksi 'siswaLanjutan' (field: Nama_Siswa_lowercase)...`);
+            querySnapshot = await db.collection('siswaLanjutan').where('Nama_Siswa_lowercase', '==', searchStrLower).limit(1).get();
+            if (!querySnapshot.empty) {
+                const doc = querySnapshot.docs[0];
+                console.log("Langkah 4: Sukses! Data ditemukan berdasarkan nama di 'siswaLanjutan'.");
+                handleSearchResult({ success: true, data: { ID_Siswa: doc.id, ...doc.data() }, source: 'Status_Lanjutan' });
+                return;
+            }
+            console.log("Langkah 4: Tidak ditemukan.");
+
+            // Jika tidak ditemukan sama sekali
+            console.log("Semua langkah pencarian gagal. Menampilkan notifikasi 'Data tidak ditemukan'.");
+            handleSearchResult({ success: false, message: 'Data tidak ditemukan.' });
+
+        } catch (err) {
+            console.error("Terjadi error saat pencarian:", err);
+            handleResponse({ success: false, message: 'Error saat mencari data: ' + err.message });
+        }
+    }
+    
+    function populateLanjutanForm(response) {
+        showToast("Data status kelanjutan ditemukan. Mengalihkan...", "info");
+        switchTab('tabLanjutan');
+
+        setTimeout(() => {
+            const d = response.data;
+            const studentValueToSelect = `${d.ID_Siswa || d.idSiswa}|${d.Nama_Siswa || d.nama}`;
+
+            const kelasAsalDropdown = document.getElementById('lanjutan_kelasAsal');
+            const originalOnChange = kelasAsalDropdown.onchange;
+            kelasAsalDropdown.onchange = null;
+            setValueIfExist('lanjutan_kelasAsal', d.Kelas_Asal || d.kelasAsal);
+            
+            getSiswaLanjutanList(function() {
+                const namaDropdown = document.getElementById('lanjutan_nama');
+                if (!namaDropdown.querySelector(`option[value="${studentValueToSelect}"]`)) {
+                    namaDropdown.innerHTML += `<option value="${studentValueToSelect}">${d.Nama_Siswa} (Status Tersimpan)</option>`;
+                }
+                setValueIfExist('lanjutan_nama', studentValueToSelect);
+
+                // Populate the rest of the form
+                setValueIfExist('lanjutan_kategoriSiswa', d.Kategori_Siswa || d.kategoriSiswa);
+                setValueIfExist('lanjutan_konfirmasi', d.Konfirmasi_Kelanjutan || d.konfirmasi);
+                setValueIfExist('lanjutan_status', d.Status_Kelanjutan || d.status);
+                handleStatusLanjutanChange(); // This will show/hide relevant sections
+                setValueIfExist('lanjutan_alasan', d.Alasan || d.alasan);
+                
+                kelasAsalDropdown.onchange = originalOnChange;
+                showLoading(false); // Hide loading indicator from search
+            });
+        }, 200);
+    }
+
+    function handleSearchResult(response) {
+        if (!response.success) {
+            showLoading(false);
+            showToast(response.message, "error");
+            return;
+        }
+        if (response.source === 'Master_Data') {
+            populateForm(response); // This already calls showLoading(false)
+        } else if (response.source === 'Status_Lanjutan') {
+            populateLanjutanForm(response);
+        } else {
+            showLoading(false);
+            showToast("Sumber data tidak dikenal dari server.", "error");
+        }
+    }
+
+    async function getSiswaLanjutanList(callback) {
+        const kelasAsal = document.getElementById('lanjutan_kelasAsal').value;
+        const namaDropdown = document.getElementById('lanjutan_nama');
+        
+        if (!kelasAsal) {
+            namaDropdown.innerHTML = '<option value="">-- Pilih Jenjang Asal dulu --</option>';
+            if (callback) callback();
+            return;
+        }
+        
+        namaDropdown.innerHTML = '<option value="">Memuat...</option>';
+        showLoading(true);
+
+        try {
+            // Assuming 'masterSiswa' is the collection of all students
+            const snapshot = await db.collection('masterSiswa').where('Jenjang', '==', kelasAsal).get();
+            const students = snapshot.docs.map(doc => ({ id: doc.id, nama: doc.data().Nama_Siswa }));
+            // Sort students alphabetically by name
+            students.sort((a, b) => (a.nama || '').localeCompare(b.nama || ''));
+            populateSiswaLanjutanDropdown({ success: true, data: students });
+        } catch (err) {
+            handleResponse({ success: false, message: 'Gagal memuat daftar siswa: ' + err.message });
+        } finally {
+            showLoading(false);
+            if (callback) callback();
+        }
+    }
+
+    function populateSiswaLanjutanDropdown(response) {
+        const namaDropdown = document.getElementById('lanjutan_nama');
+        if (!response.success) {
+            showToast(response.message, 'error');
+            namaDropdown.innerHTML = '<option value="">-- Gagal memuat data --</option>';
+            return;
+        }
+        namaDropdown.innerHTML = '<option value="">-- Pilih Nama Siswa --</option>';
+        (response.data || []).forEach(student => {
+            namaDropdown.innerHTML += `<option value="${student.id}|${student.nama}">${student.nama}</option>`;
+        });
+    }
+
+    async function getRekapData() {
+        if (isRekapLoading) { showToast("Harap tunggu proses sebelumnya selesai.", "info"); return; }
+        isRekapLoading = true;
+        showLoading(true);
+        const tableBody = document.getElementById('rekapTableBody');
+        tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-12 text-center text-on-surface-variant"><div class="flex items-center justify-center gap-3"><div class="loader"></div><p>Memuat data...</p></div></td></tr>';
+
+        try {
+            const snapshot = await db.collection('pendaftaran').orderBy('Timestamp', 'desc').get();
+            const data = snapshot.docs.map(doc => ({ ID_Pendaftaran: doc.id, ...doc.data() }));
+            populateRekapTable({ success: true, data: data });
+        } catch (err) {
+            populateRekapTable({ success: false, message: 'Gagal memuat data dari Firestore: ' + err.message });
+        }
+    }
+
+    function applyRekapFilter() {
+        const tableBody = document.getElementById('rekapTableBody');
+        const filterValue = document.getElementById('rekapFilterJenjang').value;
+
+        const filteredData = filterValue === 'Semua' 
+            ? rekapDataCache 
+            : rekapDataCache.filter(row => row.jenjang === filterValue);
+
+        if (!filteredData || filteredData.length === 0) {
+            const message = rekapDataCache.length === 0 
+                ? '<div class="flex flex-col items-center gap-2"><span class="material-symbols-outlined text-4xl opacity-20">upcoming</span><p>Belum ada data pendaftar.</p></div>'
+                : '<div class="flex flex-col items-center gap-2"><span class="material-symbols-outlined text-4xl opacity-20">filter_list_off</span><p>Tidak ada data cocok.</p></div>';
+            tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-on-surface-variant">${message}</td></tr>`;
+            return;
+        }
+
+        let tableHtml = '';
+        filteredData.forEach(row => {
+            const totalBayar = parseFloat(row.Total_Bayar) || 0;
+            const tarifNett = parseFloat(row.Tarif_Nett) || 0;
+            const sisaBayar = tarifNett - totalBayar;
+            const persentase = parseFloat(row.Persentase_Bayar) || 0;
+            const sisaBayarText = sisaBayar <= 0 ? '<span class="font-bold text-green-600">Lunas</span>' : `Rp ${formatRupiah(sisaBayar)}`;
+
+            tableHtml += `
+                <tr class="hover:bg-surface-container transition-colors group text-xs sm:text-sm">
+                    <td class="px-2 py-2 md:px-6 md:py-4">
+                      <div class="text-sm font-bold text-on-surface">${row.nama || ''}</div>
+                      <div class="text-[10px] text-outline">${row.kategori || ''} (${row.ID_Pendaftaran || '-'})</div>
+                    </td> 
+                    <td class="px-2 py-2 md:px-6 md:py-4 text-on-surface-variant">${row.jenjang || ''} - ${row.kelas || ''}</td>
+                    <td class="px-2 py-2 md:px-6 md:py-4 text-center"><span class="px-2 py-1 text-[10px] font-black uppercase rounded ${row.statusBooking === 'Ya' ? 'bg-tertiary-container text-tertiary' : 'bg-surface-container text-on-surface-variant'}">${row.statusBooking || 'Tidak'}</span></td>
+                    <td class="px-2 py-2 md:px-6 md:py-4 font-bold text-right text-tertiary">Rp ${formatRupiah(totalBayar)}</td>
+                    <td class="px-2 py-2 md:px-6 md:py-4 font-medium text-right text-on-surface-variant">${persentase > 0 ? persentase.toFixed(2) + '%' : '-'}</td>
+                    <td class="px-2 py-2 md:px-6 md:py-4 font-medium text-right text-on-surface-variant">${sisaBayarText}</td>
+                </tr>`;
+        });
+        tableBody.innerHTML = tableHtml;
+    }
+
+    function handleStatusLanjutanChange() {
+        const status = document.getElementById('lanjutan_status').value;
+        const alasanDiv = document.getElementById('lanjutan_alasanDiv');
+        const alasanInput = document.getElementById('lanjutan_alasan');
+        const adminPembayaranDiv = document.getElementById('lanjutan_adminPembayaran');
+
+        const requiredFields = ['lanjutan_statusBooking', 'lanjutan_metodeBayar', 'lanjutan_periodeSSP'];
+
+        if (status === 'Lanjut') {
+            alasanDiv.classList.add('hidden');
+            alasanInput.removeAttribute('required');
+            adminPembayaranDiv.classList.remove('hidden');
+            requiredFields.forEach(id => document.getElementById(id).setAttribute('required', 'true'));
+        } else if (status === 'Ragu-ragu' || status === 'Tidak Lanjut') {
+            alasanDiv.classList.remove('hidden');
+            alasanInput.setAttribute('required', 'true');
+            adminPembayaranDiv.classList.add('hidden');
+            requiredFields.forEach(id => document.getElementById(id).removeAttribute('required'));
+        } else {
+            alasanDiv.classList.add('hidden');
+            alasanInput.removeAttribute('required');
+            adminPembayaranDiv.classList.add('hidden');
+            requiredFields.forEach(id => document.getElementById(id).removeAttribute('required'));
+        }
+    }
+
+    async function submitLanjutanForm(e) {
+        e.preventDefault();
+        const form = document.getElementById('lanjutanForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            showToast('Harap lengkapi semua field yang wajib diisi (*).', 'error');
+            return;
+        }
+
+        const finalData = {};
+        const formElements = form.elements;
+        for (let i = 0; i < formElements.length; i++) {
+            let item = formElements.item(i);
+            if (item.name) {
+                const key = item.name.replace('lanjutan_', '');
+                finalData[key] = item.dataset.numericValue || item.value;
+            }
+        }
+
+        const [idSiswa, namaSiswa] = finalData.nama.split('|');
+        if (!idSiswa || !namaSiswa) {
+            handleResponse({ success: false, message: "Nama siswa tidak valid. Harap pilih dari daftar." });
+            return;
+        }
+
+        // Add/overwrite calculated fields
+        finalData.ID_Siswa = idSiswa;
+        finalData.Nama_Siswa = namaSiswa;
+        if (namaSiswa) {
+            finalData.Nama_Siswa_lowercase = namaSiswa.toLowerCase();
+        }
+        finalData.Timestamp = firebase.firestore.FieldValue.serverTimestamp();
+        
+        // Remove the original 'nama' field which contains the combined value,
+        // and other fields that are not part of the data model.
+        delete finalData.nama;
+        delete finalData.diskonPersen;
+        delete finalData.tarifNett;
+
+        showLoading(true);
+        try {
+            // Use set with merge to create or update the document using the student's ID
+            await db.collection('siswaLanjutan').doc(idSiswa).set(finalData, { merge: true });
+            // Fire-and-forget backup to GSheet
+            // We need to re-add the 'nama' property for the GSheet backup function
+            google.script.run.withFailureHandler(err => console.error("Gagal backup status lanjutan: " + err.message)).simpanStatusLanjutan({...finalData, nama: `${idSiswa}|${namaSiswa}`});
+            handleResponse({ success: true, message: "Status kelanjutan berhasil disimpan." });
+            resetLanjutanForm();
+        } catch (error) {
+            handleResponse({ success: false, message: "Gagal menyimpan ke database: " + error.message });
+        }
+    }
+
+    function populateRekapTable(response) {
+        isRekapLoading = false;
+        showLoading(false);
+        const tableBody = document.getElementById('rekapTableBody');
+
+        if (!response.success) {
+            showToast(response.message, "error");
+            tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-error-container font-medium text-on-error-container">${response.message}</td></tr>`;
+            return;
+        }
+
+        rekapDataCache = response.data || [];
+        document.getElementById('rekapFilterJenjang').value = 'Semua';
+        applyRekapFilter();
+        showToast("Rekapitulasi berhasil diperbarui.", "success");
+    }
+
+    // New functions for Continuing Students Recap
+    async function getLanjutanRekapData() {
+        if (isRekapLoading) return; // Use the same loading flag for simplicity
+        isRekapLoading = true;
+        showLoading(true);
+        const tableBody = document.getElementById('lanjutanRekapTableBody');
+        tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-12 text-center text-on-surface-variant"><div class="flex items-center justify-center gap-3"><div class="loader"></div><p>Memuat data...</p></div></td></tr>';
+
+        try {
+            // 1. Fetch all necessary data in parallel
+            const [masterSiswaSnapshot, statusSnapshot, pendaftaranSnapshot] = await Promise.all([
+                db.collection('masterSiswa').get(),
+                db.collection('siswaLanjutan').get(),
+                db.collection('pendaftaran').where('kategori', '==', 'Lanjutan Internal').get()
+            ]);
+
+            // 2. Create a map of statuses from 'siswaLanjutan' collection, keyed by student ID
+            const statusMap = new Map();
+            statusSnapshot.forEach(doc => {
+                statusMap.set(doc.id, { ID_Siswa: doc.id, ...doc.data() });
+            });
+
+            // 3. Create a map of financial data from 'pendaftaran', keyed by student name
+            const pendaftaranMap = new Map();
+            pendaftaranSnapshot.forEach(doc => {
+                const data = doc.data();
+                if (data.nama) {
+                    pendaftaranMap.set(data.nama, data);
+                }
+            });
+
+            // 4. Use masterSiswa as the base list and merge data
+            const masterSiswaList = masterSiswaSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+            const rekapData = masterSiswaList.map(masterStudent => {
+                const studentId = masterStudent.id;
+                const studentName = masterStudent.Nama_Siswa;
+                const existingStatus = statusMap.get(studentId);
+
+                if (existingStatus) {
+                    // A status record exists for this student
+                    let financialData = {};
+                    if (existingStatus.status === 'Lanjut') {
+                        const pendaftaranRecord = pendaftaranMap.get(studentName);
+                        if (pendaftaranRecord) {
+                            financialData = {
+                                Total_Bayar: pendaftaranRecord.Total_Bayar,
+                                Persentase_Bayar: pendaftaranRecord.Persentase_Bayar,
+                                Tarif_Nett: pendaftaranRecord.Tarif_Nett
+                            };
+                        }
+                    }
+                    return {
+                        ...existingStatus,
+                        ...financialData
+                    };
+                } else {
+                    // No status record, create a default "Belum Konfirmasi" entry
+                    return {
+                        ID_Siswa: studentId,
+                        Nama_Siswa: studentName,
+                        kelasAsal: masterStudent.Jenjang,
+                        status: 'Belum Konfirmasi',
+                        Total_Bayar: 0,
+                        Persentase_Bayar: 0,
+                        Tarif_Nett: 0
+                    };
+                }
+            });
+
+            // Sort the data: by Jenjang first, then by name alphabetically
+            const jenjangOrder = { 'TK': 1, 'SD': 2, 'SMP': 3, 'SMA': 4 };
+            rekapData.sort((a, b) => {
+                const orderA = jenjangOrder[a.kelasAsal] || 99;
+                const orderB = jenjangOrder[b.kelasAsal] || 99;
+
+                if (orderA !== orderB) {
+                    return orderA - orderB;
+                }
+                return (a.Nama_Siswa || '').localeCompare(b.Nama_Siswa || '');
+            });
+
+            populateLanjutanRekapTable({ success: true, data: rekapData });
+
+        } catch (err) {
+            console.error("Error fetching continuing students recap data:", err);
+            populateLanjutanRekapTable({ success: false, message: 'Gagal memuat data rekap dari Firestore: ' + err.message });
+        }
+    }
+
+    function populateLanjutanRekapTable(response) {
+        isRekapLoading = false;
+        showLoading(false);
+        const tableBody = document.getElementById('lanjutanRekapTableBody');
+
+        if (!response.success) {
+            showToast(response.message, "error");
+            tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-error-container font-medium text-on-error-container">${response.message}</td></tr>`;
+            return;
+        }
+
+        lanjutanRekapDataCache = response.data || [];
+        document.getElementById('lanjutanRekapFilterStatus').value = 'Semua';
+        document.getElementById('lanjutanRekapFilterKelasAsal').value = 'Semua';
+        applyLanjutanRekapFilter();
+        showToast("Rekapitulasi siswa lanjutan berhasil diperbarui.", "success");
+    }
+
+    function applyLanjutanRekapFilter() {
+        const tableBody = document.getElementById('lanjutanRekapTableBody');
+        const filterStatus = document.getElementById('lanjutanRekapFilterStatus').value;
+        const filterKelasAsal = document.getElementById('lanjutanRekapFilterKelasAsal').value;
+
+        let filteredData = lanjutanRekapDataCache;
+
+        if (filterStatus !== 'Semua') { filteredData = filteredData.filter(row => row.status === filterStatus); }
+        if (filterKelasAsal !== 'Semua') { filteredData = filteredData.filter(row => row.kelasAsal === filterKelasAsal); }
+
+        if (!filteredData || filteredData.length === 0) {
+            const message = lanjutanRekapDataCache.length === 0 ? '<div class="flex flex-col items-center gap-2"><span class="material-symbols-outlined text-4xl opacity-20">upcoming</span><p>Belum ada data siswa lanjutan.</p></div>' : '<div class="flex flex-col items-center gap-2"><span class="material-symbols-outlined text-4xl opacity-20">filter_list_off</span><p>Tidak ada data yang cocok dengan filter.</p></div>';
+            tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-on-surface-variant">${message}</td></tr>`;
+            return;
+        }
+
+        let tableHtml = '';
+        filteredData.forEach(row => {
+            const totalBayar = parseFloat(row.Total_Bayar) || 0;
+            const tarifNett = parseFloat(row.Tarif_Nett) || 0;
+            const sisaBayar = tarifNett - totalBayar;
+            const persentase = parseFloat(row.Persentase_Bayar) || 0;
+
+            const sisaBayarText = (row.status === 'Lanjut' && sisaBayar <= 0) 
+                            ? '<span class="font-bold text-green-600">Lunas</span>' 
+                            : (row.status === 'Lanjut' && sisaBayar > 0) 
+                                ? `Rp ${formatRupiah(sisaBayar)}` 
+                                : '-';
+            
+            const totalBayarText = totalBayar > 0 ? `Rp ${formatRupiah(totalBayar)}` : '-';
+            const persentaseText = persentase > 0 ? `${persentase.toFixed(2)}%` : '-';
+
+            const statusClass = row.status === 'Lanjut' ? 'bg-tertiary-container text-tertiary'
+                            : row.status === 'Ragu-ragu' ? 'bg-warning/20 text-on-warning' // Using a lighter warning
+                            : row.status === 'Tidak Lanjut' ? 'bg-error/10 text-error'
+                            : 'bg-surface-container text-on-surface-variant'; // For 'Belum Konfirmasi'
+            tableHtml += `
+                <tr class="hover:bg-surface-container transition-colors group text-xs sm:text-sm">
+                    <td class="px-2 py-2 md:px-6 md:py-4">
+                      <div class="text-sm font-bold text-on-surface">${row.Nama_Siswa || ''}</div>
+                      <div class="text-[10px] text-outline">${row.ID_Siswa || ''}</div>
+                    </td>
+                    <td class="px-2 py-2 md:px-6 md:py-4 text-on-surface-variant">${row.kelasAsal || ''}</td>
+                    <td class="px-2 py-2 md:px-6 md:py-4"><span class="px-2 py-1 text-[10px] font-black uppercase rounded ${statusClass}">${row.status || 'Tidak Diketahui'}</span></td>
+                    <td class="px-2 py-2 md:px-6 md:py-4 font-medium text-right text-tertiary">${totalBayarText}</td>
+                    <td class="px-2 py-2 md:px-6 md:py-4 font-medium text-right text-on-surface-variant">${persentaseText}</td>
+                    <td class="px-2 py-2 md:px-6 md:py-4 font-medium text-right text-on-surface-variant">${sisaBayarText}</td>
+                </tr>`;
+        });
+        tableBody.innerHTML = tableHtml;
+    }
+
+    function populateForm(response) {
+      showLoading(false);
+      if (!response.success) { showToast(response.message, "error"); return; }
+      showToast("Data pendaftaran ditemukan!", "success");
+      const d = response.data;
+      document.getElementById('rowIndex').value = response.rowIndex;
+      document.getElementById('idPendaftaranUpdate').value = d.ID_Pendaftaran;
+      
+      const kategoriDropdown = document.getElementById('kategori');
+      const kategoriPendaftaran = d.kategori;
+
+      // Dynamically add 'Lanjutan Internal' if it's the category but not in the dropdown
+      // and disable the dropdown to prevent changes during update.
+      if (kategoriPendaftaran === 'Lanjutan Internal') {
+        if (!kategoriDropdown.querySelector('option[value="Lanjutan Internal"]')) {
+            const newOption = document.createElement('option');
+            newOption.value = 'Lanjutan Internal';
+            newOption.textContent = 'Lanjutan Internal';
+            kategoriDropdown.appendChild(newOption);
+        }
+      } else {
+          kategoriDropdown.disabled = false;
+      }
+
+      setValueIfExist('kategori', d.kategori);
+      setValueIfExist('nama', d.nama);
+      setValueIfExist('kategoriSiswa', d.kategoriSiswa);
+      setValueIfExist('punyaSibling', d.punyaSibling);
+      toggleSiblingFields();
+      setValueIfExist('namaSibling', d.namaSibling);
+      setValueIfExist('kelasSibling', d.kelasSibling);
+      setValueIfExist('jenjang', d.jenjang); // Set value, onchange is not triggered
+      handleJenjangChange(d.kelas); // Manually call handler and pass class to select
+      setValueIfExist('periodeSSP', d.periodeSSP);
+      setValueIfExist('asalSekolah', d.asalSekolah);
+      setValueIfExist('asalInfo', d.asalInfo);
+      setValueIfExist('noFormulir', d.noFormulir);
+      setValueIfExist('tglFormulir', d.tglFormulir);
+      setValueIfExist('statusBooking', d.statusBooking);
+      toggleBookingDate();
+      setValueIfExist('tglBooking', d.tglBooking);
+      setValueIfExist('metodeBayar', d.metodeBayar);
+      setValueIfExist('statusPendaftaran', d.Status_Pendaftaran);
+      // Gunakan fungsi baru untuk mengatur nilai mata uang
+      setCurrencyValue('tarifSSP', d.Tarif_SSP);
+      setCurrencyValue('diskon', d.Diskon);
+      setCurrencyValue('termin1', d.termin1);
+      setValueIfExist('tglT1', d.tglT1);
+      setCurrencyValue('termin2', d.termin2);
+      setValueIfExist('tglT2', d.tglT2);
+      setCurrencyValue('termin3', d.termin3);
+      setValueIfExist('tglT3', d.tglT3);
+      document.getElementById('keteranganUpdate').value = "";
+      toggleTerminFields(); // Ensure termin visibility is correct
+      calcKeuangan();
+    }
+
+    // New helper function to set currency value for an input field
+    function setCurrencyValue(id, value) {
+        const el = document.getElementById(id);
+        if (el && value !== undefined && value !== null) {
+            const numericValue = parseFloat(value) || 0;
+            formatRupiahInput(el, numericValue);
+        } else if (el) { // Jika nilai null/undefined, reset ke 0
+            formatRupiahInput(el, 0);
+        }
+    }
+
+    function setValueIfExist(id, value) {
+      const el = document.getElementById(id);
+      if (el && value !== undefined && value !== null) el.value = value;
+    }
+
+    function handleResponse(response, defaultMsg) {
+      showLoading(false);
+      if (response.success) {
+        showToast(response.message || defaultMsg, "success");
+        if(modeSaatIni === 'daftar') resetFormLokal();
+      } else {
+        showToast(response.message || "Terjadi Kesalahan Server", "error");
+      }
+    }
+
+    function resetFormLokal() {
+      document.getElementById('mainForm').reset();
+      document.getElementById('statusBooking').value = "Tidak";
+      document.getElementById('rowIndex').value = "";
+      document.getElementById('idPendaftaranUpdate').value = "";
+      document.getElementById('searchId').value = "";
+      toggleBookingDate();
+      document.getElementById('punyaSibling').value = "Tidak";
+      toggleTerminFields();
+      toggleSiblingFields();
+      setValueIfExist('periodeSSP', '');
+      document.getElementById('statusPendaftaran').value = "Aktif"; // Reset new field
+      calcKeuangan();
+      // Reset nilai mata uang
+      setCurrencyValue('tarifSSP', 0);
+      setCurrencyValue('diskon', 0);
+      setCurrencyValue('termin1', 0);
+      setCurrencyValue('termin2', 0);
+      setCurrencyValue('termin3', 0);
+
+      // Re-enable and clean up the category dropdown
+      const kategoriDropdown = document.getElementById('kategori');
+      kategoriDropdown.disabled = false;
+      const lanjutanOption = kategoriDropdown.querySelector('option[value="Lanjutan Internal"]');
+      if (lanjutanOption) {
+          lanjutanOption.remove();
+      }
+    }
+
+    function resetLanjutanForm() {
+        document.getElementById('lanjutanForm').reset();
+        handleStatusLanjutanChange();
+        toggleLanjutanBookingDate();
+        toggleLanjutanTerminFields();
+        document.getElementById('lanjutan_periodeSSP').innerHTML = '<option value="">-- Pilih Jenjang Asal dulu --</option>';
+        document.getElementById('lanjutan_nama').innerHTML = '<option value="">-- Pilih Jenjang Asal dulu --</option>';
+        setCurrencyValue('lanjutan_tarifSSP', 0);
+        setCurrencyValue('lanjutan_diskon', 0);
+        calcLanjutanKeuangan();
+    }
+    function showLoading(isLoad) {
+      const over = document.getElementById('loadingOverlay');
+      if (isLoad) over.classList.remove('hidden');
+      else over.classList.add('hidden');
+    }
+
+    function showToast(message, type) {
+      const toastBox = document.getElementById('toastBox');
+      const toastMsg = document.getElementById('toastMessage');
+      const toastText = document.getElementById('toastText');
+      toastText.innerText = message;
+      toastMsg.className = "px-6 py-4 rounded-lg shadow-xl text-white font-medium flex items-center gap-3";
+      if(type === 'success') toastMsg.classList.add('bg-green-600');
+      else if(type === 'error') toastMsg.classList.add('bg-red-600');
+      else toastMsg.classList.add('bg-primary');
+      toastBox.classList.remove('opacity-0', 'translate-y-[-20px]', 'pointer-events-none');
+      toastBox.classList.add('opacity-100', 'translate-y-0');
+      setTimeout(() => {
+        toastBox.classList.remove('opacity-100', 'translate-y-0');
+        toastBox.classList.add('opacity-0', 'translate-y-[-20px]', 'pointer-events-none');
+      }, 4000);
+    }
+
+    function startMigration() {
+        if (!confirm("Apakah Anda yakin ingin memulai migrasi data dari Google Sheets ke Firebase? Proses ini tidak dapat dibatalkan dan hanya boleh dijalankan satu kali.")) {
+            return;
+        }
+        showLoading(true);
+        showToast("Memulai migrasi data... Ini mungkin memakan waktu beberapa menit.", "info");
+        google.script.run
+            .withSuccessHandler(response => {
+                showLoading(false);
+                if (response.success) {
+                    showToast(response.message, 'success');
+                } else {
+                    showToast('Migrasi Gagal: ' + response.message, 'error');
+                }
+            })
+            .withFailureHandler(err => {
+                showLoading(false);
+                showToast('Error kritis saat migrasi: ' + err.message, 'error');
+            })
+            .migrateDataToFirebase();
+    }
+
+    // Initialize the view to the dashboard on first load
+    document.addEventListener('DOMContentLoaded', () => {
+      switchTab('tabDashboard');
+
+      // --- Notification Bell Logic ---
+      const bell = document.getElementById('notification-bell');
+      const panel = document.getElementById('notification-panel');
+      const settingsBtn = document.getElementById('btnSettings');
+
+      bell.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const isHidden = panel.classList.contains('hidden');
+          panel.classList.toggle('hidden');
+          if (isHidden) {
+              fetchUpdateLogs();
+          }
+      });
+
+      document.addEventListener('click', (e) => {
+          if (!panel.contains(e.target) && !bell.contains(e.target)) {
+              panel.classList.add('hidden');
+          }
+      });
+    });
+
+    let totalProcessedCount = 0;
+    function runSearchUpdate(collectionName, pageToken = null, isFirstRun = true) {
+        const loadingTextEl = document.getElementById('loadingText');
+
+        if (isFirstRun) {
+            totalProcessedCount = 0;
+            const collectionLabel = collectionName === 'pendaftaran' ? 'Pendaftar Baru & Pindahan' : 'Siswa Lanjutan';
+            if (!confirm(`Anda akan memulai proses update untuk data '${collectionLabel}'. Ini mungkin memakan waktu beberapa menit, jangan tutup halaman ini. Lanjutkan?`)) {
+                return;
+            }
+            showLoading(true);
+        }
+
+        loadingTextEl.textContent = `Memproses... (Total diperiksa: ${totalProcessedCount})`;
+
+        const functionToRun = collectionName === 'pendaftaran' 
+            ? 'updatePendaftaranSearchField' 
+            : 'updateSiswaLanjutanSearchField';
+
+        google.script.run
+            .withSuccessHandler(response => {
+                if (response.success) {
+                    totalProcessedCount += response.processedCount;
+                    loadingTextEl.textContent = `Memproses... (Total diperiksa: ${totalProcessedCount})`;
+
+                    if (response.nextPageToken) {
+                        // Masih ada halaman berikutnya, panggil lagi fungsi ini
+                        runSearchUpdate(collectionName, response.nextPageToken, false);
+                    } else {
+                        // Selesai, tidak ada halaman lagi
+                        showLoading(false);
+                        showToast(`Proses selesai! ${totalProcessedCount} dokumen telah diperiksa/diupdate.`, 'success');
+                        loadingTextEl.textContent = 'Processing data...'; // Reset text
+                    }
+                } else {
+                    showLoading(false);
+                    showToast(`Update Gagal: ${response.message}`, 'error');
+                    loadingTextEl.textContent = 'Processing data...';
+                }
+            })
+            .withFailureHandler(err => {
+                showLoading(false);
+                showToast(`Error kritis saat update: ${err.message}`, 'error');
+                loadingTextEl.textContent = 'Processing data...';
+            })
+            [functionToRun]();
+    }
+
+    function fetchUpdateLogs() {
+      const panel = document.getElementById('notification-panel');
+      panel.innerHTML = '<div class="p-5 text-center text-sm text-on-surface-variant">Memuat log terbaru...</div>';
+      
+      google.script.run
+        .withSuccessHandler(displayLogs)
+        .withFailureHandler(showErrorLogs)
+        .getUpdateLogs();
+    }
+
+    function displayLogs(response) {
+      if (!response.success) {
+        showErrorLogs(response);
+        return;
+      }
+      
+      const panel = document.getElementById('notification-panel');
+      panel.innerHTML = ''; // Clear panel
+
+      if (response.data.length === 0) {
+        panel.innerHTML = '<div class="p-5 text-center text-sm text-on-surface-variant">Tidak ada log terbaru.</div>';
+        return;
+      }
+
+      response.data.forEach(log => {
+        const logDate = new Date(log.Waktu_Update);
+        const formattedDate = logDate.toLocaleString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+        const logElement = document.createElement('div');
+        logElement.className = 'notification-item';
+        logElement.innerHTML = `
+          Perubahan pada <strong>${log.Modul_Diubah}</strong> (${log.ID_Pendaftaran})<br>
+          <small>Oleh: ${log.Admin_Email} pada ${formattedDate}</small><br>
+          <small><code>${log.Data_Lama || 'N/A'}</code> &rarr; <code>${log.Data_Baru || 'N/A'}</code></small>
+        `;
+        panel.appendChild(logElement);
+      });
+    }
+
+    function showErrorLogs(error) {
+      console.error('Gagal mengambil log:', error.message || error);
+      const panel = document.getElementById('notification-panel');
+      panel.innerHTML = `<div class="p-5 text-center text-sm text-error">Gagal memuat log.</div>`;
+    }
+  </script>
+<script>
+    // DASHBOARD CHART FUNCTIONS
+    Chart.register(ChartDataLabels);
+
+    async function getDashboardData() {
+        showLoading(true);
+        const filters = {
+            jenjang: document.getElementById('dashboardFilterJenjang').value,
+            kelas: document.getElementById('dashboardFilterKelas').value
+        };
+
+        try {
+            // Build queries
+            let pendaftarQuery = db.collection('pendaftaran');
+            // Filters for pendaftar (new registrations)
+            if (filters.jenjang) pendaftarQuery = pendaftarQuery.where('jenjang', '==', filters.jenjang);
+            if (filters.kelas) pendaftarQuery = pendaftarQuery.where('kelas', '==', filters.kelas);
+            
+
+            // Fetch data in parallel
+            const [pendaftarSnapshot, lanjutanSnapshot] = await Promise.all([
+                pendaftarQuery.get(),
+                db.collection('siswaLanjutan').get() // Dashboard for continuing students usually shows all
+            ]);
+
+            // Process pendaftar data
+            const dashboardData = {
+                pendaftar: { totalBaruDanPindahan: 0, totalBooking: 0, byJenjang: {}, byKategori: {}, byTime: {}, bookingByTime: {} },
+                siswaLanjutanOverview: { persentaseLanjut: 0, totalSiswaLanjutan: 0 },
+                statusLanjutan: { 'Lanjut': 0, 'Ragu-ragu': 0, 'Tidak Lanjut': 0, 'Belum Konfirmasi': 0 }
+            };
+
+            pendaftarSnapshot.forEach(doc => {
+                const data = doc.data();
+                dashboardData.pendaftar.totalBaruDanPindahan++;
+                if (data.statusBooking === 'Ya') dashboardData.pendaftar.totalBooking++;
+                dashboardData.pendaftar.byJenjang[data.jenjang] = (dashboardData.pendaftar.byJenjang[data.jenjang] || 0) + 1;
+                dashboardData.pendaftar.byKategori[data.kategoriSiswa] = (dashboardData.pendaftar.byKategori[data.kategoriSiswa] || 0) + 1;
+                if (data.tglFormulir) {
+                    const month = data.tglFormulir.substring(0, 7);
+                    dashboardData.pendaftar.byTime[month] = (dashboardData.pendaftar.byTime[month] || 0) + 1;
+                    if (data.statusBooking === 'Ya' && data.tglBooking) {
+                        const bookingMonth = data.tglBooking.substring(0, 7);
+                        dashboardData.pendaftar.bookingByTime[bookingMonth] = (dashboardData.pendaftar.bookingByTime[bookingMonth] || 0) + 1;
+                    }
+                }
+            });
+
+            // --- Process Siswa Lanjutan Data for Dashboard ---
+            // Fetch all masterSiswa to get the complete list of potential continuing students
+            const masterSiswaSnapshot = await db.collection('masterSiswa').get();
+
+            // Create a map of statuses from 'siswaLanjutan' collection, keyed by student ID
+            const statusMap = new Map();
+            lanjutanSnapshot.forEach(doc => {
+                statusMap.set(doc.id, { ID_Siswa: doc.id, ...doc.data() });
+            });
+
+            // Merge masterSiswa with their actual status
+            let allContinuingStudents = masterSiswaSnapshot.docs.map(doc => {
+                const masterStudent = { id: doc.id, ...doc.data() };
+                const existingStatus = statusMap.get(masterStudent.id);
+                
+                if (existingStatus) {
+                    return existingStatus; // Use the recorded status
+                } else {
+                    // Default to "Belum Konfirmasi" if no status record exists
+                    return {
+                        ID_Siswa: masterStudent.id,
+                        Nama_Siswa: masterStudent.Nama_Siswa,
+                        kelasAsal: masterStudent.Jenjang, // Use Jenjang from masterSiswa as kelasAsal
+                        status: 'Belum Konfirmasi'
+                    };
+                }
+            });
+
+            // Apply jenjang filter to continuing students data for dashboard
+            let filteredContinuingStudents = allContinuingStudents;
+            if (filters.jenjang) {
+                filteredContinuingStudents = allContinuingStudents.filter(student => student.kelasAsal === filters.jenjang);
+            }
+
+            filteredContinuingStudents.forEach(student => { if (dashboardData.statusLanjutan.hasOwnProperty(student.status)) { dashboardData.statusLanjutan[student.status]++; } });
+            dashboardData.siswaLanjutanOverview.totalSiswaLanjutan = filteredContinuingStudents.length;
+            dashboardData.siswaLanjutanOverview.persentaseLanjut = filteredContinuingStudents.length > 0 ? (dashboardData.statusLanjutan['Lanjut'] / filteredContinuingStudents.length) * 100 : 0;
+
+            populateDashboard(dashboardData);
+            showToast('Dashboard berhasil dimuat.', 'success');
+        } catch (err) {
+            showToast('Gagal memuat data dashboard: ' + err.message, 'error');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    function handleDashboardJenjangChange() {
+        const jenjang = document.getElementById('dashboardFilterJenjang').value;
+        const kelasDropdown = document.getElementById('dashboardFilterKelas');
+        kelasDropdown.innerHTML = '<option value="">Semua Kelas</option>';
+
+        if (jenjang) {
+            kelasDropdown.disabled = false;
+            google.script.run
+                .withSuccessHandler(options => {
+                    options.forEach(kelas => {
+                        kelasDropdown.innerHTML += `<option value="${kelas}">${kelas}</option>`;
+                    });
+                })
+                .getKelasOptions(jenjang);
+        } else {
+            kelasDropdown.disabled = true;
+        }
+    }
+
+    function resetDashboardFilters() {
+        document.getElementById('dashboardFilterJenjang').value = '';
+        const kelasDropdown = document.getElementById('dashboardFilterKelas');
+        kelasDropdown.innerHTML = '<option value="">Semua Kelas</option>';
+        kelasDropdown.disabled = true;
+        getDashboardData(); // Reload data with no filters
+    }
+
+    function populateDashboard(data) {
+        if (!data) return;
+        
+        // --- Populate Summary Cards ---
+        const targetData = data.pendaftar.totalBaruDanPindahan;
+        const targetTotal = 225;
+        const targetPercentage = targetTotal > 0 ? (targetData / targetTotal) * 100 : 0;
+        document.querySelector('#targetText span:first-child').textContent = `${targetPercentage.toFixed(1)}%`;
+        document.querySelector('#targetText span:last-child').textContent = `${targetData} Siswa`;
+
+        document.getElementById('persenLanjutan').innerHTML = `${data.siswaLanjutanOverview.persentaseLanjut.toFixed(1)}<span class="text-3xl">%</span>`;
+        document.getElementById('jumlahLanjutan').textContent = `${data.statusLanjutan.Lanjut} dari ${data.siswaLanjutanOverview.totalSiswaLanjutan} siswa`;
+        document.getElementById('jumlahBooking').textContent = data.pendaftar.totalBooking;
+
+        // --- Create/Update Charts ---
+        // Target Pendaftar Chart (Gauge)
+        const targetCtx = document.getElementById('targetChart').getContext('2d');
+        if (targetChartInstance) targetChartInstance.destroy();
+        targetChartInstance = new Chart(targetCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Tercapai', 'Sisa'],
+                datasets: [{
+                    data: [targetData, Math.max(0, targetTotal - targetData)],
+                    backgroundColor: ['#224390', '#EEEDF4'], // primary, surface-container
+                    borderColor: '#FAF8FF', // background
+                    borderWidth: 4,
+                    circumference: 270, // 3/4 circle
+                    rotation: 225,    // Start from bottom-left
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { display: false }, tooltip: { enabled: false }, datalabels: { display: false } } }
+        });
+
+        const chartColors = {
+            backgroundColor: ['#224390', '#C2185B', '#00897B', '#FFC107', '#444651'], // Primary, Secondary, Tertiary, Warning, on-surface-variant
+            borderColor: '#FAF8FF', // background
+        };
+
+        // Pendaftar per Jenjang
+        const jenjangCtx = document.getElementById('jenjangChart').getContext('2d');
+        if (jenjangChartInstance) jenjangChartInstance.destroy();
+        jenjangChartInstance = new Chart(jenjangCtx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(data.pendaftar.byJenjang),
+                datasets: [{
+                    label: 'Pendaftar',
+                    data: Object.values(data.pendaftar.byJenjang),
+                    ...chartColors
+                }]
+            },
+            options: { 
+                responsive: true, maintainAspectRatio: false, 
+                plugins: { 
+                    legend: { position: 'top' },
+                    datalabels: {
+                        color: '#fff',
+                        font: { weight: 'bold', size: 12 },
+                        textStrokeColor: 'rgba(0,0,0,0.5)',
+                        textStrokeWidth: 2,
+                        formatter: (value) => value > 0 ? value : ''
+                    }
+                } 
+            }
+        });
+
+        // Pendaftar per Kategori
+        const kategoriCtx = document.getElementById('kategoriChart').getContext('2d');
+        if (kategoriChartInstance) kategoriChartInstance.destroy();
+        kategoriChartInstance = new Chart(kategoriCtx, {
+            type: 'pie',
+            data: {
+                labels: Object.keys(data.pendaftar.byKategori),
+                datasets: [{
+                    label: 'Pendaftar',
+                    data: Object.values(data.pendaftar.byKategori),
+                    ...chartColors
+                }]
+            },
+            options: { 
+                responsive: true, maintainAspectRatio: false, 
+                plugins: { 
+                    legend: { position: 'top' },
+                    datalabels: {
+                        color: '#fff',
+                        font: { weight: 'bold', size: 12 },
+                        textStrokeColor: 'rgba(0,0,0,0.5)',
+                        textStrokeWidth: 2,
+                        formatter: (value) => value > 0 ? value : ''
+                    }
+                } 
+            }
+        });
+
+        // Status Siswa Lanjutan
+        const statusCtx = document.getElementById('statusLanjutanChart').getContext('2d');
+        if (statusLanjutanChartInstance) statusLanjutanChartInstance.destroy();
+        statusLanjutanChartInstance = new Chart(statusCtx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(data.statusLanjutan),
+                datasets: [{
+                    label: 'Jumlah Siswa',
+                    data: Object.values(data.statusLanjutan),
+                    backgroundColor: ['#00897B', '#FFC107', '#BA1A1A', '#444651'], // Tertiary (for Lanjut), Warning, Error, on-surface-variant
+                }]
+            },
+            options: { 
+                responsive: true, maintainAspectRatio: false, 
+                plugins: { 
+                    legend: { display: false },
+                    datalabels: {
+                        anchor: 'end', align: 'top',
+                        color: '#1a1b21', font: { weight: 'bold' },
+                        formatter: (value) => value > 0 ? value : ''
+                    }
+                } 
+            }
+        });
+
+        // Time Distribution Chart
+        const timeData = data.pendaftar.byTime || {};
+        const timeLabels = Object.keys(timeData).sort(); // Sort months chronologically
+        const timeCounts = timeLabels.map(label => timeData[label]);
+
+        // Calculate cumulative progress
+        let cumulativeSum = 0;
+        const cumulativeCounts = timeCounts.map(count => {
+            cumulativeSum += count;
+            return cumulativeSum;
+        });
+
+        const timeCtx = document.getElementById('timeDistributionChart').getContext('2d');
+        if (timeDistributionChartInstance) timeDistributionChartInstance.destroy();
+        timeDistributionChartInstance = new Chart(timeCtx, {
+            type: 'bar', // Base type is bar
+            data: {
+                labels: timeLabels,
+                datasets: [{
+                    label: 'Pendaftar per Bulan',
+                    data: timeCounts,
+                    backgroundColor: 'rgba(34, 67, 144, 0.8)', // primary with alpha
+                }, {
+                    label: 'Progres Kumulatif',
+                    data: cumulativeCounts,
+                    type: 'line',
+                    borderColor: '#BA1A1A', // new error color for contrast
+                    fill: false,
+                    tension: 0.2,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' },
+                    datalabels: {
+                        // Display labels on top of bars
+                        anchor: 'end',
+                        align: 'top',
+                        color: '#1a1b21',
+                        font: { weight: 'bold' },
+                        formatter: (value, context) => {
+                            // Only show labels for the bar chart dataset (index 0)
+                            if (context.datasetIndex === 0) {
+                                return value > 0 ? value : '';
+                            }
+                            return null; // Hide labels for the line chart
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Jumlah Pendaftar'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Booking Distribution Chart (NEW bar/line combo)
+        const bookingTimeData = data.pendaftar.bookingByTime || {};
+        const allMonths = [...new Set([...Object.keys(timeData).sort(), ...Object.keys(bookingTimeData).sort()])].sort();
+
+        const bookingTimeCounts = allMonths.map(label => bookingTimeData[label] || 0);
+
+        let bookingCumulativeSum = 0;
+        const bookingCumulativeCounts = bookingTimeCounts.map(count => {
+            bookingCumulativeSum += count;
+            return bookingCumulativeSum;
+        });
+
+        const bookingTimeCtx = document.getElementById('bookingTimeChart').getContext('2d');
+        if (bookingTimeChartInstance) bookingTimeChartInstance.destroy();
+        bookingTimeChartInstance = new Chart(bookingTimeCtx, {
+            type: 'bar',
+            data: {
+                labels: allMonths,
+                datasets: [{
+                    label: 'Booking per Bulan',
+                    data: bookingTimeCounts,
+                    backgroundColor: 'rgba(194, 24, 91, 0.8)', // secondary with alpha
+                }, {
+                    label: 'Progres Kumulatif',
+                    data: bookingCumulativeCounts,
+                    type: 'line', 
+                    borderColor: '#BA1A1A', // error
+                    fill: false,
+                    tension: 0.2,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' },
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                        color: '#1a1b21',
+                        font: { weight: 'bold' },
+                        formatter: (value, context) => {
+                            if (context.datasetIndex === 0) {
+                                return value > 0 ? value : '';
+                            }
+                            return null;
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Jumlah Booking'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // SETTINGS FUNCTIONS
+    function getSettings() {
+        showLoading(true);
+        google.script.run
+            .withSuccessHandler(settings => {
+                showLoading(false);
+                document.getElementById('notificationEmails').value = settings.emails || '';
+                document.getElementById('notificationWhatsapps').value = settings.whatsapps || '';
+                document.getElementById('whatsappApiKey').value = settings.apiKey || '';
+                document.getElementById('whatsappInstanceId').value = settings.instanceId || '';
+            })
+            .withFailureHandler(err => {
+                showLoading(false);
+                showToast('Gagal memuat pengaturan: ' + err.message, 'error');
+            })
+            .getNotificationSettings();
+    }
+
+    function saveSettings() {
+        showLoading(true);
+        const settings = {
+            emails: document.getElementById('notificationEmails').value,
+            whatsapps: document.getElementById('notificationWhatsapps').value,
+            apiKey: document.getElementById('whatsappApiKey').value,
+            instanceId: document.getElementById('whatsappInstanceId').value
+        };
+        google.script.run
+            .withSuccessHandler(response => {
+                showLoading(false);
+                showToast(response.message, response.success ? 'success' : 'error');
+            })
+            .withFailureHandler(err => handleResponse({success:false, message:err.message}))
+            .saveNotificationSettings(settings);
+    }
+
+    function togglePasswordVisibility(inputId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(`${inputId}Icon`);
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.textContent = 'visibility';
+        } else {
+            input.type = 'password';
+            icon.textContent = 'visibility_off';
+        }
+    }
+
+    function startBulkUploadSiswaLanjutan() {
+        if (!confirm("Apakah Anda yakin ingin meng-upload semua data dari sheet 'Siswa_Lanjutan' ke Firebase? Ini akan menimpa data yang ada.")) {
+            return;
+        }
+        showLoading(true);
+        showToast("Memulai upload data siswa lanjutan...", "info");
+        google.script.run
+            .withSuccessHandler(response => {
+                showLoading(false);
+                if (response.success) {
+                    showToast(response.message, 'success');
+                } else {
+                    showToast('Upload Gagal: ' + response.message, 'error');
+                }
+            })
+            .withFailureHandler(err => {
+                showLoading(false);
+                showToast('Error kritis saat upload: ' + err.message, 'error');
+            })
+            .bulkUploadSiswaLanjutan();
+    }
+  </script>
+
+
+</body></html>
