@@ -2417,7 +2417,7 @@
                 showToast(`Error kritis saat update: ${err.message}`, 'error');
                 loadingTextEl.textContent = 'Processing data...';
             })
-            [functionToRun]();
+            [functionToRun](pageToken);
     }
 
     function fetchUpdateLogs() {
