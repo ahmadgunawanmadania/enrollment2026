@@ -9,9 +9,12 @@
  * Aman dibuka langsung di browser: https://<app>.vercel.app/api/health
  */
 
+const DEPLOY_VERSION = '2026-08-11-fix-search-batch-commit';
+
 module.exports = async function (req, res) {
   const report = {
     waktu: new Date().toISOString(),
+    deployVersion: DEPLOY_VERSION,
     node: process.version,
     environment: process.env.NODE_ENV || '(tidak diset)'
   };
@@ -78,6 +81,16 @@ module.exports = async function (req, res) {
     report.sheets = 'OK (kolom: ' + String(headers.join(', ')).slice(0, 300) + ')';
   } catch (e) {
     report.sheets = 'ERROR: ' + (e.message || e);
+  }
+
+  // 7b) Uji listDocs (dipakai Perbaikan Pencarian Nama) — baca 1 dokumen pendaftaran
+  try {
+    const { listDocs } = require('../lib/firestore');
+    const { documents, nextPageToken } = await listDocs('pendaftaran', { pageSize: 1 });
+    const firstId = documents && documents[0] ? String(documents[0].name).split('/').pop() : '-';
+    report.listDocs = 'OK (1 dokumen: ' + firstId + ', nextPageToken: ' + (nextPageToken ? 'ada' : 'tidak ada') + ')';
+  } catch (e) {
+    report.listDocs = 'ERROR: ' + (e.message || e);
   }
 
   // 7) Simulasi pemanggilan getNotificationSettings PERSIS seperti endpoint aslinya
