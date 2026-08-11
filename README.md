@@ -114,6 +114,14 @@ npm install
 vercel dev             # http://localhost:3000 (butuh env vars: vercel env pull)
 ```
 
+> **Catatan batas waktu (paket Hobby/gratis):** fungsi serverless dibatasi **10 detik**
+> (menyetel `maxDuration` lebih dari 10 akan gagal di-deploy di paket gratis).
+> **Migrasi Data** dibuat bertahap (per-batch ±10 baris per panggilan, UI
+> otomatis melanjutkan sampai selesai) sehingga aman di paket Hobby — migrasi
+> juga idempoten (memakai merge) sehingga aman dijalankan ulang. **Bulk Upload**
+> dan **Update Field Pencarian** juga berjalan bertahap lewat UI. Jika tetap
+> timeout, naikkan ke paket Pro.
+
 ## Setelah Deploy (sekali saja, lewat UI)
 
 1. Buka aplikasi → tab **Pengaturan** → isi email penerima / nomor WA / API
@@ -121,11 +129,20 @@ vercel dev             # http://localhost:3000 (butuh env vars: vercel env pull)
 2. (Jika data lama masih di Sheet) tab **Utilitas/Admin** → **Migrasi Data** untuk
    memindahkan `Master_Data`, `Siswa_Lanjutan`, dan `Status_Lanjutan` ke Firestore
    (`pendaftaran`, `masterSiswa`, `siswaLanjutan`). Fungsi migrasi ini dibuat baru
-   (tidak ada di Code.gs) agar tombol di UI berfungsi.
+   (tidak ada di Code.gs) agar tombol di UI berfungsi, dan berjalan **bertahap**
+   agar muat dalam batas waktu paket Hobby — biarkan halaman terbuka sampai
+   muncul notifikasi selesai.
 3. (Jika ada data lama tanpa field pencarian) jalankan **Update Field Pencarian**
    untuk menambah `nama_lowercase` / `Nama_Siswa_lowercase` ke dokumen lama.
 4. **Bulk Upload Siswa Lanjutan** untuk sinkronisasi `Siswa_Lanjutan` →
    `masterSiswa`.
+
+## Diagnostik cepat
+
+Buka `https://<app>.vercel.app/api/health` di browser untuk melihat laporan
+status satu halaman: dependensi npm, modul `lib/`, status env vars (tanpa nilai
+rahasia), uji access token Google, uji Firestore, dan uji Google Sheets. Berguna
+saat salah satu fitur gagal tanpa pesan yang jelas.
 
 ## Perbedaan perilaku vs GAS (perlu diketahui)
 
