@@ -1002,14 +1002,20 @@
           successHandler = null;
           failureHandler = null;
 
+          // Pengaman: kalau server tidak merespons dalam 90 detik,
+          // batalkan permintaan agar loading tidak berputar selamanya.
+          var controller = ('AbortController' in window) ? new AbortController() : null;
+          var timer = controller ? setTimeout(function () { controller.abort(); }, 90000) : null;
+
           fetch('/api/' + fnName, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(args)
+            body: JSON.stringify(args),
+            signal: controller ? controller.signal : undefined
           })
             .then(function (res) {
               return res.json().catch(function () {
-                return { __error: true, message: 'Respons server tidak valid.' };
+                return { __error: true, message: 'Respons server tidak valid (HTTP ' + res.status + ').' };
               });
             })
             .then(function (data) {
@@ -1021,19 +1027,33 @@
               }
             })
             .catch(function (err) {
-              if (onFailure) onFailure(err);
-              else console.error('[api/' + fnName + '] ' + (err && err.message ? err.message : err));
+              if (timer) clearTimeout(timer);
+              var msg = (controller && controller.signal.aborted)
+                ? 'Permintaan ke server melebihi batas waktu (90 detik).'
+                : ((err && err.message) ? err.message : String(err));
+              if (onFailure) onFailure({ message: msg });
+              else console.error('[api/' + fnName + '] ' + msg);
             });
         }
 
+        // PENTING: semua method mengembalikan runProxy (bukan objek api biasa)
+        // agar rantai panggilan .withSuccessHandler().withFailureHandler().func()
+        // tetap melewati Proxy — kalau tidak, TypeError terjadi dan
+        // callback tidak pernah dipanggil (loading berputar selamanya).
+        var runProxy = null;
+
+        function makeRun() {
+          return runProxy;
+        }
+
         var api = {
-          withSuccessHandler: function (cb) { successHandler = cb; return api; },
-          withFailureHandler: function (cb) { failureHandler = cb; return api; }
+          withSuccessHandler: function (cb) { successHandler = cb; return makeRun(); },
+          withFailureHandler: function (cb) { failureHandler = cb; return makeRun(); }
         };
 
         window.google = window.google || {};
         window.google.script = window.google.script || {};
-        window.google.script.run = new Proxy(api, {
+        runProxy = new Proxy(api, {
           get: function (target, prop) {
             if (prop === 'withSuccessHandler' || prop === 'withFailureHandler') {
               return target[prop];
@@ -1041,10 +1061,11 @@
             return function () {
               var args = Array.prototype.slice.call(arguments);
               call(prop, args);
-              return target;
+              return runProxy;
             };
           }
         });
+        window.google.script.run = runProxy;
       })();
     }
 
