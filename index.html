@@ -1686,6 +1686,35 @@
         }
     }
 
+    /**
+     * Cari siswa berdasarkan nama (case-insensitive) di sebuah koleksi.
+     * Sebelumnya memakai `where(field, '==', term)` — hanya cocok jika nama
+     * PERSIS sama dengan yang diketik, sehingga pencarian nama sebagian selalu
+     * gagal ("Data tidak ditemukan"). Sekarang:
+     *   1) prefix match via range query (cepat, pakai index), lalu
+     *   2) fallback contains (seperti cariData() asli di Code.gs) dengan memuat
+     *      dokumen koleksi dan memfilter di client — cukup untuk data sekolah ini.
+     * @returns {Promise<object|null>} Dokumen pertama yang cocok, atau null.
+     */
+    async function cariSiswaBerdasarkanNama(collection, lowercaseField, term) {
+        // 1) Prefix match (index-backed, cepat)
+        const prefixSnapshot = await db.collection(collection)
+            .where(lowercaseField, '>=', term)
+            .where(lowercaseField, '<', term + '\uf8ff')
+            .limit(5)
+            .get();
+        if (!prefixSnapshot.empty) {
+            return prefixSnapshot.docs[0];
+        }
+        // 2) Fallback: contains — seperti cariData() asli di Code.gs
+        const allSnapshot = await db.collection(collection).get();
+        return allSnapshot.docs.find(d => {
+            const data = d.data();
+            const nama = String(data[lowercaseField] || data.nama || data.Nama_Siswa || '').toLowerCase();
+            return nama.includes(term);
+        }) || null;
+    }
+
     async function cariDataGAS() {
         const idStr = document.getElementById('searchId').value.trim();
         if (!idStr) { showToast("Masukkan ID Pendaftaran atau Nama Siswa!", "error"); return; }
@@ -1704,13 +1733,12 @@
             console.log("Langkah 1: Tidak ditemukan.");
 
             // 2. Jika tidak ketemu, coba cari berdasarkan Nama (case-insensitive) di 'pendaftaran'
-            const searchStrLower = idStr.toLowerCase();
+            const searchStrLower = idStr.toLowerCase().trim();
             console.log(`Langkah 2: Mencari berdasarkan nama '${searchStrLower}' di koleksi 'pendaftaran' (field: nama_lowercase)...`);
-            let querySnapshot = await db.collection('pendaftaran').where('nama_lowercase', '==', searchStrLower).limit(1).get();
-            if (!querySnapshot.empty) {
-                const doc = querySnapshot.docs[0];
+            let docNama = await cariSiswaBerdasarkanNama('pendaftaran', 'nama_lowercase', searchStrLower);
+            if (docNama) {
                 console.log("Langkah 2: Sukses! Data ditemukan berdasarkan nama di 'pendaftaran'.");
-                handleSearchResult({ success: true, data: { ID_Pendaftaran: doc.id, ...doc.data() }, source: 'Master_Data' });
+                handleSearchResult({ success: true, data: { ID_Pendaftaran: docNama.id, ...docNama.data() }, source: 'Master_Data' });
                 return;
             }
             console.log("Langkah 2: Tidak ditemukan.");
@@ -1727,11 +1755,10 @@
 
             // 4. Jika tidak ketemu, coba cari berdasarkan Nama (case-insensitive) di 'siswaLanjutan'
             console.log(`Langkah 4: Mencari berdasarkan nama '${searchStrLower}' di koleksi 'siswaLanjutan' (field: Nama_Siswa_lowercase)...`);
-            querySnapshot = await db.collection('siswaLanjutan').where('Nama_Siswa_lowercase', '==', searchStrLower).limit(1).get();
-            if (!querySnapshot.empty) {
-                const doc = querySnapshot.docs[0];
+            docNama = await cariSiswaBerdasarkanNama('siswaLanjutan', 'Nama_Siswa_lowercase', searchStrLower);
+            if (docNama) {
                 console.log("Langkah 4: Sukses! Data ditemukan berdasarkan nama di 'siswaLanjutan'.");
-                handleSearchResult({ success: true, data: { ID_Siswa: doc.id, ...doc.data() }, source: 'Status_Lanjutan' });
+                handleSearchResult({ success: true, data: { ID_Siswa: docNama.id, ...docNama.data() }, source: 'Status_Lanjutan' });
                 return;
             }
             console.log("Langkah 4: Tidak ditemukan.");
