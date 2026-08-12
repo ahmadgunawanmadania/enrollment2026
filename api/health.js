@@ -9,7 +9,7 @@
  * Aman dibuka langsung di browser: https://<app>.vercel.app/api/health
  */
 
-const DEPLOY_VERSION = '2026-08-11-email-diagnostic-v6';
+const DEPLOY_VERSION = '2026-08-11-email-diagnostic-v7';
 
 module.exports = async function (req, res) {
   const report = {
@@ -204,12 +204,20 @@ module.exports = async function (req, res) {
       emailReport.adaPenerima = recipients.length > 0;
 
       const host = process.env.SMTP_HOST;
+      const smtpUser = process.env.SMTP_USER || '';
+      const smtpPass = process.env.SMTP_PASS || '';
       emailReport.smtp = {
         host: host ? 'terisi' : 'KOSONG',
         port: process.env.SMTP_PORT || '465 (default)',
         secure: String(process.env.SMTP_SECURE || 'true') === 'true' ? 'true' : 'false',
-        user: process.env.SMTP_USER ? 'terisi' : 'KOSONG',
-        pass: process.env.SMTP_PASS ? 'terisi' : 'KOSONG'
+        // Alamat pengirim disamarkan, mis. n***@gmail.com — untuk memastikan
+        // akunnya benar (harus akun yang membuat app password).
+        user: smtpUser ? smtpUser.replace(/^(.{1}).*@/, '$1***@') : 'KOSONG',
+        // Panjang & isi SMTP_PASS — app password Gmail SELALU 16 karakter
+        // tanpa spasi. Kalau beda, berarti yang terisi bukan app password.
+        pass: smtpPass ? 'terisi (' + smtpPass.length + ' karakter)' : 'KOSONG',
+        passAdaSpasi: smtpPass.includes(' ') || smtpPass.includes('\t'),
+        passAdaEnter: smtpPass.includes('\n') || smtpPass.includes('\r')
       };
 
       if (!recipients.length) {
