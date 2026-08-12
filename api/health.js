@@ -9,7 +9,7 @@
  * Aman dibuka langsung di browser: https://<app>.vercel.app/api/health
  */
 
-const DEPLOY_VERSION = '2026-08-11-email-diagnostic-v7';
+const DEPLOY_VERSION = '2026-08-12-email-diagnostic-v8';
 
 module.exports = async function (req, res) {
   const report = {
@@ -207,7 +207,7 @@ module.exports = async function (req, res) {
       const smtpUser = process.env.SMTP_USER || '';
       const smtpPass = process.env.SMTP_PASS || '';
       emailReport.smtp = {
-        host: host ? 'terisi' : 'KOSONG',
+        host: host ? host : 'KOSONG',
         port: process.env.SMTP_PORT || '465 (default)',
         secure: String(process.env.SMTP_SECURE || 'true') === 'true' ? 'true' : 'false',
         // Alamat pengirim disamarkan, mis. n***@gmail.com — untuk memastikan
