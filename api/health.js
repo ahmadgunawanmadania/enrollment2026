@@ -9,7 +9,7 @@
  * Aman dibuka langsung di browser: https://<app>.vercel.app/api/health
  */
 
-const DEPLOY_VERSION = '2026-08-11-fix-search-batch-commit-v5';
+const DEPLOY_VERSION = '2026-08-11-email-diagnostic-v6';
 
 module.exports = async function (req, res) {
   const report = {
@@ -48,6 +48,13 @@ module.exports = async function (req, res) {
     'GOOGLE_PRIVATE_KEY',
     'SPREADSHEET_ID',
     'SMTP_HOST',
+    'SMTP_PORT',
+    'SMTP_SECURE',
+    'SMTP_USER',
+    'SMTP_PASS',
+    'EMAIL_FROM',
+    'EMAIL_NAME',
+    'NOTIFICATION_EMAILS',
     'ADMIN_EMAIL'
   ];
   report.env = {};
@@ -174,6 +181,67 @@ module.exports = async function (req, res) {
     report.handlerInvocation = 'OK (HTTP ' + statusCode + ', data: ' + JSON.stringify(bodyJson).slice(0, 150) + ')';
   } catch (e) {
     report.handlerInvocation = 'ERROR: ' + (e.message || e);
+  }
+
+  // 11) Diagnostik EMAIL — hanya berjalan saat dipanggil ?test=email
+  //     (https://<app>.vercel.app/api/health?test=email).
+  //     Membuka tautan itu akan MENGIRIM email tes nyata ke penerima yang diatur.
+  if (req.query && String(req.query.test) === 'email') {
+    const emailReport = {};
+    try {
+      // Tentukan sumber daftar penerima (dokumen Firestore vs env var)
+      const { getDoc, fromFirestoreFields } = require('../lib/firestore');
+      const doc = await getDoc('settings', 'notifications');
+      const docSettings = doc && doc.fields ? fromFirestoreFields(doc.fields) : null;
+      const sumber = docSettings ? 'Firestore (tab Pengaturan)' : 'env NOTIFICATION_EMAILS';
+      const emailsRaw = (docSettings && docSettings.emails) || process.env.NOTIFICATION_EMAILS || '';
+      const recipients = emailsRaw.split(',').map(e => e.trim()).filter(Boolean);
+
+      emailReport.sumberPenerima = sumber;
+      emailReport.penerima = recipients.length
+        ? recipients.map(e => e.replace(/^(.).*(@.*)$/, '$1***$2')).join(', ')
+        : '(KOSONG)';
+      emailReport.adaPenerima = recipients.length > 0;
+
+      const host = process.env.SMTP_HOST;
+      emailReport.smtp = {
+        host: host ? 'terisi' : 'KOSONG',
+        port: process.env.SMTP_PORT || '465 (default)',
+        secure: String(process.env.SMTP_SECURE || 'true') === 'true' ? 'true' : 'false',
+        user: process.env.SMTP_USER ? 'terisi' : 'KOSONG',
+        pass: process.env.SMTP_PASS ? 'terisi' : 'KOSONG'
+      };
+
+      if (!recipients.length) {
+        emailReport.hasil = 'GAGAL SEBELUM KIRIM: tidak ada email penerima. Isi daftar penerima di tab Pengaturan (atau set env NOTIFICATION_EMAILS).';
+      } else if (!host) {
+        emailReport.hasil = 'GAGAL SEBELUM KIRIM: SMTP_HOST belum diatur di Vercel (Environment Variables).';
+      } else {
+        const nodemailer = require('nodemailer');
+        const transporter = nodemailer.createTransport({
+          host,
+          port: parseInt(process.env.SMTP_PORT || '465', 10),
+          secure: String(process.env.SMTP_SECURE || 'true') === 'true',
+          auth: process.env.SMTP_USER
+            ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS || '' }
+            : undefined
+        });
+        try {
+          const info = await transporter.sendMail({
+            from: `"${process.env.EMAIL_NAME || 'Sistem Pendaftaran Madania'}" <${process.env.EMAIL_FROM || process.env.SMTP_USER || 'noreply@localhost'}>`,
+            to: recipients.join(','),
+            subject: 'Tes notifikasi email dari /api/health',
+            html: '<p>Ini email tes dari sistem pendaftaran. Jika Anda menerima ini, konfigurasi SMTP &amp; penerima sudah benar.</p>'
+          });
+          emailReport.hasil = 'TERKIRIM OK (messageId: ' + (info.messageId || '-') + ')';
+        } catch (e) {
+          emailReport.hasil = 'GAGAL KIRIM: ' + (e.message || e);
+        }
+      }
+    } catch (e) {
+      emailReport.hasil = 'ERROR: ' + (e.message || e);
+    }
+    report.emailTest = emailReport;
   }
 
   res.status(200).json(report);
