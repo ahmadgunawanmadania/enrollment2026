@@ -76,6 +76,8 @@ Isi di Vercel → Project → Settings → Environment Variables. Contoh nilai a
 | `SMTP_USER` / `SMTP_PASS` | ⬜ | Kredensial SMTP |
 | `EMAIL_FROM` | ⬜ | Alamat pengirim; fallback ke `SMTP_USER` |
 | `EMAIL_NAME` | ⬜ | Nama pengirim, default "Sistem Pendaftaran Madania" |
+| `GAS_NOTIFY_URL` | ⬜ | URL web app Apps Script (fungsi `doPost` di Code.gs) untuk relay email via `MailApp` — menggantikan SMTP, tanpa app password |
+| `GAS_NOTIFY_TOKEN` | ⬜ | Token pengaman relay; harus sama dengan Script Property `notifyToken` di GAS (opsional) |
 | `ADMIN_EMAIL` | ⬜ | Email yang dicatat di Log_Update (pengganti `Session.getActiveUser()`) |
 | `NOTIFICATION_EMAILS` | ⬜ | Nilai awal email penerima notifikasi |
 | `NOTIFICATION_WHATSAPPS` | ⬜ | Nilai awal nomor WhatsApp penerima |
