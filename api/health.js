@@ -55,6 +55,8 @@ module.exports = async function (req, res) {
     'EMAIL_FROM',
     'EMAIL_NAME',
     'NOTIFICATION_EMAILS',
+    'GAS_NOTIFY_URL',
+    'GAS_NOTIFY_TOKEN',
     'ADMIN_EMAIL'
   ];
   report.env = {};
@@ -222,6 +224,27 @@ module.exports = async function (req, res) {
 
       if (!recipients.length) {
         emailReport.hasil = 'GAGAL SEBELUM KIRIM: tidak ada email penerima. Isi daftar penerima di tab Pengaturan (atau set env NOTIFICATION_EMAILS).';
+      } else if (process.env.GAS_NOTIFY_URL) {
+        // Mode RELAY GAS (MailApp) — prioritas bila GAS_NOTIFY_URL terisi
+        emailReport.mode = 'GAS relay (MailApp) — ' + process.env.GAS_NOTIFY_URL;
+        try {
+          const res = await fetch(process.env.GAS_NOTIFY_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              subject: 'Tes notifikasi email dari /api/health',
+              htmlBody: '<p>Ini email tes dari sistem pendaftaran (via relay GAS). Jika Anda menerima ini, konfigurasi notifikasi sudah benar.</p>',
+              recipients: recipients.join(','),
+              token: process.env.GAS_NOTIFY_TOKEN || ''
+            })
+          });
+          const text = await res.text();
+          emailReport.hasil = res.ok
+            ? 'TERKIRIM OK via GAS relay (HTTP ' + res.status + ', body: ' + text.slice(0, 150) + ')'
+            : 'GAGAL KIRIM via GAS relay: HTTP ' + res.status + ' - ' + text.slice(0, 200);
+        } catch (e) {
+          emailReport.hasil = 'GAGAL KIRIM via GAS relay: ' + (e.message || e);
+        }
       } else if (!host) {
         emailReport.hasil = 'GAGAL SEBELUM KIRIM: SMTP_HOST belum diatur di Vercel (Environment Variables).';
       } else {
