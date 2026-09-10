@@ -6,19 +6,33 @@ service cloud.firestore {
     // FIRESTORE SECURITY RULES — Madania Enrollment System
     // =================================================================
     //
-    // Semua akses Firestore dilakukan SERVER-SIDE melalui REST API
-    // menggunakan Service Account (admin privileges), bukan dari client SDK.
-    // Oleh karena itu, semua operasi client DITOLAK (deny all).
+    // Data utama (pendaftaran, siswaLanjutan, masterSiswa) dibaca/ditulis
+    // LANGSUNG dari browser via Firebase Web SDK (lihat Index.html) —
+    // jadi harus diizinkan di rules. Service Account tetap bypass rules
+    // (admin privileges) untuk akses server-side (Sheets backup, settings, dll).
     //
-    // Service Account tetap bisa mengakses Firestore tanpa melalui
-    // rules ini (admin bypass).
-    //
-    // Jika di masa depan ada kebutuhan akses client-side (misalnya
-    // Firebase Auth + client SDK), tambahkan rules di bawah ini
-    // sesuai kebutuhan.
+    // Koleksi `settings` tetap deny (hanya server yang boleh via REST API).
+    // Jika ingin lebih aman, ganti `if true` di bawah dengan
+    // `if request.auth != null` setelah mengaktifkan Firebase Auth.
     // =================================================================
 
-    // Deny all client read/write access
+    // Koleksi yang diakses langsung dari browser
+    match /pendaftaran/{docId} {
+      allow read, write: if true;
+    }
+    match /siswaLanjutan/{docId} {
+      allow read, write: if true;
+    }
+    match /masterSiswa/{docId} {
+      allow read, write: if true;
+    }
+
+    // Settings hanya via server (api/*)
+    match /settings/{docId} {
+      allow read, write: if false;
+    }
+
+    // Default deny
     match /{document=**} {
       allow read, write: if false;
     }
