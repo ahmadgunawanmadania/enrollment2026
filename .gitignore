@@ -7,6 +7,7 @@
 *.json
 !package.json
 !vercel.json
+!firebase.json
 
 # Dependensi
 node_modules/
