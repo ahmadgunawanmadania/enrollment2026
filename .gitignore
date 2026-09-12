@@ -22,3 +22,5 @@ Thumbs.db
 
 # Freebuff / local cache
 .freebuff/
+.vercel
+.env*
