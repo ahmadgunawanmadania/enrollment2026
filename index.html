@@ -850,6 +850,26 @@
                 <option value="Mengundurkan Diri">Mengundurkan Diri</option>
 </select>
 </div>
+        <!-- NEW FIELD: Benefit Tambahan -->
+        <div>
+            <label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Benefit Tambahan</label>
+            <p class="text-xs text-on-surface-variant mb-2">Pilih lebih dari 1 jika perlu. Voucher akan otomatis dibuat untuk pembukuan stok.</p>
+            <div class="space-y-2 p-3 rounded-lg border border-outline-variant bg-surface-container-low">
+                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="benefitTambahan_opt" value="1 Stel Seragam" class="rounded border-outline-variant text-primary focus:ring-primary" onchange="handleBenefitChange()"> <span class="text-sm">1 Stel Seragam</span></label>
+                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="benefitTambahan_opt" value="Merchandise" class="rounded border-outline-variant text-primary focus:ring-primary" onchange="handleBenefitChange()"> <span class="text-sm">Merchandise</span></label>
+                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="benefitTambahan_opt" value="Others" class="rounded border-outline-variant text-primary focus:ring-primary" onchange="handleBenefitChange()"> <span class="text-sm">Others</span></label>
+                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="benefitTambahan_opt" value="None" class="rounded border-outline-variant text-primary focus:ring-primary" onchange="handleBenefitChange()"> <span class="text-sm">None (tidak ada benefit)</span></label>
+            </div>
+            <input type="hidden" id="benefitTambahan" name="benefitTambahan" value="">
+        </div>
+        <div>
+            <label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Kode Voucher Stok</label>
+            <div class="flex gap-2">
+                <input class="flex-1 px-4 py-2.5 rounded-lg border border-outline-variant bg-surface-container font-mono text-sm font-bold" id="voucherCode" name="voucherCode" type="text" placeholder="Otomatis terisi jika benefit dipilih" readonly>
+                <button type="button" class="px-4 py-2.5 bg-secondary-container text-on-secondary-container font-semibold rounded-lg hover:opacity-90 flex items-center gap-1" onclick="generateVoucherCode()"><span class="material-symbols-outlined text-sm">confirmation_number</span> Generate</button>
+            </div>
+            <p class="text-xs text-on-surface-variant mt-1">Kode unik untuk pembukuan stok barang. Otomatis ter-generate saat benefit dipilih.</p>
+        </div>
 <div class="hidden" id="keteranganUpdateDiv">
 <label class="block text-sm font-bold text-secondary mb-1.5 flex items-center gap-2">
 <span class="material-symbols-outlined text-sm">history_edu</span>
@@ -1297,6 +1317,57 @@
             tglInput.removeAttribute('required');
         }
     }
+
+    // === Benefit Tambahan + Voucher ===
+    function handleBenefitChange() {
+        const checks = document.querySelectorAll('input[name="benefitTambahan_opt"]');
+        const hidden = document.getElementById('benefitTambahan');
+        const voucherInput = document.getElementById('voucherCode');
+        const values = [];
+        let hasNone = false;
+        checks.forEach(c => { if (c.checked) { values.push(c.value); if (c.value === 'None') hasNone = true; } });
+        // Jika None dipilih, uncheck yang lain
+        if (hasNone && values.length > 1) {
+            checks.forEach(c => { if (c.value !== 'None') c.checked = false; });
+            hidden.value = 'None';
+            voucherInput.value = '';
+            return;
+        }
+        if (values.includes('None')) {
+            hidden.value = 'None';
+            voucherInput.value = '';
+            return;
+        }
+        hidden.value = values.join(', ');
+        // Auto-generate voucher jika ada benefit
+        if (values.length > 0) {
+            if (!voucherInput.value) generateVoucherCode();
+            else {
+                // update suffix jika benefit berubah tapi kode sudah ada
+                // biarkan kode tetap, user bisa regenerasi manual
+            }
+        } else {
+            voucherInput.value = '';
+        }
+    }
+    function generateVoucherCode() {
+        const hidden = document.getElementById('benefitTambahan');
+        const voucherInput = document.getElementById('voucherCode');
+        const benefits = hidden.value;
+        if (!benefits || benefits === 'None') {
+            voucherInput.value = '';
+            return;
+        }
+        // Kode voucher: VCH-YYYYMMDD-XXXX-SUFFIX
+        // SUFFIX: S=Seragam, M=Merchandise, O=Others
+        const benefitMap = { '1 Stel Seragam': 'S', 'Merchandise': 'M', 'Others': 'O' };
+        const suffix = benefits.split(', ').map(b => benefitMap[b] || 'X').join('');
+        const date = new Date();
+        const ymd = date.getFullYear().toString() + String(date.getMonth()+1).padStart(2,'0') + String(date.getDate()).padStart(2,'0');
+        const rand = Math.random().toString(36).substring(2,6).toUpperCase();
+        const code = `VCH-${ymd}-${rand}-${suffix}`;
+        voucherInput.value = code;
+    }
     // New helper function for currency formatting
     function formatRupiahInput(inputElement, numericValue) {
         if (isNaN(numericValue)) {
@@ -1645,6 +1716,20 @@
           dataObj[item.name] = item.dataset.numericValue || item.value;
         }
       }
+        // Hapus field checkbox helper agar tidak masuk Firestore
+        delete dataObj.benefitTambahan_opt;
+
+        // Auto-generate voucher jika benefit dipilih tapi kode kosong
+        if (dataObj.benefitTambahan && dataObj.benefitTambahan !== 'None' && dataObj.benefitTambahan.trim() !== '' && (!dataObj.voucherCode || dataObj.voucherCode.trim() === '')) {
+            const benefitMap = { '1 Stel Seragam': 'S', 'Merchandise': 'M', 'Others': 'O' };
+            const suffix = dataObj.benefitTambahan.split(', ').map(b => benefitMap[b] || 'X').join('');
+            const ymd = new Date().toISOString().slice(0,10).replace(/-/g,'');
+            const rand = Math.random().toString(36).substring(2,6).toUpperCase();
+            dataObj.voucherCode = `VCH-${ymd}-${rand}-${suffix}`;
+            document.getElementById('voucherCode').value = dataObj.voucherCode;
+        }
+        if (!dataObj.benefitTambahan || dataObj.benefitTambahan.trim() === '') dataObj.benefitTambahan = 'None';
+        if (dataObj.benefitTambahan === 'None') dataObj.voucherCode = '';
 
         showLoading(true);
 
@@ -2218,6 +2303,13 @@
       setValueIfExist('tglBooking', d.tglBooking);
       setValueIfExist('metodeBayar', d.metodeBayar);
       setValueIfExist('statusPendaftaran', d.Status_Pendaftaran);
+      // Benefit Tambahan + Voucher
+      const benefitVal = d.benefitTambahan || d.Benefit_Tambahan || d.benefitTambahanHidden || '';
+      document.getElementById('benefitTambahan').value = benefitVal;
+      document.querySelectorAll('input[name="benefitTambahan_opt"]').forEach(c => {
+        c.checked = benefitVal.split(', ').includes(c.value);
+      });
+      setValueIfExist('voucherCode', d.voucherCode || d.Voucher_Code || '');
       // Gunakan fungsi baru untuk mengatur nilai mata uang
       setCurrencyValue('tarifSSP', d.Tarif_SSP);
       setCurrencyValue('diskon', d.Diskon);
@@ -2270,6 +2362,10 @@
       toggleSiblingFields();
       setValueIfExist('periodeSSP', '');
       document.getElementById('statusPendaftaran').value = "Aktif"; // Reset new field
+      // Reset Benefit & Voucher
+      document.getElementById('benefitTambahan').value = '';
+      document.querySelectorAll('input[name="benefitTambahan_opt"]').forEach(c => c.checked = false);
+      document.getElementById('voucherCode').value = '';
       calcKeuangan();
       // Reset nilai mata uang
       setCurrencyValue('tarifSSP', 0);
