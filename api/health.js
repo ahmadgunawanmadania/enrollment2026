@@ -87,7 +87,7 @@ module.exports = async function (req, res) {
   try {
     const { readSheet } = require('../lib/sheets');
     const { headers } = await readSheet('Master_Data');
-    report.sheets = 'OK (kolom: ' + String(headers.join(', ')).slice(0, 300) + ')';
+    report.sheets = 'OK (kolom: ' + String(headers.join(', ')) + ')'; report.sheetsHeaderCount = headers.length; report.sheetsHeaders = headers;
   } catch (e) {
     report.sheets = 'ERROR: ' + (e.message || e);
   }
