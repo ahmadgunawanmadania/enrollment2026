@@ -393,6 +393,12 @@
 <p class="text-sm text-on-surface-variant">Laporan pendaftaran dan status pembayaran terkini.</p>
 </div>
 <div class="flex flex-wrap justify-end gap-2 sm:gap-4">
+<select class="w-full sm:w-48 px-4 py-2.5 rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-transparent bg-surface-container-lowest" id="rekapFilterKategori" onchange="applyRekapFilter()">
+<option value="Semua">Semua Kategori</option>
+<option value="baru">Murid Baru</option>
+<option value="transfer">Murid Transfer / Pindahan</option>
+<option value="lanjutan">Murid Lanjutan (Internal)</option>
+          </select>
 <select class="w-full sm:w-48 px-4 py-2.5 rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-transparent bg-surface-container-lowest" id="rekapFilterJenjang" onchange="applyRekapFilter()">
 <option value="Semua">Semua Jenjang</option>
 <option value="TK">TK</option>
@@ -404,6 +410,20 @@
 <span class="material-symbols-outlined text-sm">refresh</span>
             Muat Ulang
           </button>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4" id="rekapSummary">
+<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center"><span class="material-symbols-outlined">person_add</span></div>
+<div><p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Murid Baru</p><p class="text-xl font-black text-on-surface" id="rekapCountBaru">0</p></div>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-secondary-container text-on-secondary-container flex items-center justify-center"><span class="material-symbols-outlined">sync_alt</span></div>
+<div><p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Murid Transfer</p><p class="text-xl font-black text-on-surface" id="rekapCountTransfer">0</p></div>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-tertiary-container text-tertiary flex items-center justify-center"><span class="material-symbols-outlined">escalator_warning</span></div>
+<div><p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Murid Lanjutan</p><p class="text-xl font-black text-on-surface" id="rekapCountLanjutan">0</p></div>
 </div>
 </div>
 <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-x-auto">
@@ -1964,16 +1984,67 @@
         }
     }
 
+    function getRekapKategoriKey(row) {
+        const k = String(row.kategori || '').toLowerCase();
+        if (k.startsWith('baru')) return 'baru';
+        if (k.startsWith('pindah') || k.includes('pindah') || k.includes('transfer')) return 'transfer';
+        if (k.includes('lanjut')) return 'lanjutan';
+        return 'lain';
+    }
+    const REKAP_KATEGORI_LABEL = {
+        baru: 'Murid Baru',
+        transfer: 'Murid Transfer / Pindahan',
+        lanjutan: 'Murid Lanjutan (Internal)',
+        lain: 'Lainnya'
+    };
+
+    function buildRekapRowHtml(row) {
+        const totalBayar = parseFloat(row.Total_Bayar) || 0;
+        const tarifNett = parseFloat(row.Tarif_Nett) || 0;
+        const sisaBayar = tarifNett - totalBayar;
+        const persentase = parseFloat(row.Persentase_Bayar) || 0;
+        const sisaBayarText = sisaBayar <= 0 ? '<span class="font-bold text-green-600">Lunas</span>' : `Rp ${formatRupiah(sisaBayar)}`;
+        return `
+                <tr class="hover:bg-surface-container transition-colors group text-xs sm:text-sm">
+                    <td class="px-2 py-2 md:px-6 md:py-4">
+                      <div class="text-sm font-bold text-on-surface">${row.nama || ''}</div>
+                      <div class="text-[10px] text-outline">${row.kategori || ''} (${row.ID_Pendaftaran || '-'})</div>
+                    </td>
+                    <td class="px-2 py-2 md:px-6 md:py-4 text-on-surface-variant">${row.jenjang || ''} - ${row.kelas || ''}</td>
+                    <td class="px-2 py-2 md:px-6 md:py-4 text-center"><span class="px-2 py-1 text-[10px] font-black uppercase rounded ${row.statusBooking === 'Ya' ? 'bg-tertiary-container text-tertiary' : 'bg-surface-container text-on-surface-variant'}">${row.statusBooking || 'Tidak'}</span></td>
+                    <td class="px-2 py-2 md:px-6 md:py-4 font-bold text-right text-tertiary">Rp ${formatRupiah(totalBayar)}</td>
+                    <td class="px-2 py-2 md:px-6 md:py-4 font-medium text-right text-on-surface-variant">${persentase > 0 ? persentase.toFixed(2) + '%' : '-'}</td>
+                    <td class="px-2 py-2 md:px-6 md:py-4 font-medium text-right text-on-surface-variant">${sisaBayarText}</td>
+                </tr>`;
+    }
+
     function applyRekapFilter() {
         const tableBody = document.getElementById('rekapTableBody');
-        const filterValue = document.getElementById('rekapFilterJenjang').value;
+        const filterJenjang = document.getElementById('rekapFilterJenjang').value;
+        const filterKategoriEl = document.getElementById('rekapFilterKategori');
+        const filterKategori = filterKategoriEl ? filterKategoriEl.value : 'Semua';
 
-        const filteredData = filterValue === 'Semua' 
-            ? rekapDataCache 
-            : rekapDataCache.filter(row => row.jenjang === filterValue);
+        const baseData = filterJenjang === 'Semua'
+            ? rekapDataCache
+            : rekapDataCache.filter(row => row.jenjang === filterJenjang);
+
+        // Ringkasan 3 grup (mengikuti filter jenjang, mengabaikan filter kategori)
+        const countBaru = baseData.filter(r => getRekapKategoriKey(r) === 'baru').length;
+        const countTransfer = baseData.filter(r => getRekapKategoriKey(r) === 'transfer').length;
+        const countLanjutan = baseData.filter(r => getRekapKategoriKey(r) === 'lanjutan').length;
+        const elBaru = document.getElementById('rekapCountBaru');
+        const elTransfer = document.getElementById('rekapCountTransfer');
+        const elLanjutan = document.getElementById('rekapCountLanjutan');
+        if (elBaru) elBaru.textContent = countBaru;
+        if (elTransfer) elTransfer.textContent = countTransfer;
+        if (elLanjutan) elLanjutan.textContent = countLanjutan;
+
+        const filteredData = filterKategori === 'Semua'
+            ? baseData
+            : baseData.filter(row => getRekapKategoriKey(row) === filterKategori);
 
         if (!filteredData || filteredData.length === 0) {
-            const message = rekapDataCache.length === 0 
+            const message = rekapDataCache.length === 0
                 ? '<div class="flex flex-col items-center gap-2"><span class="material-symbols-outlined text-4xl opacity-20">upcoming</span><p>Belum ada data pendaftar.</p></div>'
                 : '<div class="flex flex-col items-center gap-2"><span class="material-symbols-outlined text-4xl opacity-20">filter_list_off</span><p>Tidak ada data cocok.</p></div>';
             tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-on-surface-variant">${message}</td></tr>`;
@@ -1981,26 +2052,18 @@
         }
 
         let tableHtml = '';
-        filteredData.forEach(row => {
-            const totalBayar = parseFloat(row.Total_Bayar) || 0;
-            const tarifNett = parseFloat(row.Tarif_Nett) || 0;
-            const sisaBayar = tarifNett - totalBayar;
-            const persentase = parseFloat(row.Persentase_Bayar) || 0;
-            const sisaBayarText = sisaBayar <= 0 ? '<span class="font-bold text-green-600">Lunas</span>' : `Rp ${formatRupiah(sisaBayar)}`;
-
-            tableHtml += `
-                <tr class="hover:bg-surface-container transition-colors group text-xs sm:text-sm">
-                    <td class="px-2 py-2 md:px-6 md:py-4">
-                      <div class="text-sm font-bold text-on-surface">${row.nama || ''}</div>
-                      <div class="text-[10px] text-outline">${row.kategori || ''} (${row.ID_Pendaftaran || '-'})</div>
-                    </td> 
-                    <td class="px-2 py-2 md:px-6 md:py-4 text-on-surface-variant">${row.jenjang || ''} - ${row.kelas || ''}</td>
-                    <td class="px-2 py-2 md:px-6 md:py-4 text-center"><span class="px-2 py-1 text-[10px] font-black uppercase rounded ${row.statusBooking === 'Ya' ? 'bg-tertiary-container text-tertiary' : 'bg-surface-container text-on-surface-variant'}">${row.statusBooking || 'Tidak'}</span></td>
-                    <td class="px-2 py-2 md:px-6 md:py-4 font-bold text-right text-tertiary">Rp ${formatRupiah(totalBayar)}</td>
-                    <td class="px-2 py-2 md:px-6 md:py-4 font-medium text-right text-on-surface-variant">${persentase > 0 ? persentase.toFixed(2) + '%' : '-'}</td>
-                    <td class="px-2 py-2 md:px-6 md:py-4 font-medium text-right text-on-surface-variant">${sisaBayarText}</td>
-                </tr>`;
-        });
+        if (filterKategori === 'Semua') {
+            // Pisahkan jadi 3 grup berurutan: Baru, Transfer, Lanjutan (+ Lainnya bila ada)
+            ['baru', 'transfer', 'lanjutan', 'lain'].forEach(key => {
+                const group = filteredData.filter(row => getRekapKategoriKey(row) === key);
+                if (group.length === 0) return;
+                tableHtml += `<tr class="bg-surface-container border-y border-outline-variant"><td colspan="6" class="px-2 py-2 md:px-6 md:py-3 text-xs font-black uppercase tracking-wider text-on-surface-variant">${REKAP_KATEGORI_LABEL[key]} (${group.length})</td></tr>`;
+                group.forEach(row => { tableHtml += buildRekapRowHtml(row); });
+            });
+        } else {
+            tableHtml += `<tr class="bg-surface-container border-y border-outline-variant"><td colspan="6" class="px-2 py-2 md:px-6 md:py-3 text-xs font-black uppercase tracking-wider text-on-surface-variant">${REKAP_KATEGORI_LABEL[filterKategori] || filterKategori} (${filteredData.length})</td></tr>`;
+            filteredData.forEach(row => { tableHtml += buildRekapRowHtml(row); });
+        }
         tableBody.innerHTML = tableHtml;
     }
 
@@ -2096,6 +2159,8 @@
 
         rekapDataCache = response.data || [];
         document.getElementById('rekapFilterJenjang').value = 'Semua';
+        const katEl = document.getElementById('rekapFilterKategori');
+        if (katEl) katEl.value = 'Semua';
         applyRekapFilter();
         showToast("Rekapitulasi berhasil diperbarui.", "success");
     }
