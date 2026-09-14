@@ -101,8 +101,10 @@
 <span id="toastText" class="">Message</span>
 </div>
 </div>
-<!-- Side Navigation Bar -->
-<aside class="fixed left-0 top-0 bottom-0 w-64 bg-surface-container-low border-r border-outline-variant flex-col z-40 hidden lg:flex">
+<!-- Sidebar Overlay (auto-hide) -->
+<div id="sidebarOverlay" class="hidden fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-40" onclick="closeSidebar()"></div>
+<!-- Side Navigation Bar (auto-hide drawer) -->
+<aside id="sidebar" class="fixed left-0 top-0 bottom-0 w-64 bg-surface-container-low border-r border-outline-variant flex flex-col z-50 shadow-2xl transition-transform duration-300 -translate-x-full" onmouseleave="handleSidebarMouseLeave()">
 <div class="p-6">
 <div class="flex items-center gap-3 mb-1">
 <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-white">
@@ -154,9 +156,13 @@
 </div>
 </aside>
 <!-- Main Content Area -->
-<main class="ml-0 lg:ml-64 flex flex-col lg:min-h-screen pb-20 lg:pb-0">
+<main class="ml-0 flex flex-col min-h-screen pb-20 lg:pb-0">
 <!-- Header/TopBar -->
 <header class="h-16 border-b border-outline-variant bg-surface px-4 lg:px-8 flex items-center justify-between sticky top-0 z-30">
+<div class="flex items-center gap-2">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full" onclick="toggleSidebar()" title="Menu">
+<span class="material-symbols-outlined">menu</span>
+</button>
 <!-- Mobile Logo -->
 <div class="flex items-center gap-2 lg:hidden">
 <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white">
@@ -167,6 +173,7 @@
 <!-- Desktop Title -->
 <div class="hidden lg:flex items-center gap-2">
 <span class="text-lg font-bold text-on-surface" id="currentTabLabel">Dashboard</span>
+</div>
 </div>
 <div class="flex items-center gap-2">
 <div class="relative">
@@ -1147,7 +1154,39 @@
     let jenjangChartInstance, kategoriChartInstance, statusLanjutanChartInstance;
 
     // UI & TAB LOGIC
+    // === Sidebar auto-hide (drawer) ===
+    let sidebarHideTimer = null;
+    function openSidebar() {
+      const sb = document.getElementById('sidebar');
+      const ov = document.getElementById('sidebarOverlay');
+      if (sb) sb.classList.remove('-translate-x-full');
+      if (ov) ov.classList.remove('hidden');
+    }
+    function closeSidebar() {
+      const sb = document.getElementById('sidebar');
+      const ov = document.getElementById('sidebarOverlay');
+      if (sb) sb.classList.add('-translate-x-full');
+      if (ov) ov.classList.add('hidden');
+      if (sidebarHideTimer) { clearTimeout(sidebarHideTimer); sidebarHideTimer = null; }
+    }
+    function toggleSidebar() {
+      const sb = document.getElementById('sidebar');
+      if (sb && sb.classList.contains('-translate-x-full')) openSidebar();
+      else closeSidebar();
+    }
+    function handleSidebarMouseLeave() {
+      // Auto-hide saat mouse keluar sidebar (mode laptop/desktop saja)
+      if (window.matchMedia('(hover: hover) and (min-width: 1024px)').matches) {
+        if (sidebarHideTimer) clearTimeout(sidebarHideTimer);
+        sidebarHideTimer = setTimeout(closeSidebar, 400);
+      }
+    }
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeSidebar();
+    });
+
     function switchTab(tabName) {
+      closeSidebar();
       const btnDaftar = document.getElementById('btnDaftar');
       const btnUpdate = document.getElementById('btnUpdate');
       const btnLanjutan = document.getElementById('btnLanjutan');
