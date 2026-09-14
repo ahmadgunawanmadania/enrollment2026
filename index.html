@@ -142,6 +142,10 @@
 <span class="material-symbols-outlined text-[20px]">monitoring</span>
 <span class="text-sm">Dashboard</span>
 </button>
+<button class="nav-transition w-full flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container font-medium" id="btnSimulator" onclick="switchTab('tabSimulator')">
+<span class="material-symbols-outlined text-[20px]">calculate</span>
+<span class="text-sm">Simulator Diskon</span>
+</button>
 </nav>
 <div class="p-6 border-t border-outline-variant">
 <div class="flex items-center gap-3">
@@ -391,6 +395,218 @@
             </div>
         </div>
     </div>
+</div>
+</div>
+<!-- SIMULATOR DISKON TAB CONTENT -->
+<div class="hidden animate-in fade-in slide-in-from-bottom-4 duration-300" id="tabSimulator">
+<div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
+<div class="flex-1">
+<h2 class="text-lg md:text-xl font-bold text-on-surface">Simulator Uang Pangkal</h2>
+<p class="text-sm text-on-surface-variant">Sekolah Madania — Tahun Ajaran 2027/2028. Nominal diskon bisa ditarik ke form pendaftaran.</p>
+</div>
+<div class="flex gap-2">
+<button id="sim-tab-individu" class="px-4 py-2.5 rounded-lg bg-primary text-on-primary text-sm font-semibold" onclick="switchSimTab('individu')" type="button">Diskon Individu</button>
+<button id="sim-tab-sibling" class="px-4 py-2.5 rounded-lg border border-outline-variant bg-surface-container-lowest text-sm font-semibold text-on-surface-variant" onclick="switchSimTab('sibling')" type="button">Sibling Bersamaan</button>
+</div>
+</div>
+<div id="sim-individu">
+<div class="bg-surface-container-lowest p-4 md:p-6 rounded-xl border border-outline-variant shadow-sm">
+<div class="flex items-center gap-3 mb-6 border-b border-outline-variant pb-4">
+<span class="material-symbols-outlined text-primary">calculate</span>
+<h2 class="text-lg font-bold text-on-surface">1. Data Calon Murid</h2>
+</div>
+<form id="sim-form" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6" onsubmit="return false">
+<div class="md:col-span-2">
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5" for="sim-ssp-period">Periode Pembayaran SSP</label>
+<select class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-transparent" id="sim-ssp-period" name="sim-ssp-period">
+<option value="">Pilih Periode</option>
+<option value="1 tahun">1 Tahun</option>
+<option value="2 tahun">2 Tahun</option>
+<option value="3 tahun">3 Tahun</option>
+<option value="4 tahun">4 Tahun</option>
+<option value="5 tahun">5 Tahun</option>
+<option value="6 tahun">6 Tahun</option>
+<option value="Primary ke Lower Secondary lanjutan, 3 (tiga) tahun">Primary ke Lower Secondary lanjutan, 3 tahun</option>
+<option value="Lower Secondary ke Higher Secondary lanjutan, 3 (tiga) tahun">Lower Secondary ke Higher Secondary lanjutan, 3 tahun</option>
+<option value="Tarif Kelas 4-9">Tarif Kelas 4-9</option>
+<option value="Tarif Kelas 5-9">Tarif Kelas 5-9</option>
+<option value="Tarif Kelas 6-9">Tarif Kelas 6-9</option>
+</select>
+</div>
+<div>
+<span class="block text-sm font-semibold text-on-surface-variant mb-2">Tingkat Pendidikan</span>
+<div class="flex flex-wrap gap-4">
+<label class="flex items-center gap-2 text-sm"><input class="h-4 w-4" name="sim-level" type="radio" value="Early Years" checked> Early Years</label>
+<label class="flex items-center gap-2 text-sm"><input class="h-4 w-4" name="sim-level" type="radio" value="Primary"> Primary</label>
+<label class="flex items-center gap-2 text-sm"><input class="h-4 w-4" name="sim-level" type="radio" value="Secondary"> Secondary</label>
+</div>
+</div>
+<div>
+<span class="block text-sm font-semibold text-on-surface-variant mb-2">Tipe Pendaftaran</span>
+<div class="flex flex-wrap gap-4">
+<label class="flex items-center gap-2 text-sm"><input class="h-4 w-4" id="sim-type-lanjutan" name="sim-student-type" type="radio" value="Lanjutan"> Murid Lanjutan</label>
+<label class="flex items-center gap-2 text-sm"><input class="h-4 w-4" id="sim-type-eksternal" name="sim-student-type" type="radio" value="Eksternal" checked> Murid Eksternal</label>
+</div>
+</div>
+<div class="md:col-span-2">
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5" for="sim-base-fee">Uang Pangkal/SSP (Rp)</label>
+<input class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-transparent" id="sim-base-fee" name="sim-base-fee" placeholder="Terisi otomatis sesuai periode &amp; tingkat" type="number">
+</div>
+<div class="md:col-span-2 border-t border-outline-variant pt-6">
+<h3 class="text-base font-bold text-on-surface mb-4">Pilihan Promo Utama</h3>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 mb-4">
+<label class="flex items-center gap-2 text-sm"><input class="h-4 w-4" name="sim-main-promo" type="radio" value="none" checked> Harga Normal</label>
+<label class="flex items-center gap-2 text-sm"><input class="h-4 w-4" name="sim-main-promo" type="radio" value="b2sFreedom"> Promo B2S Freedom Deals</label>
+<label class="flex items-center gap-2 text-sm"><input class="h-4 w-4" name="sim-main-promo" type="radio" value="openHousePromo"> Promo Open House</label>
+</div>
+<div class="hidden ml-2 md:ml-6 p-4 rounded-lg border border-outline-variant bg-surface-container-low mb-4" id="sim-oh-sub">
+<p class="text-sm font-semibold text-on-surface-variant mb-3">Ketentuan Pembayaran Open House:</p>
+<div class="space-y-3 text-sm">
+<label class="flex items-start gap-2"><input class="h-4 w-4 mt-0.5" name="sim-oh-condition" type="radio" value="commitment" checked> <span>Komitmen fee dibayar maks 5 hari → B2S Freedom Deals + <strong>5%</strong> + 1 set seragam</span></label>
+<label class="flex items-start gap-2"><input class="h-4 w-4 mt-0.5" name="sim-oh-condition" type="radio" value="half"> <span>Bayar 50% tgl 29 Agustus 2026 (khusus Murid Baru Eksternal Primary-Secondary): 35%+5%+2.5% + 1 set seragam</span></label>
+<label class="flex items-start gap-2"><input class="h-4 w-4 mt-0.5" name="sim-oh-condition" type="radio" value="full"> <span>Bayar 100% tgl 29 Agustus 2026: Early Years 20%+5%+2.5% + seragam | Baru Eksternal Primary-Secondary 40%+2.5% + seragam</span></label>
+</div>
+</div>
+<h3 class="text-base font-bold text-on-surface mb-4">A. Kondisi Khusus (pilih salah satu)</h3>
+<div class="space-y-3 text-sm" id="sim-kondisi-group">
+<label class="flex items-center gap-2"><input class="h-4 w-4" name="sim-kondisi" type="radio" value="none" checked> Tidak ada</label>
+<label class="flex items-center gap-2"><input class="h-4 w-4" name="sim-kondisi" type="radio" value="murid_cabang"> Murid cabang / franchise (tarif diskon lanjutan)</label>
+<label class="flex items-center gap-2"><input class="h-4 w-4" name="sim-kondisi" type="radio" value="sibling"> Sibling (diskon +5% di atas yang berlaku)</label>
+<label class="flex items-center gap-2"><input class="h-4 w-4" name="sim-kondisi" type="radio" value="sepupu"> Sepupu (tambahan 2,5% dari sisa)</label>
+<label class="flex items-center gap-2"><input class="h-4 w-4" name="sim-kondisi" type="radio" value="kolektif_5"> Kolektif min 5 orang (tarif diskon 50%)</label>
+<label class="flex items-center gap-2"><input class="h-4 w-4" name="sim-kondisi" type="radio" value="khusus_k4_k5"> Diskon Khusus Kelas 4 dan 5</label>
+</div>
+<div class="hidden mt-4 ml-2 md:ml-7 p-4 rounded-lg border border-outline-variant bg-surface-container-low" id="sim-payment-wrap">
+<label class="block text-sm font-semibold text-on-surface-variant mb-2" for="sim-payment-status">Jika SSP dan SPP Sem 1 lunas di awal, diskon 60%. Jika tidak, diskon 40%.</label>
+<select class="w-full px-4 py-2.5 rounded-lg border border-outline-variant" id="sim-payment-status" name="sim-payment-status">
+<option value="Belum Lunas">Tidak Lunas di Awal (Diskon 40%)</option>
+<option value="Lunas">Lunas di Awal (Diskon 60%)</option>
+</select>
+</div>
+<h3 class="text-base font-bold text-on-surface mt-6 mb-4">B. Kondisi Tambahan</h3>
+<label class="flex items-center gap-2 text-sm"><input class="h-5 w-5 rounded" id="sim-teacher" name="sim-teacher" type="checkbox"> Anak Dosen/Guru Tetap/Dokter Institusi Mitra (+10% dari sisa)</label>
+</div>
+</form>
+</div>
+<div class="bg-primary text-on-primary p-4 md:p-6 rounded-xl shadow-sm mt-6">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined">payments</span>
+<h2 class="text-lg font-bold">2. Hasil Simulasi</h2>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-center">
+<div class="p-4 rounded-lg bg-white/10"><span class="block text-xs uppercase opacity-80">Diskon Berlaku</span><span class="text-base font-bold" id="sim-discount-name">-</span></div>
+<div class="p-4 rounded-lg bg-white/10"><span class="block text-xs uppercase opacity-80">Besaran Diskon</span><span class="text-base font-bold" id="sim-discount-detail">-</span></div>
+<div class="p-4 rounded-lg bg-white/10"><span class="block text-xs uppercase opacity-80">Jumlah Potongan</span><span class="text-xl font-black" id="sim-discount-amount">Rp 0</span></div>
+<div class="p-4 rounded-lg bg-white text-primary"><span class="block text-xs font-bold uppercase">Total Bayar</span><span class="text-xl font-black" id="sim-final-fee">Rp 0</span></div>
+</div>
+<p class="mt-3 text-center text-sm italic opacity-90" id="sim-note"></p>
+<input id="sim-discount-value" type="hidden" value="0">
+<input id="sim-base-value" type="hidden" value="0">
+<div class="flex flex-col sm:flex-row justify-end gap-3 mt-4">
+<button class="px-6 py-3 bg-white text-primary font-bold rounded-lg shadow hover:opacity-90 transition-all flex items-center justify-center gap-2" onclick="useSimulatorDiscount()" type="button">
+<span class="material-symbols-outlined">input</span>
+              Gunakan Diskon di Form Pendaftaran
+            </button>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-4 md:p-6 rounded-xl border border-outline-variant shadow-sm mt-6">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-primary">info</span>
+<h2 class="text-lg font-bold text-on-surface">3. Rincian Skema Diskon (Sesuai Memo)</h2>
+</div>
+<div class="space-y-3" id="sim-accordion"></div>
+</div>
+</div>
+<div class="hidden" id="sim-sibling">
+<div class="bg-surface-container-lowest p-4 md:p-6 rounded-xl border border-outline-variant shadow-sm">
+<div class="flex items-center gap-3 mb-6 border-b border-outline-variant pb-4">
+<span class="material-symbols-outlined text-primary">group_add</span>
+<h2 class="text-lg font-bold text-on-surface">1. Data Sibling Bersamaan</h2>
+</div>
+<form id="sim-sib-form" class="space-y-6" onsubmit="return false">
+<div>
+<span class="block text-sm font-semibold text-on-surface-variant mb-2">Jumlah Sibling Mendaftar Bersamaan</span>
+<div class="flex flex-wrap gap-4 text-sm">
+<label class="flex items-center gap-2"><input class="h-4 w-4" name="sim-sib-count" type="radio" value="2" checked> 2 Anak</label>
+<label class="flex items-center gap-2"><input class="h-4 w-4" name="sim-sib-count" type="radio" value="3"> 3 Anak</label>
+</div>
+</div>
+<div class="border-t border-outline-variant pt-4">
+<h3 class="font-bold text-on-surface mb-4">Data Anak Ke-1</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="md:col-span-2">
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Periode Pembayaran SSP</label>
+<select class="w-full px-4 py-2.5 rounded-lg border border-outline-variant" id="simSib-period-1" name="simSib-period"></select>
+</div>
+<div>
+<span class="block text-sm font-semibold text-on-surface-variant mb-2">Tingkat Pendidikan</span>
+<div class="flex flex-wrap gap-4 text-sm">
+<label class="flex items-center gap-2"><input class="h-4 w-4" name="simSib-level-1" type="radio" value="Early Years" checked> Early Years</label>
+<label class="flex items-center gap-2"><input class="h-4 w-4" name="simSib-level-1" type="radio" value="Primary"> Primary</label>
+<label class="flex items-center gap-2"><input class="h-4 w-4" name="simSib-level-1" type="radio" value="Secondary"> Secondary</label>
+</div>
+</div>
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Uang Pangkal/SSP (Rp)</label>
+<input class="w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface-container" id="simSib-fee-1" name="simSib-fee" placeholder="Otomatis" readonly type="number">
+</div>
+</div>
+</div>
+<div class="border-t border-outline-variant pt-4">
+<h3 class="font-bold text-on-surface mb-4">Data Anak Ke-2</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="md:col-span-2">
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Periode Pembayaran SSP</label>
+<select class="w-full px-4 py-2.5 rounded-lg border border-outline-variant" id="simSib-period-2" name="simSib-period"></select>
+</div>
+<div>
+<span class="block text-sm font-semibold text-on-surface-variant mb-2">Tingkat Pendidikan</span>
+<div class="flex flex-wrap gap-4 text-sm">
+<label class="flex items-center gap-2"><input class="h-4 w-4" name="simSib-level-2" type="radio" value="Early Years" checked> Early Years</label>
+<label class="flex items-center gap-2"><input class="h-4 w-4" name="simSib-level-2" type="radio" value="Primary"> Primary</label>
+<label class="flex items-center gap-2"><input class="h-4 w-4" name="simSib-level-2" type="radio" value="Secondary"> Secondary</label>
+</div>
+</div>
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Uang Pangkal/SSP (Rp)</label>
+<input class="w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface-container" id="simSib-fee-2" name="simSib-fee" placeholder="Otomatis" readonly type="number">
+</div>
+</div>
+</div>
+<div class="hidden border-t border-outline-variant pt-4" id="simSib-child-3">
+<h3 class="font-bold text-on-surface mb-4">Data Anak Ke-3</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="md:col-span-2">
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Periode Pembayaran SSP</label>
+<select class="w-full px-4 py-2.5 rounded-lg border border-outline-variant" id="simSib-period-3" name="simSib-period"></select>
+</div>
+<div>
+<span class="block text-sm font-semibold text-on-surface-variant mb-2">Tingkat Pendidikan</span>
+<div class="flex flex-wrap gap-4 text-sm">
+<label class="flex items-center gap-2"><input class="h-4 w-4" name="simSib-level-3" type="radio" value="Early Years" checked> Early Years</label>
+<label class="flex items-center gap-2"><input class="h-4 w-4" name="simSib-level-3" type="radio" value="Primary"> Primary</label>
+<label class="flex items-center gap-2"><input class="h-4 w-4" name="simSib-level-3" type="radio" value="Secondary"> Secondary</label>
+</div>
+</div>
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-1.5">Uang Pangkal/SSP (Rp)</label>
+<input class="w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface-container" id="simSib-fee-3" name="simSib-fee" placeholder="Otomatis" readonly type="number">
+</div>
+</div>
+</div>
+</form>
+</div>
+<div class="bg-primary text-on-primary p-4 md:p-6 rounded-xl shadow-sm mt-6">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined">payments</span>
+<h2 class="text-lg font-bold">2. Hasil Simulasi Sibling</h2>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center">
+<div class="p-4 rounded-lg bg-white/10"><span class="block text-xs uppercase opacity-80">Total SSP Gabungan</span><span class="text-xl font-black" id="simSib-total">Rp 0</span></div>
+<div class="p-4 rounded-lg bg-white text-primary"><span class="block text-xs font-bold uppercase">Total Bayar Akhir</span><span class="text-xl font-black" id="simSib-final">Rp 0</span></div>
+</div>
+<p class="mt-3 text-center text-sm italic opacity-90" id="simSib-note"></p>
+</div>
 </div>
 </div>
 <div class="hidden animate-in fade-in slide-in-from-bottom-4 duration-300" id="tabRekap">
@@ -1193,6 +1409,7 @@
       const btnRekap = document.getElementById('btnRekap');
       const btnLanjutanRekap = document.getElementById('btnLanjutanRekap');
       const btnDashboard = document.getElementById('btnDashboard');
+      const btnSimulator = document.getElementById('btnSimulator');
       
       const boxUpdate = document.getElementById('tabUpdate');
       const boxRekap = document.getElementById('tabRekap');
@@ -1205,10 +1422,11 @@
       const tabLanjutanRekapDiv = document.getElementById('tabLanjutanRekap');
       const tabDashboardDiv = document.getElementById('tabDashboard');
       const tabSettingsDiv = document.getElementById('tabSettings');
+      const tabSimulatorDiv = document.getElementById('tabSimulator');
 
       // --- Reset Styles ---
       // Reset Desktop Sidebar Buttons
-      [btnDaftar, btnUpdate, btnRekap, btnLanjutan, btnLanjutanRekap, btnDashboard].forEach(btn => {
+      [btnDaftar, btnUpdate, btnRekap, btnLanjutan, btnLanjutanRekap, btnDashboard, btnSimulator].forEach(btn => {
         if (btn) btn.className = "nav-transition w-full flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container font-medium";
       });
       // Reset Mobile Bottom Navigation Buttons
@@ -1230,6 +1448,7 @@
       tabLanjutanRekapDiv.classList.add('hidden');
       tabDashboardDiv.classList.add('hidden');
       tabSettingsDiv.classList.add('hidden');
+      if (tabSimulatorDiv) tabSimulatorDiv.classList.add('hidden');
       mainForm.classList.add('hidden');
 
       if (tabName === 'tabDaftar') {
@@ -1289,7 +1508,326 @@
         tabSettingsDiv.classList.remove('hidden');
         currentTabLabel.innerText = "Settings";
         getSettings();
+      } else if (tabName === 'tabSimulator') {
+        modeSaatIni = 'simulator';
+        if (btnSimulator) btnSimulator.className = activeDesktopBase + "bg-primary-container text-on-primary-container";
+        if (tabSimulatorDiv) tabSimulatorDiv.classList.remove('hidden');
+        currentTabLabel.innerText = "Simulator Diskon";
+        initSimulator();
       }
+    }
+
+    // ============================================================
+    // SIMULATOR DISKON (port dari file simulator terlampir)
+    // ID di-prefix "sim-" agar tidak bentrok dengan form utama.
+    // Hasil nominal bisa ditarik ke form pendaftaran via
+    // useSimulatorDiscount() -> mengisi field Diskon + hitung ulang.
+    // ============================================================
+    const SIM_TARIFF = {
+        "6 tahun": { "Early Years": 0, "Primary": 51000000, "Secondary": 64500000 },
+        "5 tahun": { "Early Years": 0, "Primary": 42500000, "Secondary": 54900000 },
+        "4 tahun": { "Early Years": 25000000, "Primary": 34800000, "Secondary": 46100000 },
+        "3 tahun": { "Early Years": 20000000, "Primary": 27100000, "Secondary": 42600000 },
+        "2 tahun": { "Early Years": 15000000, "Primary": 19400000, "Secondary": 29200000 },
+        "1 tahun": { "Early Years": 10000000, "Primary": 15300000, "Secondary": 22600000 },
+        "Primary ke Lower Secondary lanjutan, 3 (tiga) tahun": { "Secondary": 32300000 },
+        "Lower Secondary ke Higher Secondary lanjutan, 3 (tiga) tahun": { "Secondary": 32300000 },
+        "Tarif Kelas 4-9": { "Primary": 57750000 },
+        "Tarif Kelas 5-9": { "Primary": 54900000 },
+        "Tarif Kelas 6-9": { "Primary": 46100000 }
+    };
+    const SIM_ACCORDION = [
+        { title: 'Promo B2S Freedom Deals', content: '<ul class="list-disc list-inside space-y-2 text-sm text-on-surface-variant"><li><b>Early Years:</b> Diskon 20%.</li><li><b>Murid Lanjutan (Primary-Secondary):</b> Diskon 45%.</li><li><b>Murid Baru Eksternal (Primary-Secondary):</b> Diskon 35%.</li></ul>' },
+        { title: 'Promo Open House', content: '<ul class="list-disc list-inside space-y-2 text-sm text-on-surface-variant"><li><b>Komitmen fee maks 5 hari:</b> B2S + <b>5%</b> (dari sisa) + <b>1 set seragam</b>.</li><li><b>Bayar 50% tgl 29 Agustus 2026</b> (Baru Eksternal Primary-Secondary): 35% + 5% + 2,5% + seragam.</li><li><b>Bayar 100% tgl 29 Agustus 2026:</b> Early Years 20%+5%+2,5% + seragam | Baru Eksternal Primary-Secondary 40%+2,5% + seragam.</li></ul><p class="text-xs text-outline mt-2 italic">*Kondisi Khusus A dan Tambahan B tetap berlaku.</p>' },
+        { title: 'A. Kondisi Khusus (Pilih Salah Satu)', content: '<ul class="list-disc list-inside space-y-2 text-sm text-on-surface-variant"><li><b>Murid cabang/franchise:</b> tarif diskon lanjutan.</li><li><b>Sibling:</b> +5% di atas diskon berlaku.</li><li><b>Sepupu:</b> +2,5% dari sisa.</li><li><b>Kolektif min 5 orang:</b> tarif diskon 50%.</li><li><b>Khusus Kelas 4 dan 5:</b> lunas di awal 60%, tidak 40%.</li></ul>' },
+        { title: 'B. Kondisi Tambahan', content: '<ul class="list-disc list-inside space-y-2 text-sm text-on-surface-variant"><li><b>Anak Dosen/Guru Tetap/Dokter Mitra:</b> +10% dari sisa.</li></ul>' },
+        { title: 'Insentif Referensi (Internal)', content: '<p class="text-sm text-on-surface-variant mb-2">Insentif uang pembinaan (setelah murid melunasi Uang Pangkal).</p><table class="w-full text-left text-sm"><thead><tr class="bg-surface-container text-on-surface-variant text-xs uppercase"><th class="p-2">Jml Murid</th><th class="p-2">Per Murid</th><th class="p-2">Total</th></tr></thead><tbody class="text-on-surface-variant"><tr class="border-b border-outline-variant"><td class="p-2">1</td><td class="p-2">750.000</td><td class="p-2">750.000</td></tr><tr class="border-b border-outline-variant"><td class="p-2">2</td><td class="p-2">1.000.000</td><td class="p-2">2.000.000</td></tr><tr class="border-b border-outline-variant"><td class="p-2">3</td><td class="p-2">1.250.000</td><td class="p-2">3.750.000</td></tr><tr class="border-b border-outline-variant"><td class="p-2">4</td><td class="p-2">1.500.000</td><td class="p-2">6.000.000</td></tr><tr class="border-b border-outline-variant"><td class="p-2">5</td><td class="p-2">1.750.000</td><td class="p-2">8.750.000</td></tr><tr><td class="p-2">6+</td><td class="p-2" colspan="2">Rp 1.750.000 per murid</td></tr></tbody></table>' }
+    ];
+    function formatSimRp(value) {
+        return 'Rp ' + (Math.round(value) || 0).toLocaleString('id-ID');
+    }
+    function switchSimTab(mode) {
+        const ind = document.getElementById('sim-individu');
+        const sib = document.getElementById('sim-sibling');
+        const bInd = document.getElementById('sim-tab-individu');
+        const bSib = document.getElementById('sim-tab-sibling');
+        const onCls = 'px-4 py-2.5 rounded-lg bg-primary text-on-primary text-sm font-semibold';
+        const offCls = 'px-4 py-2.5 rounded-lg border border-outline-variant bg-surface-container-lowest text-sm font-semibold text-on-surface-variant';
+        if (mode === 'sibling') {
+            if (ind) ind.classList.add('hidden');
+            if (sib) sib.classList.remove('hidden');
+            if (bInd) bInd.className = offCls;
+            if (bSib) bSib.className = onCls;
+        } else {
+            if (ind) ind.classList.remove('hidden');
+            if (sib) sib.classList.add('hidden');
+            if (bInd) bInd.className = onCls;
+            if (bSib) bSib.className = offCls;
+        }
+    }
+    function initSimulator() {
+        if (window._simInit) { calculateSimDiscount(); calculateSimSibling(); return; }
+        window._simInit = true;
+        // Accordion
+        const acc = document.getElementById('sim-accordion');
+        if (acc) {
+            SIM_ACCORDION.forEach(item => {
+                const wrap = document.createElement('div');
+                wrap.className = 'border border-outline-variant rounded-lg overflow-hidden';
+                wrap.innerHTML = '<button type="button" class="w-full flex justify-between items-center p-4 text-left font-semibold text-on-surface hover:bg-surface-container transition" onclick="toggleSimAccordion(this)"><span class="text-sm">' + item.title + '</span><span class="material-symbols-outlined text-on-surface-variant sim-acc-icon">expand_more</span></button><div class="sim-acc-body hidden px-4 pb-4">' + item.content + '</div>';
+                acc.appendChild(wrap);
+            });
+        }
+        // Sibling periode options (salin dari select utama)
+        const mainSel = document.getElementById('sim-ssp-period');
+        ['simSib-period-1', 'simSib-period-2', 'simSib-period-3'].forEach(id => {
+            const sel = document.getElementById(id);
+            if (sel && mainSel) sel.innerHTML = mainSel.innerHTML;
+        });
+        // Bind semua input simulator
+        const simForm = document.getElementById('sim-form');
+        if (simForm) simForm.querySelectorAll('input, select').forEach(el => {
+            el.addEventListener('input', calculateSimDiscount);
+            el.addEventListener('change', calculateSimDiscount);
+        });
+        document.querySelectorAll('input[name="sim-kondisi"]').forEach(r => r.addEventListener('change', handleSimKondisi));
+        document.querySelectorAll('input[name="sim-main-promo"]').forEach(r => r.addEventListener('change', handleSimPromo));
+        const simPeriod = document.getElementById('sim-ssp-period');
+        if (simPeriod) simPeriod.addEventListener('change', updateSimBaseFee);
+        document.querySelectorAll('input[name="sim-level"]').forEach(r => r.addEventListener('change', updateSimBaseFee));
+        document.querySelectorAll('input[name="sim-oh-condition"]').forEach(r => r.addEventListener('change', calculateSimDiscount));
+        const sibForm = document.getElementById('sim-sib-form');
+        if (sibForm) sibForm.querySelectorAll('input, select').forEach(el => {
+            el.addEventListener('change', function () {
+                const group = el.closest('[id^="simSib-"]') || el.closest('div');
+                const counts = document.querySelector('input[name="sim-sib-count"]:checked');
+                const c3 = document.getElementById('simSib-child-3');
+                if (el.name === 'sim-sib-count' && c3) c3.classList.toggle('hidden', el.value !== '3');
+                // update fee anak yang berubah
+                ['1', '2', '3'].forEach(i => {
+                    const p = document.getElementById('simSib-period-' + i);
+                    if (p && (el === p || p.contains(el) || (group && group.contains(p)))) updateSimChildFee(i);
+                });
+                if (el.id && el.id.indexOf('simSib-period-') === 0) updateSimChildFee(el.id.slice(-1));
+                if (el.name && el.name.indexOf('simSib-level-') === 0) updateSimChildFee(el.name.slice(-1));
+                calculateSimSibling();
+                if (counts && c3) c3.classList.toggle('hidden', counts.value !== '3');
+            });
+        });
+        updateSimBaseFee();
+        handleSimKondisi();
+        handleSimPromo();
+        updateSimChildFee('1'); updateSimChildFee('2'); updateSimChildFee('3');
+        calculateSimSibling();
+    }
+    function toggleSimAccordion(btn) {
+        const body = btn.nextElementSibling;
+        const icon = btn.querySelector('.sim-acc-icon');
+        const container = document.getElementById('sim-accordion');
+        if (container) container.querySelectorAll('.sim-acc-body').forEach(b => { if (b !== body) b.classList.add('hidden'); });
+        if (container) container.querySelectorAll('.sim-acc-icon').forEach(i => { if (i !== icon) i.textContent = 'expand_more'; });
+        if (body) body.classList.toggle('hidden');
+        if (icon) icon.textContent = body && !body.classList.contains('hidden') ? 'expand_less' : 'expand_more';
+    }
+    function updateSimBaseFee() {
+        const periodSel = document.getElementById('sim-ssp-period');
+        const baseInput = document.getElementById('sim-base-fee');
+        if (!periodSel || !baseInput) return;
+        const levelEl = document.querySelector('input[name="sim-level"]:checked');
+        const period = periodSel.value;
+        const level = levelEl ? levelEl.value : '';
+        if (period && SIM_TARIFF[period]) {
+            const fee = SIM_TARIFF[period][level];
+            if (fee !== undefined && fee !== null && fee !== '') {
+                baseInput.value = fee;
+                baseInput.readOnly = true;
+            } else {
+                baseInput.value = '';
+                baseInput.readOnly = false;
+                baseInput.placeholder = 'Pilih jenjang yang sesuai';
+            }
+        } else {
+            if (!baseInput.value) baseInput.placeholder = 'Terisi otomatis sesuai periode & tingkat';
+            baseInput.readOnly = false;
+        }
+        calculateSimDiscount();
+    }
+    function handleSimKondisi() {
+        const sel = document.querySelector('input[name="sim-kondisi"]:checked');
+        const wrap = document.getElementById('sim-payment-wrap');
+        if (wrap) wrap.classList.toggle('hidden', !sel || sel.value !== 'khusus_k4_k5');
+        if (sel && sel.value === 'murid_cabang') {
+            const lt = document.getElementById('sim-type-lanjutan');
+            if (lt) lt.checked = true;
+        }
+        calculateSimDiscount();
+    }
+    function handleSimPromo() {
+        const sel = document.querySelector('input[name="sim-main-promo"]:checked');
+        const sub = document.getElementById('sim-oh-sub');
+        if (sub) sub.classList.toggle('hidden', !sel || sel.value !== 'openHousePromo');
+        calculateSimDiscount();
+    }
+    function calculateSimDiscount() {
+        const baseEl = document.getElementById('sim-base-fee');
+        if (!baseEl) return;
+        const baseFee = parseFloat(baseEl.value) || 0;
+        const levelEl = document.querySelector('input[name="sim-level"]:checked');
+        const typeEl = document.querySelector('input[name="sim-student-type"]:checked');
+        const promoEl = document.querySelector('input[name="sim-main-promo"]:checked');
+        const kondEl = document.querySelector('input[name="sim-kondisi"]:checked');
+        const payEl = document.getElementById('sim-payment-status');
+        const teachEl = document.getElementById('sim-teacher');
+        const ohEl = document.querySelector('input[name="sim-oh-condition"]:checked');
+        const level = levelEl ? levelEl.value : '';
+        const studentType = typeEl ? typeEl.value : 'Eksternal';
+        const mainPromo = promoEl ? promoEl.value : 'none';
+        const kondisi = kondEl ? kondEl.value : 'none';
+        const paymentStatus = payEl ? payEl.value : 'Belum Lunas';
+        const isTeacher = teachEl ? teachEl.checked : false;
+        const ohCond = ohEl ? ohEl.value : 'commitment';
+
+        let baseRate = 0;
+        let baseName = 'Harga Normal';
+        let overridden = false;
+        if (kondisi === 'kolektif_5') { baseRate = 50; baseName = 'Diskon Kolektif'; overridden = true; }
+        else if (kondisi === 'khusus_k4_k5') { baseRate = (paymentStatus === 'Lunas') ? 60 : 40; baseName = 'Diskon Khusus K4/5 (' + paymentStatus + ')'; overridden = true; }
+
+        const isB2S = mainPromo === 'b2sFreedom';
+        const isOH = mainPromo === 'openHousePromo';
+        if (!overridden && (isB2S || isOH)) {
+            baseName = isB2S ? 'Promo B2S Freedom Deals' : 'Promo Open House';
+            if (level === 'Early Years') baseRate = 20;
+            else if (studentType === 'Lanjutan') baseRate = 45;
+            else baseRate = (isOH && ohCond === 'full') ? 40 : 35;
+        }
+
+        let finalBaseRate = baseRate;
+        if (kondisi === 'sibling') finalBaseRate += 5;
+
+        const primaryAmt = baseFee * (finalBaseRate / 100);
+        const afterPrimary = baseFee - primaryAmt;
+        let secondAmt = 0, thirdAmt = 0, secondDetail = '', hasUniform = false;
+        if (!overridden && isOH) {
+            if (ohCond === 'commitment') { secondAmt = afterPrimary * 0.05; secondDetail = ' + 5%'; hasUniform = true; }
+            else if (ohCond === 'half') {
+                if (studentType === 'Eksternal' && level !== 'Early Years') {
+                    secondAmt = afterPrimary * 0.05;
+                    thirdAmt = (afterPrimary - secondAmt) * 0.025;
+                    secondDetail = ' + 5% + 2,5%'; hasUniform = true;
+                } else { secondAmt = afterPrimary * 0.05; secondDetail = ' + 5%'; hasUniform = true; }
+            } else if (ohCond === 'full') {
+                if (level === 'Early Years') {
+                    secondAmt = afterPrimary * 0.05;
+                    thirdAmt = (afterPrimary - secondAmt) * 0.025;
+                    secondDetail = ' + 5% + 2,5%'; hasUniform = true;
+                } else if (studentType === 'Eksternal' && level !== 'Early Years') {
+                    secondAmt = afterPrimary * 0.025;
+                    secondDetail = ' + 2,5%'; hasUniform = true;
+                } else { secondAmt = afterPrimary * 0.05; secondDetail = ' + 5%'; hasUniform = true; }
+            }
+        }
+
+        let currentFee = afterPrimary - secondAmt - thirdAmt;
+        let totalDisc = primaryAmt + secondAmt + thirdAmt;
+        const names = [], details = [];
+        let note = '';
+        if (hasUniform) note = 'Manfaat tambahan: Free 1 set seragam.';
+        if (kondisi === 'sepupu' && currentFee > 0) {
+            const d = currentFee * 0.025;
+            currentFee -= d; totalDisc += d;
+            names.push('Sepupu'); details.push('2.5% dari sisa');
+        }
+        if (isTeacher && currentFee > 0) {
+            const d = currentFee * 0.10;
+            currentFee -= d; totalDisc += d;
+            names.push('Anak Dosen/Guru'); details.push('10% dari sisa');
+        }
+        if (finalBaseRate > 0) {
+            details.unshift((finalBaseRate > baseRate ? baseRate + '%+5%' : baseRate + '%') + secondDetail);
+            names.unshift(baseName);
+        }
+        let finalName = [...new Set(names.filter(n => n !== 'Harga Normal'))].join(' + ') || 'Harga Normal';
+        let finalDetail = details.join(' + ');
+        if (baseFee === 0) { finalName = 'Pilih periode & tingkat dahulu'; finalDetail = '-'; totalDisc = 0; currentFee = 0; }
+        else if (totalDisc === 0) finalDetail = '0%';
+
+        const roundedFinal = Math.ceil(Math.max(0, currentFee) / 1000) * 1000;
+        const roundedDisc = Math.max(0, baseFee - roundedFinal);
+        const nEl = document.getElementById('sim-discount-name');
+        const dEl = document.getElementById('sim-discount-detail');
+        const aEl = document.getElementById('sim-discount-amount');
+        const fEl = document.getElementById('sim-final-fee');
+        const tEl = document.getElementById('sim-note');
+        const hvEl = document.getElementById('sim-discount-value');
+        const hbEl = document.getElementById('sim-base-value');
+        if (nEl) nEl.textContent = finalName;
+        if (dEl) dEl.textContent = finalDetail;
+        if (aEl) aEl.textContent = formatSimRp(roundedDisc);
+        if (fEl) fEl.textContent = formatSimRp(roundedFinal);
+        if (tEl) tEl.textContent = note;
+        if (hvEl) hvEl.value = String(roundedDisc);
+        if (hbEl) hbEl.value = String(baseFee);
+    }
+    function updateSimChildFee(idx) {
+        const periodSel = document.getElementById('simSib-period-' + idx);
+        const levelEl = document.querySelector('input[name="simSib-level-' + idx + '"]:checked');
+        const feeInput = document.getElementById('simSib-fee-' + idx);
+        if (!periodSel || !feeInput) return;
+        const fee = (periodSel.value && SIM_TARIFF[periodSel.value]) ? SIM_TARIFF[periodSel.value][levelEl ? levelEl.value : ''] : undefined;
+        feeInput.value = (fee !== undefined && fee !== null && fee !== '') ? fee : '';
+        calculateSimSibling();
+    }
+    function calculateSimSibling() {
+        const countEl = document.querySelector('input[name="sim-sib-count"]:checked');
+        if (!countEl) return;
+        const count = parseInt(countEl.value, 10);
+        const fees = [];
+        for (let i = 1; i <= count; i++) {
+            const inp = document.getElementById('simSib-fee-' + i);
+            fees.push(inp ? (parseFloat(inp.value) || 0) : 0);
+        }
+        const total = fees.reduce((a, b) => a + b, 0);
+        let final = 0, note = '';
+        if (count === 2) { final = Math.max.apply(null, fees.concat([0])); note = 'Total bayar = SSP nominal tertinggi.'; }
+        else if (count === 3) {
+            const s = fees.slice().sort((a, b) => b - a);
+            final = (s[0] || 0) + (s[1] || 0) * 0.5;
+            note = '(Tertinggi Full) + (Kedua 50%) + (Terendah 100% off).';
+        }
+        const tEl = document.getElementById('simSib-total');
+        const fEl = document.getElementById('simSib-final');
+        const nEl = document.getElementById('simSib-note');
+        if (tEl) tEl.textContent = formatSimRp(total);
+        if (fEl) fEl.textContent = formatSimRp(final);
+        if (nEl) nEl.textContent = note;
+    }
+    // Tarik nominal diskon simulator -> form pendaftaran (field Diskon)
+    function useSimulatorDiscount() {
+        const hvEl = document.getElementById('sim-discount-value');
+        const hbEl = document.getElementById('sim-base-value');
+        const nominal = hvEl ? (parseFloat(hvEl.value) || 0) : 0;
+        const base = hbEl ? (parseFloat(hbEl.value) || 0) : 0;
+        const dName = document.getElementById('sim-discount-name');
+        if (!nominal || nominal <= 0) {
+            showToast('Simulasi belum menghasilkan diskon. Pilih periode & promo dahulu.', 'error');
+            return;
+        }
+        switchTab('tabDaftar');
+        setTimeout(function () {
+            setCurrencyValue('diskon', nominal);
+            const tarifEl = document.getElementById('tarifSSP');
+            const tarif = tarifEl ? (parseFloat(tarifEl.dataset.numericValue) || 0) : 0;
+            const pctEl = document.getElementById('diskonPersen');
+            // Jika tarif form sama dengan base simulator, hitung % otomatis
+            if (pctEl && tarif > 0 && base > 0 && Math.abs(tarif - base) < 1) {
+                pctEl.value = ((nominal / base) * 100).toFixed(2);
+            } else if (pctEl && tarif > 0) {
+                pctEl.value = ((nominal / tarif) * 100).toFixed(2);
+            }
+            if (typeof calcKeuangan === 'function') calcKeuangan();
+            showToast('Diskon ' + formatSimRp(nominal) + ' (' + (dName ? dName.textContent : '') + ') ditarik ke form pendaftaran.', 'success');
+        }, 250);
     }
 
     function toggleBookingDate() {
