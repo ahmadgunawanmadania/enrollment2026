@@ -758,13 +758,13 @@
 <div><p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Total Progres</p><p class="text-xl font-black text-on-surface" id="progresSumTotal">-</p></div>
 </div>
 </div>
-<div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-x-auto">
-<table class="w-full text-left">
+<div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+<table class="w-full table-fixed text-left">
 <thead id="progresTableHead">
 </thead>
 <tbody class="divide-y divide-outline-variant" id="progresTableBody">
 <tr>
-<td class="px-4 py-10 md:px-6 md:py-12 text-center text-on-surface-variant" colspan="6">
+<td class="px-4 py-10 md:px-6 md:py-12 text-center text-on-surface-variant" colspan="20">
 <div class="flex flex-col items-center gap-2">
 <span class="material-symbols-outlined text-4xl opacity-20">inventory_2</span>
 <p class="">Klik "Muat Ulang" untuk menampilkan data.</p>
@@ -2831,12 +2831,12 @@
 
     function progresCellClass(text, colIdx, isHeader) {
         if (isHeader) {
-            if (colIdx === 1) return "px-2 py-2 md:px-6 md:py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider sticky left-0 bg-surface-container";
-            return "px-2 py-2 md:px-6 md:py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-center whitespace-nowrap";
+            if (colIdx === 1) return "px-1 py-2 text-[11px] font-bold text-on-surface-variant uppercase tracking-wider sticky left-0 bg-surface-container break-words";
+            return "px-1 py-2 text-[11px] font-bold text-on-surface-variant uppercase tracking-wider text-center break-words";
         }
-        if (colIdx === 1) return "px-2 py-2 md:px-6 md:py-4 font-bold text-on-surface sticky left-0 bg-surface-container-lowest whitespace-nowrap";
-        if (/^\d[\d.,]*%?$/.test(text)) return "px-2 py-2 md:px-6 md:py-4 text-right tabular-nums text-on-surface-variant whitespace-nowrap";
-        return "px-2 py-2 md:px-6 md:py-4 text-center text-on-surface-variant whitespace-nowrap";
+        if (colIdx === 1) return "px-1 py-2 text-[11px] md:text-xs font-bold text-on-surface sticky left-0 bg-surface-container-lowest break-words";
+        if (/^\d[\d.,]*%?$/.test(text)) return "px-1 py-2 text-[11px] md:text-xs text-right tabular-nums text-on-surface-variant break-words";
+        return "px-1 py-2 text-[11px] md:text-xs text-center text-on-surface-variant break-words";
     }
 
     // Cari kolom dari seluruh baris header (dari bawah ke atas) agar
@@ -2911,7 +2911,7 @@
         isProgresLoading = true;
         showLoading(true);
         const tableBody = document.getElementById('progresTableBody');
-        tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-12 text-center text-on-surface-variant"><div class="flex items-center justify-center gap-3"><div class="loader"></div><p>Memuat data progres...</p></div></td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="20" class="px-6 py-12 text-center text-on-surface-variant"><div class="flex items-center justify-center gap-3"><div class="loader"></div><p>Memuat data progres...</p></div></td></tr>';
         try {
             const res = await fetch(PROGRES_CSV_URL, { cache: 'no-store' });
             if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -2930,7 +2930,7 @@
             showToast("Data progres berhasil dimuat.", "success");
         } catch (err) {
             console.error("Gagal memuat progres:", err);
-            tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-12 text-center text-error">Gagal memuat data progres: ' + err.message + '. Periksa koneksi atau publikasi sheet, lalu klik Muat Ulang.</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="20" class="px-6 py-12 text-center text-error">Gagal memuat data progres: ' + err.message + '. Periksa koneksi atau publikasi sheet, lalu klik Muat Ulang.</td></tr>';
             showToast("Gagal memuat data progres: " + err.message, "error");
         } finally {
             isProgresLoading = false;
