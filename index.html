@@ -3044,7 +3044,34 @@
             bodyHtml += '</tr>';
         });
         body.innerHTML = bodyHtml || '<tr><td class="px-6 py-12 text-center text-on-surface-variant" colspan="' + visCount + '">Tidak ada data pada sheet.</td></tr>';
+        fixProgresHeadOffset();
+        // Hitung ulang setelah font selesai dimuat (tinggi baris bisa bergeser).
+        setTimeout(fixProgresHeadOffset, 600);
     }
+
+    // Offset sticky dihitung per baris header (baris bawah menempel di
+    // bawah baris atasnya) agar sel rowspan tidak bertabrakan saat scroll.
+    // Basis 64px = tinggi site header; 0 saat fullscreen (header situs
+    // tidak ikut masuk fullscreen).
+    function fixProgresHeadOffset() {
+        const head = document.getElementById('progresTableHead');
+        if (!head) return;
+        const rows = head.querySelectorAll('tr');
+        if (!rows.length) return;
+        const base = document.fullscreenElement ? 0 : 64;
+        let acc = base;
+        rows.forEach(function (tr) {
+            tr.querySelectorAll('th').forEach(function (th) {
+                th.style.top = acc + 'px';
+            });
+            acc += tr.offsetHeight || 0;
+        });
+    }
+    let progresResizeTimer = null;
+    window.addEventListener('resize', function () {
+        if (progresResizeTimer) clearTimeout(progresResizeTimer);
+        progresResizeTimer = setTimeout(fixProgresHeadOffset, 200);
+    });
 
     // Fullscreen + kunci landscape untuk tabel Progres di HP.
     // (Browser hanya mengizinkan kunci orientasi dalam mode fullscreen,
@@ -3075,6 +3102,8 @@
         if (!document.fullscreenElement && screen.orientation && screen.orientation.unlock) {
             try { screen.orientation.unlock(); } catch (e) {}
         }
+        // Tinggi baris berubah (lebar viewport beda) → hitung ulang offset sticky.
+        setTimeout(fixProgresHeadOffset, 100);
     });
 
     async function getProgresData() {
