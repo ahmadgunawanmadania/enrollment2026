@@ -759,7 +759,7 @@
 </div>
 </div>
 <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant overflow-hidden shadow-[0_1px_2px_rgba(26,27,33,0.06),0_8px_24px_rgba(26,27,33,0.08)]">
-<table class="w-full table-fixed text-left border-collapse">
+<table class="w-full table-fixed text-left border-separate border-spacing-0">
 <thead id="progresTableHead">
 </thead>
 <tbody class="divide-y divide-outline-variant" id="progresTableBody">
@@ -2923,24 +2923,26 @@
         }
         // Warna ikut sheet asli: pita T.A. hijau, baris grup putih,
         // baris detail hijau muda, baris sub putih. Teks hitam tebal.
-        function progHeadCls(r) {
+        function progHeadCls(r, isLast) {
             let bg = ' bg-white';
             if (r === 0) bg = ' bg-[#63d297]';
             else if (r === headerRows.length - 2) bg = ' bg-[#e7f9ef]';
-            return 'px-1 py-2 text-[11px] font-bold text-black text-center break-words align-middle' + bg;
+            // sticky top-16 = menempel tepat di bawah site header (h-16) saat scroll.
+            // (Tabel memakai border-separate + spacing-0 karena border-collapse merusak sticky.)
+            return 'px-1 py-2 text-[11px] font-bold text-black text-center break-words align-middle sticky top-16 z-20' + bg + (isLast ? ' border-b-2 border-neutral-800' : ' border-b border-neutral-800');
         }
         const progActive = {};
         let headHtml = '';
         for (let r = 0; r < headerRows.length; r++) {
             const isLast = r === headerRows.length - 1;
-            headHtml += '<tr class="divide-x divide-neutral-800 ' + (isLast ? 'border-b-2 border-neutral-800' : 'border-b border-neutral-800') + '">';
+            headHtml += '<tr class="divide-x divide-neutral-800">';
             const rowSkip = {};
             for (let c = 0; c < maxCols; c++) {
                 if (hiddenCols.has(c)) continue;
                 if (rowSkip[c]) continue;
                 if (progActive[c] > 0) { progActive[c]--; continue; }
                 const t = (headerRows[r][c] || '').trim();
-                if (t === '') { headHtml += '<th class="' + progHeadCls(r) + '"></th>'; continue; }
+                if (t === '') { headHtml += '<th class="' + progHeadCls(r, isLast) + '"></th>'; continue; }
                 let cs = 1;
                 for (let cc = c + 1; cc < maxCols; cc++) {
                     if ((headerRows[r][cc] || '').trim() !== '') break;
@@ -2957,10 +2959,10 @@
                 }
                 if (rs > 1) progActive[c] = rs - 1;
                 if (visSpan < 1) continue;
-                // Kolom Grade (C1) sticky agar tetap terlihat.
-                const sticky = (c === 1) ? ' sticky left-0 z-10' : '';
+                // Kolom Grade (C1) sticky kiri (top-16 + z-20 sudah dari base).
+                const sticky = (c === 1) ? ' left-0' : '';
                 const thick = progNeedsThickRight(c, cs) ? PROG_THICK_STYLE : '';
-                headHtml += '<th class="' + progHeadCls(r) + sticky + '"' + (visSpan > 1 ? ' colspan="' + visSpan + '"' : '') + (rs > 1 ? ' rowspan="' + rs + '"' : '') + thick + '>' + t + '</th>';
+                headHtml += '<th class="' + progHeadCls(r, isLast) + sticky + '"' + (visSpan > 1 ? ' colspan="' + visSpan + '"' : '') + (rs > 1 ? ' rowspan="' + rs + '"' : '') + thick + '>' + t + '</th>';
             }
             headHtml += '</tr>';
         }
