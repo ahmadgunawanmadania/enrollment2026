@@ -84,6 +84,21 @@
       border-radius: 4px;
       font-size: 11px;
     }
+    /* Fullscreen landscape tab Progres: harus bisa scroll + thead nempel ke atas */
+    #tabProgres:fullscreen {
+      overflow-y: auto;
+      background-color: #FAF8FF; /* background */
+      padding: 1rem;
+    }
+    #tabProgres:-webkit-full-screen {
+      overflow-y: auto;
+      background-color: #FAF8FF;
+      padding: 1rem;
+    }
+    #tabProgres:fullscreen thead th { top: 0; }
+    #tabProgres:-webkit-full-screen thead th { top: 0; }
+    #tabProgres:fullscreen #progresRotateHint { display: none; }
+    #tabProgres:-webkit-full-screen #progresRotateHint { display: none; }
   </style>
 </head>
 <body class="bg-background text-on-surface min-h-screen">
