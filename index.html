@@ -146,6 +146,10 @@
 <span class="material-symbols-outlined text-[20px]">calculate</span>
 <span class="text-sm">Simulator Diskon</span>
 </button>
+<button class="nav-transition w-full flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container font-medium" id="btnProgres" onclick="switchTab('tabProgres')">
+<span class="material-symbols-outlined text-[20px]">trending_up</span>
+<span class="text-sm">Progres 27/28</span>
+</button>
 </nav>
 <div class="p-6 border-t border-outline-variant">
 <div class="flex items-center gap-3">
@@ -714,6 +718,51 @@
 </tr>
 </thead>
 <tbody class="divide-y divide-outline-variant" id="lanjutanRekapTableBody">
+<tr>
+<td class="px-4 py-10 md:px-6 md:py-12 text-center text-on-surface-variant" colspan="6">
+<div class="flex flex-col items-center gap-2">
+<span class="material-symbols-outlined text-4xl opacity-20">inventory_2</span>
+<p class="">Klik "Muat Ulang" untuk menampilkan data.</p>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- PROGRES PEROLEHAN 27/28 TAB CONTENT -->
+<div class="hidden animate-in fade-in slide-in-from-bottom-4 duration-300" id="tabProgres">
+<div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
+<div class="flex-1">
+<h2 class="text-lg md:text-xl font-bold text-on-surface">Progres Perolehan Murid 2027/2028</h2>
+<p class="text-sm text-on-surface-variant">Sumber: Google Sheet publik (<a class="underline text-primary" href="https://docs.google.com/spreadsheets/d/e/2PACX-1vRWn6PHxeKi8WHc84O_hcNcOF7rF-bdC39fdxVuUzanwpE0XMz06TFiyomvPTRlnKyH3JeY2gx_GEl1/pub?gid=2132425827&single=true&output=csv" target="_blank" rel="noopener">buka sheet</a>) &bull; <span id="progresUpdatedAt">belum dimuat</span></p>
+</div>
+<div class="flex flex-wrap justify-end gap-2 sm:gap-4">
+<button class="w-full sm:w-auto flex items-center gap-2 bg-tertiary text-on-tertiary font-semibold py-2.5 px-5 rounded-lg hover:opacity-90 shadow-sm" onclick="getProgresData()">
+<span class="material-symbols-outlined text-sm">refresh</span>
+            Muat Ulang
+          </button>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4" id="progresSummary">
+<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center"><span class="material-symbols-outlined">groups</span></div>
+<div><p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Total Existing</p><p class="text-xl font-black text-on-surface" id="progresSumExisting">-</p></div>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-secondary-container text-on-secondary-container flex items-center justify-center"><span class="material-symbols-outlined">how_to_reg</span></div>
+<div><p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Konfirmasi Lanjut</p><p class="text-xl font-black text-on-surface" id="progresSumKonfirmasi">-</p></div>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-tertiary-container text-tertiary flex items-center justify-center"><span class="material-symbols-outlined">emoji_events</span></div>
+<div><p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Total Progres</p><p class="text-xl font-black text-on-surface" id="progresSumTotal">-</p></div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-x-auto">
+<table class="w-full text-left">
+<thead id="progresTableHead">
+</thead>
+<tbody class="divide-y divide-outline-variant" id="progresTableBody">
 <tr>
 <td class="px-4 py-10 md:px-6 md:py-12 text-center text-on-surface-variant" colspan="6">
 <div class="flex flex-col items-center gap-2">
@@ -1410,6 +1459,7 @@
       const btnLanjutanRekap = document.getElementById('btnLanjutanRekap');
       const btnDashboard = document.getElementById('btnDashboard');
       const btnSimulator = document.getElementById('btnSimulator');
+      const btnProgres = document.getElementById('btnProgres');
       
       const boxUpdate = document.getElementById('tabUpdate');
       const boxRekap = document.getElementById('tabRekap');
@@ -1423,10 +1473,11 @@
       const tabDashboardDiv = document.getElementById('tabDashboard');
       const tabSettingsDiv = document.getElementById('tabSettings');
       const tabSimulatorDiv = document.getElementById('tabSimulator');
+      const tabProgresDiv = document.getElementById('tabProgres');
 
       // --- Reset Styles ---
       // Reset Desktop Sidebar Buttons
-      [btnDaftar, btnUpdate, btnRekap, btnLanjutan, btnLanjutanRekap, btnDashboard, btnSimulator].forEach(btn => {
+      [btnDaftar, btnUpdate, btnRekap, btnLanjutan, btnLanjutanRekap, btnDashboard, btnSimulator, btnProgres].forEach(btn => {
         if (btn) btn.className = "nav-transition w-full flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container font-medium";
       });
       // Reset Mobile Bottom Navigation Buttons
@@ -1449,6 +1500,7 @@
       tabDashboardDiv.classList.add('hidden');
       tabSettingsDiv.classList.add('hidden');
       if (tabSimulatorDiv) tabSimulatorDiv.classList.add('hidden');
+      if (tabProgresDiv) tabProgresDiv.classList.add('hidden');
       mainForm.classList.add('hidden');
 
       if (tabName === 'tabDaftar') {
@@ -1514,6 +1566,12 @@
         if (tabSimulatorDiv) tabSimulatorDiv.classList.remove('hidden');
         currentTabLabel.innerText = "Simulator Diskon";
         initSimulator();
+      } else if (tabName === 'tabProgres') {
+        modeSaatIni = 'progres';
+        if (btnProgres) btnProgres.className = activeDesktopBase + "bg-tertiary-container text-on-tertiary-container";
+        if (tabProgresDiv) tabProgresDiv.classList.remove('hidden');
+        currentTabLabel.innerText = "Progres Perolehan 27/28";
+        getProgresData();
       }
     }
 
@@ -2740,6 +2798,144 @@
         if (katEl) katEl.value = 'Semua';
         applyRekapFilter();
         showToast("Rekapitulasi berhasil diperbarui.", "success");
+    }
+
+    // ============================================================
+    // PROGRES PEROLEHAN 27/28 — tabel publik dari Google Sheet (CSV)
+    // Header digambar dari baris header CSV; baris data dihitung dari
+    // baris pertama yang kolom pertamanya berisi label grade.
+    // ============================================================
+    const PROGRES_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWn6PHxeKi8WHc84O_hcNcOF7rF-bdC39fdxVuUzanwpE0XMz06TFiyomvPTRlnKyH3JeY2gx_GEl1/pub?gid=2132425827&single=true&output=csv";
+    let isProgresLoading = false;
+
+    function parseProgresCSVLine(line) {
+        const out = [];
+        let cur = "";
+        let inQ = false;
+        for (let i = 0; i < line.length; i++) {
+            const ch = line[i];
+            if (inQ) {
+                if (ch === '"') {
+                    if (line[i + 1] === '"') { cur += '"'; i++; }
+                    else { inQ = false; }
+                } else { cur += ch; }
+            } else {
+                if (ch === '"') { inQ = true; }
+                else if (ch === ',') { out.push(cur); cur = ""; }
+                else { cur += ch; }
+            }
+        }
+        out.push(cur);
+        return out.map(s => s.trim());
+    }
+
+    function progresCellClass(text, colIdx, isHeader) {
+        if (isHeader) {
+            if (colIdx === 1) return "px-2 py-2 md:px-6 md:py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider sticky left-0 bg-surface-container";
+            return "px-2 py-2 md:px-6 md:py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-center whitespace-nowrap";
+        }
+        if (colIdx === 1) return "px-2 py-2 md:px-6 md:py-4 font-bold text-on-surface sticky left-0 bg-surface-container-lowest whitespace-nowrap";
+        if (/^\d[\d.,]*%?$/.test(text)) return "px-2 py-2 md:px-6 md:py-4 text-right tabular-nums text-on-surface-variant whitespace-nowrap";
+        return "px-2 py-2 md:px-6 md:py-4 text-center text-on-surface-variant whitespace-nowrap";
+    }
+
+    // Cari kolom dari seluruh baris header (dari bawah ke atas) agar
+    // sub-header ikut ketemu (mis. "Konfirmasi Lanjut", "Total").
+    function findProgresCol(headerRows, pred) {
+        for (let r = headerRows.length - 1; r >= 0; r--) {
+            for (let c = 0; c < headerRows[r].length; c++) {
+                if (pred((headerRows[r][c] || '').trim().toLowerCase())) return c;
+            }
+        }
+        return -1;
+    }
+
+    function renderProgresTable(allRows) {
+        const head = document.getElementById('progresTableHead');
+        const body = document.getElementById('progresTableBody');
+        // Data dimulai dari baris grade pertama (PG/K/G/Total/Lulus di kolom kedua).
+        // Semua baris di atasnya adalah header (T.A., Grade/grup, sub-header, dst).
+        let dataStart = allRows.findIndex(r => /^(PG|K\d{1,2}|G\d{1,2}|Total|Lulus)$/i.test((r[1] || '').trim()));
+        if (dataStart < 0) {
+            const gi = allRows.findIndex(r => (r[1] || '').toLowerCase() === 'grade');
+            dataStart = gi >= 0 ? gi + 1 : 2;
+        }
+        const headerRows = allRows.slice(0, dataStart).filter(r => r.some(c => c !== ''));
+        const dataRows = allRows.slice(dataStart).filter(r => r.some(c => c !== ''));
+        const maxCols = Math.max.apply(null, allRows.map(r => r.length).concat([2]));
+
+        let headHtml = '';
+        headerRows.forEach((r, ri) => {
+            const isTop = ri < headerRows.length - 1;
+            headHtml += '<tr class="' + (isTop ? 'bg-surface-container-low border-b border-outline-variant' : 'bg-surface-container border-b border-outline-variant') + '">';
+            for (let c = 0; c < maxCols; c++) {
+                const t = (r[c] || '').trim();
+                headHtml += '<th class="' + progresCellClass(t, c, true) + '">' + (t === '' ? '' : t) + '</th>';
+            }
+            headHtml += '</tr>';
+        });
+        head.innerHTML = headHtml;
+
+        // Ringkasan dari baris Total (kolom dicari di seluruh baris header)
+        const colExisting = findProgresCol(headerRows, c => c === 'existing');
+        const colKonfirmasi = findProgresCol(headerRows, c => c.indexOf('konfirmasi') >= 0);
+        const colTotal = findProgresCol(headerRows, c => c === 'total');
+        const totalRow = dataRows.find(r => (r[1] || '').toLowerCase() === 'total');
+        if (totalRow) {
+            if (colExisting >= 0) document.getElementById('progresSumExisting').textContent = totalRow[colExisting] || '-';
+            if (colKonfirmasi >= 0) document.getElementById('progresSumKonfirmasi').textContent = totalRow[colKonfirmasi] || '-';
+            if (colTotal >= 0) document.getElementById('progresSumTotal').textContent = totalRow[colTotal] || '-';
+        }
+
+        let bodyHtml = '';
+        dataRows.forEach(r => {
+            const label = (r[1] || '').trim();
+            const low = label.toLowerCase();
+            const isTotal = low === 'total';
+            const isPct = label.indexOf('%') === 0 || r.some(c => /^\d[\d.,]*%$/.test((c || '').trim()));
+            const rowCls = isTotal
+                ? 'bg-primary-container font-bold'
+                : (isPct ? 'bg-surface-container italic' : 'hover:bg-surface-container transition-colors text-xs sm:text-sm');
+            bodyHtml += '<tr class="' + rowCls + '">';
+            for (let c = 0; c < maxCols; c++) {
+                const t = (r[c] || '').trim();
+                bodyHtml += '<td class="' + progresCellClass(t, c, false) + '">' + (t === '' ? '' : t) + '</td>';
+            }
+            bodyHtml += '</tr>';
+        });
+        body.innerHTML = bodyHtml || '<tr><td class="px-6 py-12 text-center text-on-surface-variant" colspan="' + maxCols + '">Tidak ada data pada sheet.</td></tr>';
+    }
+
+    async function getProgresData() {
+        if (isProgresLoading) { showToast("Harap tunggu proses sebelumnya selesai.", "info"); return; }
+        isProgresLoading = true;
+        showLoading(true);
+        const tableBody = document.getElementById('progresTableBody');
+        tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-12 text-center text-on-surface-variant"><div class="flex items-center justify-center gap-3"><div class="loader"></div><p>Memuat data progres...</p></div></td></tr>';
+        try {
+            const res = await fetch(PROGRES_CSV_URL, { cache: 'no-store' });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const text = await res.text();
+            const lines = text.split(/\r?\n/).filter(l => l.trim() !== '');
+            if (lines.length < 3) throw new Error('Isi CSV kosong/tidak valid.');
+            const maxCols0 = Math.max.apply(null, lines.map(l => parseProgresCSVLine(l).length));
+            const rows = lines.map(l => {
+                const r = parseProgresCSVLine(l);
+                while (r.length < maxCols0) r.push('');
+                return r;
+            });
+            renderProgresTable(rows);
+            const now = new Date();
+            document.getElementById('progresUpdatedAt').textContent = 'diperbarui ' + now.toLocaleString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+            showToast("Data progres berhasil dimuat.", "success");
+        } catch (err) {
+            console.error("Gagal memuat progres:", err);
+            tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-12 text-center text-error">Gagal memuat data progres: ' + err.message + '. Periksa koneksi atau publikasi sheet, lalu klik Muat Ulang.</td></tr>';
+            showToast("Gagal memuat data progres: " + err.message, "error");
+        } finally {
+            isProgresLoading = false;
+            showLoading(false);
+        }
     }
 
     // New functions for Continuing Students Recap
