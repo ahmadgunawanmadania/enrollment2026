@@ -755,7 +755,7 @@
 </div>
 <div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant flex items-center gap-3">
 <div class="w-10 h-10 rounded-lg bg-tertiary-container text-tertiary flex items-center justify-center"><span class="material-symbols-outlined">emoji_events</span></div>
-<div><p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Total Progres</p><p class="text-xl font-black text-on-surface" id="progresSumTotal">-</p></div>
+<div><p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Est. Murid Baru</p><p class="text-sm font-bold text-on-surface">Form Inc. Booking: <span class="font-black" id="progresSumEstForm">-</span></p><p class="text-sm font-bold text-on-surface">Booking: <span class="font-black" id="progresSumEstBooking">-</span></p></div>
 </div>
 </div>
 <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant overflow-clip shadow-[0_1px_2px_rgba(26,27,33,0.06),0_8px_24px_rgba(26,27,33,0.08)]">
@@ -2968,15 +2968,31 @@
         }
         head.innerHTML = headHtml;
 
-        // Ringkasan dari baris Total (kolom dicari di seluruh baris header)
+        // Ringkasan dari baris Total (kolom dicari di seluruh baris header).
+        // Est. Murid Baru dibaca dari dua sub-kolom di bawah grupnya.
         const colExisting = findProgresCol(headerRows, c => c === 'existing');
         const colKonfirmasi = findProgresCol(headerRows, c => c.indexOf('konfirmasi') >= 0);
-        const colTotal = findProgresCol(headerRows, c => c === 'total');
+        let colEstForm = -1, colEstBook = -1;
+        headerRows.forEach(r => {
+            const gi = r.findIndex(c => (c || '').trim().toLowerCase() === 'est. murid baru');
+            if (gi >= 0 && colEstForm < 0) {
+                let end = gi + 1;
+                while (end < maxCols && (r[end] || '').trim() === '') end++;
+                for (let rr = headerRows.length - 1; rr >= 0; rr--) {
+                    for (let cc = gi; cc < end; cc++) {
+                        const t = (headerRows[rr][cc] || '').trim().toLowerCase();
+                        if (t === 'form (inc. booking)' && colEstForm < 0) colEstForm = cc;
+                        if (t === 'booking' && colEstBook < 0) colEstBook = cc;
+                    }
+                }
+            }
+        });
         const totalRow = dataRows.find(r => (r[1] || '').toLowerCase() === 'total');
         if (totalRow) {
             if (colExisting >= 0) document.getElementById('progresSumExisting').textContent = totalRow[colExisting] || '-';
             if (colKonfirmasi >= 0) document.getElementById('progresSumKonfirmasi').textContent = totalRow[colKonfirmasi] || '-';
-            if (colTotal >= 0) document.getElementById('progresSumTotal').textContent = totalRow[colTotal] || '-';
+            if (colEstForm >= 0) document.getElementById('progresSumEstForm').textContent = totalRow[colEstForm] || '-';
+            if (colEstBook >= 0) document.getElementById('progresSumEstBooking').textContent = totalRow[colEstBook] || '-';
         }
 
         let bodyHtml = '';
