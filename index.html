@@ -744,6 +744,14 @@
           </button>
 </div>
 </div>
+<div id="progresRotateHint" class="md:hidden portrait:block landscape:hidden mb-4 p-4 rounded-xl border border-outline-variant bg-primary-container flex items-center gap-3">
+<span class="material-symbols-outlined text-on-primary-container text-3xl animate-pulse">screen_rotation</span>
+<div class="flex-1">
+<p class="text-sm font-bold text-on-primary-container">Tabel lebih rapi dalam landscape</p>
+<p class="text-xs text-on-primary-container opacity-80">Putar HP ke menyamping, atau pakai tombol ini.</p>
+</div>
+<button class="px-4 py-2.5 bg-primary text-on-primary text-sm font-bold rounded-lg shadow whitespace-nowrap" onclick="progresLandscape()" type="button">Mode Landscape</button>
+</div>
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4" id="progresSummary">
 <div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant flex items-center gap-3">
 <div class="w-10 h-10 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center"><span class="material-symbols-outlined">groups</span></div>
@@ -1452,6 +1460,13 @@
 
     function switchTab(tabName) {
       closeSidebar();
+      // Keluar dari fullscreen landscape simulator/progres saat pindah tab.
+      try {
+        if (tabName !== 'tabProgres' && document.fullscreenElement) {
+          const p = document.exitFullscreen();
+          if (p && p.catch) p.catch(function () {});
+        }
+      } catch (e) {}
       const btnDaftar = document.getElementById('btnDaftar');
       const btnUpdate = document.getElementById('btnUpdate');
       const btnLanjutan = document.getElementById('btnLanjutan');
@@ -3015,6 +3030,37 @@
         });
         body.innerHTML = bodyHtml || '<tr><td class="px-6 py-12 text-center text-on-surface-variant" colspan="' + visCount + '">Tidak ada data pada sheet.</td></tr>';
     }
+
+    // Fullscreen + kunci landscape untuk tabel Progres di HP.
+    // (Browser hanya mengizinkan kunci orientasi dalam mode fullscreen,
+    // dan iPhone tidak mendukungnya — fallback: instruksi putar manual.)
+    async function progresLandscape() {
+        try {
+            const target = document.getElementById('tabProgres') || document.documentElement;
+            if (document.fullscreenElement) {
+                if (screen.orientation && screen.orientation.unlock) { try { screen.orientation.unlock(); } catch (e) {} }
+                const p = document.exitFullscreen();
+                if (p && p.catch) await p.catch(function () {});
+                return;
+            }
+            if (target.requestFullscreen) await target.requestFullscreen();
+            else if (document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen();
+            else throw new Error('no-fullscreen');
+            if (screen.orientation && screen.orientation.lock) {
+                await screen.orientation.lock('landscape');
+                showToast('Mode landscape aktif. Pindah tab untuk keluar.', 'success');
+            } else {
+                showToast('Kunci orientasi tidak didukung. Putar HP manual ke landscape.', 'info');
+            }
+        } catch (err) {
+            showToast('Tidak bisa kunci landscape otomatis. Putar HP manual ke menyamping.', 'info');
+        }
+    }
+    document.addEventListener('fullscreenchange', function () {
+        if (!document.fullscreenElement && screen.orientation && screen.orientation.unlock) {
+            try { screen.orientation.unlock(); } catch (e) {}
+        }
+    });
 
     async function getProgresData() {
         if (isProgresLoading) { showToast("Harap tunggu proses sebelumnya selesai.", "info"); return; }
