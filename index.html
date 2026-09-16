@@ -758,13 +758,13 @@
 <div><p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Total Progres</p><p class="text-xl font-black text-on-surface" id="progresSumTotal">-</p></div>
 </div>
 </div>
-<div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
-<table class="w-full table-fixed text-left">
+<div class="bg-surface-container-lowest rounded-2xl border border-outline-variant overflow-hidden shadow-[0_1px_2px_rgba(26,27,33,0.06),0_8px_24px_rgba(26,27,33,0.08)]">
+<table class="w-full table-fixed text-left border-collapse">
 <thead id="progresTableHead">
 </thead>
 <tbody class="divide-y divide-outline-variant" id="progresTableBody">
 <tr>
-<td class="px-4 py-10 md:px-6 md:py-12 text-center text-on-surface-variant" colspan="20">
+<td class="px-4 py-10 md:px-6 md:py-12 text-center text-on-surface-variant" colspan="100">
 <div class="flex flex-col items-center gap-2">
 <span class="material-symbols-outlined text-4xl opacity-20">inventory_2</span>
 <p class="">Klik "Muat Ulang" untuk menampilkan data.</p>
@@ -2861,14 +2861,42 @@
             dataStart = gi >= 0 ? gi + 1 : 2;
         }
         const headerRows = allRows.slice(0, dataStart).filter(r => r.some(c => c !== ''));
-        const dataRows = allRows.slice(dataStart).filter(r => r.some(c => c !== ''));
+        const rawDataRows = allRows.slice(dataStart).filter(r => r.some(c => c !== ''));
         const maxCols = Math.max.apply(null, allRows.map(r => r.length).concat([2]));
+
+        // Kolom di bawah grup "Target" tidak ditampilkan (span = sampai
+        // sel non-kosong berikutnya di baris grup yang sama / akhir tabel).
+        let targetCol = -1;
+        let anchorRow = null;
+        headerRows.forEach(r => {
+            const i = r.findIndex(c => (c || '').trim().toLowerCase() === 'target');
+            if (i >= 0 && targetCol < 0) { targetCol = i; anchorRow = r; }
+        });
+        const hiddenCols = new Set();
+        if (targetCol >= 0 && anchorRow) {
+            let end = maxCols;
+            for (let c = targetCol + 1; c < maxCols; c++) {
+                if ((anchorRow[c] || '').trim() !== '') { end = c; break; }
+            }
+            for (let c = targetCol; c < end; c++) hiddenCols.add(c);
+        }
+        const visCount = maxCols - hiddenCols.size;
+
+        // Baris persentase murid lanjutan (+ label bloknya) tidak ditampilkan.
+        const dataRows = rawDataRows.filter(r => {
+            const first = r.find(c => (c || '').trim() !== '') || '';
+            const t = first.trim();
+            if (/^%/.test(t)) return false;
+            if (/^Lanjutan\s/i.test(t)) return false;
+            return true;
+        });
 
         let headHtml = '';
         headerRows.forEach((r, ri) => {
             const isTop = ri < headerRows.length - 1;
-            headHtml += '<tr class="' + (isTop ? 'bg-surface-container-low border-b border-outline-variant' : 'bg-surface-container border-b border-outline-variant') + '">';
+            headHtml += '<tr class="divide-x divide-outline-variant ' + (isTop ? 'bg-surface-container-low border-b border-outline-variant' : 'bg-surface-container border-b-2 border-outline-variant') + '">';
             for (let c = 0; c < maxCols; c++) {
+                if (hiddenCols.has(c)) continue;
                 const t = (r[c] || '').trim();
                 headHtml += '<th class="' + progresCellClass(t, c, true) + '">' + (t === '' ? '' : t) + '</th>';
             }
@@ -2896,14 +2924,15 @@
             const rowCls = isTotal
                 ? 'bg-primary-container font-bold'
                 : (isPct ? 'bg-surface-container italic' : 'hover:bg-surface-container transition-colors text-xs sm:text-sm');
-            bodyHtml += '<tr class="' + rowCls + '">';
+            bodyHtml += '<tr class="divide-x divide-outline-variant ' + rowCls + '">';
             for (let c = 0; c < maxCols; c++) {
+                if (hiddenCols.has(c)) continue;
                 const t = (r[c] || '').trim();
                 bodyHtml += '<td class="' + progresCellClass(t, c, false) + '">' + (t === '' ? '' : t) + '</td>';
             }
             bodyHtml += '</tr>';
         });
-        body.innerHTML = bodyHtml || '<tr><td class="px-6 py-12 text-center text-on-surface-variant" colspan="' + maxCols + '">Tidak ada data pada sheet.</td></tr>';
+        body.innerHTML = bodyHtml || '<tr><td class="px-6 py-12 text-center text-on-surface-variant" colspan="' + visCount + '">Tidak ada data pada sheet.</td></tr>';
     }
 
     async function getProgresData() {
@@ -2911,7 +2940,7 @@
         isProgresLoading = true;
         showLoading(true);
         const tableBody = document.getElementById('progresTableBody');
-        tableBody.innerHTML = '<tr><td colspan="20" class="px-6 py-12 text-center text-on-surface-variant"><div class="flex items-center justify-center gap-3"><div class="loader"></div><p>Memuat data progres...</p></div></td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="100" class="px-6 py-12 text-center text-on-surface-variant"><div class="flex items-center justify-center gap-3"><div class="loader"></div><p>Memuat data progres...</p></div></td></tr>';
         try {
             const res = await fetch(PROGRES_CSV_URL, { cache: 'no-store' });
             if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -2930,7 +2959,7 @@
             showToast("Data progres berhasil dimuat.", "success");
         } catch (err) {
             console.error("Gagal memuat progres:", err);
-            tableBody.innerHTML = '<tr><td colspan="20" class="px-6 py-12 text-center text-error">Gagal memuat data progres: ' + err.message + '. Periksa koneksi atau publikasi sheet, lalu klik Muat Ulang.</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="100" class="px-6 py-12 text-center text-error">Gagal memuat data progres: ' + err.message + '. Periksa koneksi atau publikasi sheet, lalu klik Muat Ulang.</td></tr>';
             showToast("Gagal memuat data progres: " + err.message, "error");
         } finally {
             isProgresLoading = false;
