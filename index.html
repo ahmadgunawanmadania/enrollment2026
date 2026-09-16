@@ -2880,9 +2880,25 @@
             }
             for (let c = targetCol; c < end; c++) hiddenCols.add(c);
         }
-        // Kolom spacer C0 selalu kosong di CSV → sembunyikan sekalian.
-        if (allRows.every(r => (r[0] || '').trim() === '')) hiddenCols.add(0);
+        // Kolom yang kosong total (spacer C0, separator C6, ...) disembunyikan.
+        // Kolom label (C1/Grade) tidak pernah disembunyikan.
+        for (let hc = 0; hc < maxCols; hc++) {
+            if (hc === 1) continue;
+            if (allRows.every(r => (r[hc] || '').trim() === '')) hiddenCols.add(hc);
+        }
         const visCount = maxCols - hiddenCols.size;
+        // Sel yang tepat berada di kiri kolom separator tersembunyi
+        // (mis. Existing | Tidak Lanjut) dapat garis kanan tebal sebagai
+        // pembatas grup T.A. 2026/2027 vs T.A. 2027/2028.
+        const PROG_THICK_STYLE = ' style="border-right:3px solid #27272a"';
+        function progNeedsThickRight(c, cs) {
+            const next = c + cs;
+            if (next >= maxCols || !hiddenCols.has(next)) return false;
+            for (let cc = next + 1; cc < maxCols; cc++) {
+                if (!hiddenCols.has(cc)) return true;
+            }
+            return false;
+        }
 
         // Baris persentase murid lanjutan (+ label bloknya) tidak ditampilkan.
         const dataRows = rawDataRows.filter(r => {
@@ -2943,7 +2959,8 @@
                 if (visSpan < 1) continue;
                 // Kolom Grade (C1) sticky agar tetap terlihat.
                 const sticky = (c === 1) ? ' sticky left-0 z-10' : '';
-                headHtml += '<th class="' + progHeadCls(r) + sticky + '"' + (visSpan > 1 ? ' colspan="' + visSpan + '"' : '') + (rs > 1 ? ' rowspan="' + rs + '"' : '') + '>' + t + '</th>';
+                const thick = progNeedsThickRight(c, cs) ? PROG_THICK_STYLE : '';
+                headHtml += '<th class="' + progHeadCls(r) + sticky + '"' + (visSpan > 1 ? ' colspan="' + visSpan + '"' : '') + (rs > 1 ? ' rowspan="' + rs + '"' : '') + thick + '>' + t + '</th>';
             }
             headHtml += '</tr>';
         }
@@ -2973,7 +2990,8 @@
             for (let c = 0; c < maxCols; c++) {
                 if (hiddenCols.has(c)) continue;
                 const t = (r[c] || '').trim();
-                bodyHtml += '<td class="' + progresCellClass(t, c, false) + '">' + (t === '' ? '' : t) + '</td>';
+                const thick = progNeedsThickRight(c, 1) ? PROG_THICK_STYLE : '';
+                bodyHtml += '<td class="' + progresCellClass(t, c, false) + '"' + thick + '>' + (t === '' ? '' : t) + '</td>';
             }
             bodyHtml += '</tr>';
         });
