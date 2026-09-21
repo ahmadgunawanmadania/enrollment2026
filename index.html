@@ -3857,6 +3857,9 @@
 
             pendaftarSnapshot.forEach(doc => {
                 const data = doc.data();
+                // Kartu Target hanya untuk Baru & Pindahan — siswa Lanjutan
+                // Internal sudah punya kartu tersendiri, jadi lewati di sini.
+                if (String(data.kategori || '').startsWith('Lanjutan')) return;
                 dashboardData.pendaftar.totalBaruDanPindahan++;
                 if (data.statusBooking === 'Ya') dashboardData.pendaftar.totalBooking++;
                 dashboardData.pendaftar.byJenjang[data.jenjang] = (dashboardData.pendaftar.byJenjang[data.jenjang] || 0) + 1;
