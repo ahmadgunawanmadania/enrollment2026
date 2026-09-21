@@ -133,6 +133,10 @@
 <p class="text-xs text-on-surface-variant mt-2 px-1">Academic Year 2026/27</p>
 </div>
 <nav class="flex-1 px-3 space-y-1 mt-4">
+<button class="nav-transition w-full flex items-center gap-3 px-4 py-3 rounded-lg font-semibold bg-primary-container text-on-primary-container" id="btnHome" onclick="switchTab('tabHome')">
+<span class="material-symbols-outlined text-[20px]">home</span>
+<span class="text-sm">Beranda</span>
+</button>
 <button class="nav-transition w-full flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container font-medium" id="btnDaftar" onclick="switchTab('tabDaftar')">
 <span class="material-symbols-outlined text-[20px]">person_add</span>
 <span class="text-sm">Registration</span>
@@ -153,7 +157,7 @@
 <span class="material-symbols-outlined text-[20px]">list_alt</span>
 <span class="text-sm">Continuing Students Recap</span>
 </button>
-<button class="nav-transition w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-primary-container text-on-primary-container font-semibold" id="btnDashboard" onclick="switchTab('tabDashboard')">
+<button class="nav-transition w-full flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container font-medium" id="btnDashboard" onclick="switchTab('tabDashboard')">
 <span class="material-symbols-outlined text-[20px]">monitoring</span>
 <span class="text-sm">Dashboard</span>
 </button>
@@ -195,7 +199,7 @@
 </div>
 <!-- Desktop Title -->
 <div class="hidden lg:flex items-center gap-2">
-<span class="text-lg font-bold text-on-surface" id="currentTabLabel">Dashboard</span>
+<span class="text-lg font-bold text-on-surface" id="currentTabLabel">Beranda</span>
 </div>
 </div>
 <div class="flex items-center gap-2">
@@ -213,8 +217,135 @@
 </div>
 </header>
 <div class="p-4 md:p-8 max-w-7xl mx-auto w-full">
+<!-- HOMEPAGE / BERANDA -->
+<div class="animate-in fade-in slide-in-from-bottom-4 duration-300" id="tabHome">
+<!-- Hero -->
+<div class="relative overflow-hidden rounded-2xl bg-primary text-white p-6 md:p-10 mb-8 shadow-lg">
+<div class="absolute -top-16 -right-16 w-64 h-64 bg-white/10 rounded-full"></div>
+<div class="absolute -bottom-20 right-32 w-48 h-48 bg-white/10 rounded-full"></div>
+<div class="absolute top-8 right-8 hidden md:flex w-14 h-14 bg-white/15 rounded-2xl items-center justify-center">
+<span class="material-symbols-outlined text-3xl">school</span>
+</div>
+<div class="relative flex flex-col md:flex-row md:items-center gap-6">
+<div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-primary shrink-0 md:hidden">
+<span class="material-symbols-outlined text-3xl">school</span>
+</div>
+<div class="flex-1">
+<p class="text-[11px] uppercase tracking-[0.2em] opacity-80 font-bold">Academic Year 2026/27</p>
+<h2 class="text-xl md:text-2xl font-black mt-1">Madania Enrollment System</h2>
+<p class="text-sm opacity-90 mt-1">Semua menu dalam satu tempat — pilih shortcut di bawah untuk mulai bekerja.</p>
+</div>
+<div class="flex flex-wrap gap-2">
+<button onclick="switchTab('tabDaftar')" class="px-5 py-2.5 bg-white text-primary text-sm font-bold rounded-lg shadow hover:opacity-90 transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-base">person_add</span>
+Pendaftaran Baru
+</button>
+<button onclick="switchTab('tabDashboard')" class="px-5 py-2.5 bg-white/15 text-white text-sm font-bold rounded-lg border border-white/30 hover:bg-white/25 transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-base">monitoring</span>
+Dashboard
+</button>
+</div>
+</div>
+</div>
+<!-- Grup: Formulir -->
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-primary">edit_note</span>
+<h3 class="text-base md:text-lg font-bold text-on-surface">Formulir</h3>
+<div class="flex-1 h-px bg-outline-variant"></div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 mb-8">
+<button onclick="switchTab('tabDaftar')" class="group text-left bg-surface-container-lowest border border-outline-variant rounded-2xl p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-primary transition-all duration-200">
+<div class="flex items-start justify-between mb-4">
+<div class="w-12 h-12 rounded-xl bg-primary-container text-on-primary-container flex items-center justify-center"><span class="material-symbols-outlined text-2xl">person_add</span></div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary group-hover:translate-x-1 transition-all">arrow_forward</span>
+</div>
+<h4 class="font-bold text-on-surface">Registration</h4>
+<p class="text-xs text-on-surface-variant mt-1 leading-relaxed">Formulir pendaftaran murid baru &amp; pindahan.</p>
+</button>
+<button onclick="switchTab('tabLanjutan')" class="group text-left bg-surface-container-lowest border border-outline-variant rounded-2xl p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-primary transition-all duration-200">
+<div class="flex items-start justify-between mb-4">
+<div class="w-12 h-12 rounded-xl bg-secondary-container text-on-secondary-container flex items-center justify-center"><span class="material-symbols-outlined text-2xl">escalator_warning</span></div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary group-hover:translate-x-1 transition-all">arrow_forward</span>
+</div>
+<h4 class="font-bold text-on-surface">Continuing Students</h4>
+<p class="text-xs text-on-surface-variant mt-1 leading-relaxed">Konfirmasi &amp; pendaftaran siswa lanjutan internal.</p>
+</button>
+<button onclick="switchTab('tabUpdate')" class="group text-left bg-surface-container-lowest border border-outline-variant rounded-2xl p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-primary transition-all duration-200">
+<div class="flex items-start justify-between mb-4">
+<div class="w-12 h-12 rounded-xl bg-tertiary-container text-on-tertiary-container flex items-center justify-center"><span class="material-symbols-outlined text-2xl">manage_search</span></div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary group-hover:translate-x-1 transition-all">arrow_forward</span>
+</div>
+<h4 class="font-bold text-on-surface">Search &amp; Update</h4>
+<p class="text-xs text-on-surface-variant mt-1 leading-relaxed">Cari data pendaftar &amp; perbarui pembayaran / status.</p>
+</button>
+</div>
+<!-- Grup: Monitoring & Laporan -->
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-tertiary">analytics</span>
+<h3 class="text-base md:text-lg font-bold text-on-surface">Monitoring &amp; Laporan</h3>
+<div class="flex-1 h-px bg-outline-variant"></div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 mb-8">
+<button onclick="switchTab('tabDashboard')" class="group text-left bg-surface-container-lowest border border-outline-variant rounded-2xl p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-primary transition-all duration-200">
+<div class="flex items-start justify-between mb-4">
+<div class="w-12 h-12 rounded-xl bg-primary-container text-on-primary-container flex items-center justify-center"><span class="material-symbols-outlined text-2xl">monitoring</span></div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary group-hover:translate-x-1 transition-all">arrow_forward</span>
+</div>
+<h4 class="font-bold text-on-surface">Dashboard</h4>
+<p class="text-xs text-on-surface-variant mt-1 leading-relaxed">Ringkasan statistik &amp; grafik pendaftaran.</p>
+</button>
+<button onclick="switchTab('tabRekap')" class="group text-left bg-surface-container-lowest border border-outline-variant rounded-2xl p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-primary transition-all duration-200">
+<div class="flex items-start justify-between mb-4">
+<div class="w-12 h-12 rounded-xl bg-tertiary-container text-on-tertiary-container flex items-center justify-center"><span class="material-symbols-outlined text-2xl">analytics</span></div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary group-hover:translate-x-1 transition-all">arrow_forward</span>
+</div>
+<h4 class="font-bold text-on-surface">Recapitulation</h4>
+<p class="text-xs text-on-surface-variant mt-1 leading-relaxed">Rekap pendaftar &amp; status pembayaran terkini.</p>
+</button>
+<button onclick="switchTab('tabLanjutanRekap')" class="group text-left bg-surface-container-lowest border border-outline-variant rounded-2xl p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-primary transition-all duration-200">
+<div class="flex items-start justify-between mb-4">
+<div class="w-12 h-12 rounded-xl bg-secondary-container text-on-secondary-container flex items-center justify-center"><span class="material-symbols-outlined text-2xl">list_alt</span></div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary group-hover:translate-x-1 transition-all">arrow_forward</span>
+</div>
+<h4 class="font-bold text-on-surface">Continuing Students Recap</h4>
+<p class="text-xs text-on-surface-variant mt-1 leading-relaxed">Rekap status kelanjutan siswa per kelas asal.</p>
+</button>
+<button onclick="switchTab('tabProgres')" class="group text-left bg-surface-container-lowest border border-outline-variant rounded-2xl p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-primary transition-all duration-200">
+<div class="flex items-start justify-between mb-4">
+<div class="w-12 h-12 rounded-xl bg-primary-container text-on-primary-container flex items-center justify-center"><span class="material-symbols-outlined text-2xl">trending_up</span></div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary group-hover:translate-x-1 transition-all">arrow_forward</span>
+</div>
+<h4 class="font-bold text-on-surface">Progres 27/28</h4>
+<p class="text-xs text-on-surface-variant mt-1 leading-relaxed">Progres perolehan murid tahun ajaran 2027/2028.</p>
+</button>
+</div>
+<!-- Grup: Alat Bantu -->
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-secondary">handyman</span>
+<h3 class="text-base md:text-lg font-bold text-on-surface">Alat Bantu</h3>
+<div class="flex-1 h-px bg-outline-variant"></div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
+<button onclick="switchTab('tabSimulator')" class="group text-left bg-surface-container-lowest border border-outline-variant rounded-2xl p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-primary transition-all duration-200">
+<div class="flex items-start justify-between mb-4">
+<div class="w-12 h-12 rounded-xl bg-tertiary-container text-on-tertiary-container flex items-center justify-center"><span class="material-symbols-outlined text-2xl">calculate</span></div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary group-hover:translate-x-1 transition-all">arrow_forward</span>
+</div>
+<h4 class="font-bold text-on-surface">Simulator Diskon</h4>
+<p class="text-xs text-on-surface-variant mt-1 leading-relaxed">Hitung skema diskon SSP &amp; tarik nominalnya ke form pendaftaran.</p>
+</button>
+<button onclick="switchTab('tabSettings')" class="group text-left bg-surface-container-lowest border border-outline-variant rounded-2xl p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-primary transition-all duration-200">
+<div class="flex items-start justify-between mb-4">
+<div class="w-12 h-12 rounded-xl bg-surface-container text-on-surface-variant flex items-center justify-center"><span class="material-symbols-outlined text-2xl">settings</span></div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary group-hover:translate-x-1 transition-all">arrow_forward</span>
+</div>
+<h4 class="font-bold text-on-surface">Pengaturan</h4>
+<p class="text-xs text-on-surface-variant mt-1 leading-relaxed">Notifikasi email/WhatsApp, migrasi &amp; utilitas data.</p>
+</button>
+</div>
+</div>
 <!-- RECAP TAB CONTENT -->
-<div class="animate-in fade-in slide-in-from-bottom-4 duration-300" id="tabDashboard">
+<div class="hidden animate-in fade-in slide-in-from-bottom-4 duration-300" id="tabDashboard">
 <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
 <div class="flex-1">
 <h2 class="text-lg md:text-xl font-bold text-on-surface">Overview Dashboard</h2>
@@ -1296,6 +1427,9 @@
 </main>
 <!-- Bottom Navigation (Mobile) -->
 <div id="mobile-nav" class="lg:hidden sticky bottom-0 bg-surface-container-lowest border-t border-outline-variant flex justify-evenly z-50">
+<button id="mobile-btnHome" onclick="switchTab('tabHome')" class="flex-1 flex items-center justify-center py-3 text-primary font-bold">
+<span class="material-symbols-outlined text-2xl">home</span>
+</button>
 <button id="mobile-btnDaftar" onclick="switchTab('tabDaftar')" class="flex-1 flex items-center justify-center py-3 text-on-surface-variant">
 <span class="material-symbols-outlined text-2xl">person_add</span>
 </button>
@@ -1490,6 +1624,7 @@
       const btnDashboard = document.getElementById('btnDashboard');
       const btnSimulator = document.getElementById('btnSimulator');
       const btnProgres = document.getElementById('btnProgres');
+      const btnHome = document.getElementById('btnHome');
       
       const boxUpdate = document.getElementById('tabUpdate');
       const boxRekap = document.getElementById('tabRekap');
@@ -1504,10 +1639,11 @@
       const tabSettingsDiv = document.getElementById('tabSettings');
       const tabSimulatorDiv = document.getElementById('tabSimulator');
       const tabProgresDiv = document.getElementById('tabProgres');
+      const tabHomeDiv = document.getElementById('tabHome');
 
       // --- Reset Styles ---
       // Reset Desktop Sidebar Buttons
-      [btnDaftar, btnUpdate, btnRekap, btnLanjutan, btnLanjutanRekap, btnDashboard, btnSimulator, btnProgres].forEach(btn => {
+      [btnDaftar, btnUpdate, btnRekap, btnLanjutan, btnLanjutanRekap, btnDashboard, btnSimulator, btnProgres, btnHome].forEach(btn => {
         if (btn) btn.className = "nav-transition w-full flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container font-medium";
       });
       // Reset Mobile Bottom Navigation Buttons
@@ -1531,9 +1667,16 @@
       tabSettingsDiv.classList.add('hidden');
       if (tabSimulatorDiv) tabSimulatorDiv.classList.add('hidden');
       if (tabProgresDiv) tabProgresDiv.classList.add('hidden');
+      if (tabHomeDiv) tabHomeDiv.classList.add('hidden');
       mainForm.classList.add('hidden');
 
-      if (tabName === 'tabDaftar') {
+      if (tabName === 'tabHome') {
+        modeSaatIni = 'home';
+        if (btnHome) btnHome.className = activeDesktopBase + "bg-primary-container text-on-primary-container";
+        if (document.getElementById('mobile-btnHome')) document.getElementById('mobile-btnHome').className = activeMobileClass;
+        if (tabHomeDiv) tabHomeDiv.classList.remove('hidden');
+        currentTabLabel.innerText = "Beranda";
+      } else if (tabName === 'tabDaftar') {
         modeSaatIni = 'daftar';
         resetFormLokal();
         btnDaftar.className = activeDesktopBase + "bg-primary-container text-on-primary-container";
@@ -3510,7 +3653,7 @@
 
     // Initialize the view to the dashboard on first load
     document.addEventListener('DOMContentLoaded', () => {
-      switchTab('tabDashboard');
+      switchTab('tabHome');
 
       // --- Notification Bell Logic ---
       const bell = document.getElementById('notification-bell');
