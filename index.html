@@ -310,12 +310,16 @@
 </div>
 <!-- RECAP TAB CONTENT -->
 <div class="hidden animate-in fade-in slide-in-from-bottom-4 duration-300" id="tabDashboard">
-<div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
-<div class="flex-1">
-<h2 class="text-lg md:text-xl font-bold text-on-surface">Overview Dashboard</h2>
-<p class="text-sm text-on-surface-variant">Ringkasan statistik pendaftaran dan status siswa lanjutan.</p>
+<div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-violet-600 to-purple-700 text-white p-4 md:p-5 mb-6 shadow-lg">
+<div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full"></div>
+<div class="relative flex items-center gap-3">
+<div class="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[26px]">monitoring</span></div>
+<div class="flex-1 min-w-0">
+<h2 class="text-lg md:text-xl font-black leading-tight">Overview Dashboard</h2>
+<p class="text-xs md:text-sm opacity-85">Ringkasan statistik pendaftaran dan status siswa lanjutan.</p>
 </div>
-<div class="flex flex-wrap justify-end gap-2">
+</div>
+<div class="relative flex flex-wrap gap-2 mt-4">
 <select class="w-full sm:w-auto px-4 py-2.5 rounded-lg border border-outline-variant bg-surface-container-lowest text-sm" id="dashboardFilterJenjang" onchange="handleDashboardJenjangChange()">
 <option value="">Semua Jenjang</option>
 <option value="TK">TK</option>
@@ -401,9 +405,19 @@
 </div>
 <!-- SETTINGS TAB CONTENT -->
 <div class="hidden animate-in fade-in slide-in-from-bottom-4 duration-300" id="tabSettings">
+<div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-700 to-slate-900 text-white p-4 md:p-5 mb-6 shadow-lg max-w-2xl mx-auto">
+<div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full"></div>
+<div class="relative flex items-center gap-3">
+<div class="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[26px]">settings</span></div>
+<div class="flex-1 min-w-0">
+<h2 class="text-lg md:text-xl font-black leading-tight">Pengaturan</h2>
+<p class="text-xs md:text-sm opacity-85">Notifikasi, sinkronisasi &amp; utilitas data.</p>
+</div>
+</div>
+</div>
 <div class="bg-surface-container-lowest p-4 md:p-8 rounded-xl border border-outline-variant shadow-sm max-w-2xl mx-auto">
 <div class="flex items-center gap-3 mb-6 border-b border-outline-variant pb-4">
-<span class="material-symbols-outlined text-primary">settings</span>
+<span class="material-symbols-outlined w-9 h-9 rounded-xl bg-gradient-to-br from-slate-600 to-slate-900 text-white flex items-center justify-center text-[20px] shadow">settings</span>
 <h2 class="text-lg font-bold text-on-surface">Pengaturan Notifikasi</h2>
 </div>
 <div class="space-y-5">
@@ -441,8 +455,8 @@
 </div>
     <div class="bg-surface-container-lowest p-4 md:p-8 rounded-xl border border-outline-variant shadow-sm max-w-2xl mx-auto mt-8">
         <div class="flex items-center gap-3 mb-6 border-b border-outline-variant pb-4">
-            <span class="material-symbols-outlined text-warning">database</span>
-            <h2 class="text-lg font-bold text-on-surface">Sinkronisasi Data Lama</h2>
+<span class="material-symbols-outlined w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-orange-600 text-white flex items-center justify-center text-[20px] shadow">database</span>
+<h2 class="text-lg font-bold text-on-surface">Sinkronisasi Data Lama</h2>
         </div>
         <div class="space-y-5">
             <p class="text-sm text-on-surface-variant">
@@ -461,8 +475,8 @@
     </div>
     <div class="bg-surface-container-lowest p-4 md:p-8 rounded-xl border border-outline-variant shadow-sm max-w-2xl mx-auto mt-8">
         <div class="flex items-center gap-3 mb-6 border-b border-outline-variant pb-4">
-            <span class="material-symbols-outlined text-primary">upload</span>
-            <h2 class="text-lg font-bold text-on-surface">Upload Data Massal</h2>
+<span class="material-symbols-outlined w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 text-white flex items-center justify-center text-[20px] shadow">upload</span>
+<h2 class="text-lg font-bold text-on-surface">Upload Data Massal</h2>
         </div>
         <div class="space-y-5">
             <p class="text-sm text-on-surface-variant">
@@ -478,8 +492,8 @@
     </div>
     <div class="bg-surface-container-lowest p-4 md:p-8 rounded-xl border border-outline-variant shadow-sm max-w-2xl mx-auto mt-8">
         <div class="flex items-center gap-3 mb-6 border-b border-outline-variant pb-4">
-            <span class="material-symbols-outlined text-secondary">search_check</span>
-            <h2 class="text-lg font-bold text-on-surface">Perbaikan Pencarian Nama</h2>
+<span class="material-symbols-outlined w-9 h-9 rounded-xl bg-gradient-to-br from-pink-600 to-rose-700 text-white flex items-center justify-center text-[20px] shadow">search_check</span>
+<h2 class="text-lg font-bold text-on-surface">Perbaikan Pencarian Nama</h2>
         </div>
         <div class="space-y-5">
             <p class="text-sm text-on-surface-variant">
@@ -513,10 +527,16 @@
 </div>
 <!-- SIMULATOR DISKON TAB CONTENT -->
 <div class="hidden animate-in fade-in slide-in-from-bottom-4 duration-300" id="tabSimulator">
-<div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
-<div class="flex-1">
-<h2 class="text-lg md:text-xl font-bold text-on-surface">Simulator Uang Pangkal</h2>
-<p class="text-sm text-on-surface-variant">Sekolah Madania — Tahun Ajaran 2027/2028. Nominal diskon bisa ditarik ke form pendaftaran.</p>
+<div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 text-white p-4 md:p-5 mb-6 shadow-lg">
+<div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full"></div>
+<div class="relative flex flex-col md:flex-row md:items-center gap-3">
+<div class="flex items-center gap-3 flex-1 min-w-0">
+<div class="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[26px]">calculate</span></div>
+<div class="flex-1 min-w-0">
+<h2 class="text-lg md:text-xl font-black leading-tight">Simulator Uang Pangkal</h2>
+<p class="text-xs md:text-sm opacity-85">Sekolah Madania — TA 2027/2028. Nominal diskon bisa ditarik ke form pendaftaran.</p>
+</div>
+</div>
 </div>
 <div class="flex gap-2">
 <button id="sim-tab-individu" class="px-4 py-2.5 rounded-lg bg-primary text-on-primary text-sm font-semibold" onclick="switchSimTab('individu')" type="button">Diskon Individu</button>
@@ -724,12 +744,16 @@
 </div>
 </div>
 <div class="hidden animate-in fade-in slide-in-from-bottom-4 duration-300" id="tabRekap">
-<div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
-<div class="flex-1">
-<h2 class="text-lg md:text-xl font-bold text-on-surface">Data Rekapitulasi</h2>
-<p class="text-sm text-on-surface-variant">Laporan pendaftaran dan status pembayaran terkini.</p>
+<div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-500 to-blue-700 text-white p-4 md:p-5 mb-6 shadow-lg">
+<div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full"></div>
+<div class="relative flex items-center gap-3">
+<div class="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[26px]">analytics</span></div>
+<div class="flex-1 min-w-0">
+<h2 class="text-lg md:text-xl font-black leading-tight">Data Rekapitulasi</h2>
+<p class="text-xs md:text-sm opacity-85">Laporan pendaftaran dan status pembayaran terkini.</p>
 </div>
-<div class="flex flex-wrap justify-end gap-2 sm:gap-4">
+</div>
+<div class="relative flex flex-wrap gap-2 mt-4">
 <select class="w-full sm:w-48 px-4 py-2.5 rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-transparent bg-surface-container-lowest" id="rekapFilterKategori" onchange="applyRekapFilter()">
 <option value="Semua">Semua Kategori</option>
 <option value="baru">Murid Baru</option>
@@ -751,15 +775,15 @@
 </div>
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4" id="rekapSummary">
 <div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant flex items-center gap-3">
-<div class="w-10 h-10 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center"><span class="material-symbols-outlined">person_add</span></div>
+<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 text-white flex items-center justify-center shadow"><span class="material-symbols-outlined">person_add</span></div>
 <div><p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Murid Baru</p><p class="text-xl font-black text-on-surface" id="rekapCountBaru">0</p></div>
 </div>
 <div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant flex items-center gap-3">
-<div class="w-10 h-10 rounded-lg bg-secondary-container text-on-secondary-container flex items-center justify-center"><span class="material-symbols-outlined">sync_alt</span></div>
+<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-700 text-white flex items-center justify-center shadow"><span class="material-symbols-outlined">sync_alt</span></div>
 <div><p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Murid Transfer</p><p class="text-xl font-black text-on-surface" id="rekapCountTransfer">0</p></div>
 </div>
 <div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant flex items-center gap-3">
-<div class="w-10 h-10 rounded-lg bg-tertiary-container text-tertiary flex items-center justify-center"><span class="material-symbols-outlined">escalator_warning</span></div>
+<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-700 text-white flex items-center justify-center shadow"><span class="material-symbols-outlined">escalator_warning</span></div>
 <div><p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Murid Lanjutan</p><p class="text-xl font-black text-on-surface" id="rekapCountLanjutan">0</p></div>
 </div>
 </div>
@@ -790,12 +814,16 @@
 </div>
 <!-- CONTINUING STUDENTS RECAP TAB CONTENT -->
 <div class="hidden animate-in fade-in slide-in-from-bottom-4 duration-300" id="tabLanjutanRekap">
-<div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
-<div class="flex-1">
-<h2 class="text-lg md:text-xl font-bold text-on-surface">Rekap Status Siswa Lanjutan</h2>
-<p class="text-sm text-on-surface-variant">Laporan status kelanjutan siswa.</p>
+<div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-red-400 to-rose-600 text-white p-4 md:p-5 mb-6 shadow-lg">
+<div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full"></div>
+<div class="relative flex items-center gap-3">
+<div class="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[26px]">list_alt</span></div>
+<div class="flex-1 min-w-0">
+<h2 class="text-lg md:text-xl font-black leading-tight">Rekap Status Siswa Lanjutan</h2>
+<p class="text-xs md:text-sm opacity-85">Laporan status kelanjutan siswa.</p>
 </div>
-<div class="flex flex-col sm:flex-row sm:flex-wrap sm:justify-end gap-2 sm:gap-4">
+</div>
+<div class="relative flex flex-wrap gap-2 mt-4">
 <select class="w-full sm:w-48 px-4 py-2.5 rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-transparent bg-surface-container-lowest" id="lanjutanRekapFilterStatus" onchange="applyLanjutanRekapFilter()">
 <option value="Semua">Semua Status</option>
 <option value="Lanjut">Lanjut</option>
@@ -842,12 +870,17 @@
 </div>
 <!-- PROGRES PEROLEHAN 27/28 TAB CONTENT -->
 <div class="hidden animate-in fade-in slide-in-from-bottom-4 duration-300" id="tabProgres">
-<div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
-<div class="flex-1">
-<h2 class="text-lg md:text-xl font-bold text-on-surface">Progres Perolehan Murid 2027/2028</h2>
-<p class="text-sm text-on-surface-variant">Sumber: Google Sheet publik (<a class="underline text-primary" href="https://docs.google.com/spreadsheets/d/e/2PACX-1vRWn6PHxeKi8WHc84O_hcNcOF7rF-bdC39fdxVuUzanwpE0XMz06TFiyomvPTRlnKyH3JeY2gx_GEl1/pub?gid=2132425827&single=true&output=csv" target="_blank" rel="noopener">buka sheet</a>) &bull; <span id="progresUpdatedAt">belum dimuat</span></p>
+<div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-teal-500 to-cyan-600 text-white p-4 md:p-5 mb-6 shadow-lg">
+<div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full"></div>
+<div class="relative flex flex-col md:flex-row md:items-center gap-3">
+<div class="flex items-center gap-3 flex-1 min-w-0">
+<div class="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[26px]">trending_up</span></div>
+<div class="flex-1 min-w-0">
+<h2 class="text-lg md:text-xl font-black leading-tight">Progres Perolehan Murid 2027/2028</h2>
+<p class="text-xs md:text-sm opacity-85">Sumber: Google Sheet publik (<a class="underline text-white font-semibold" href="https://docs.google.com/spreadsheets/d/e/2PACX-1vRWn6PHxeKi8WHc84O_hcNcOF7rF-bdC39fdxVuUzanwpE0XMz06TFiyomvPTRlnKyH3JeY2gx_GEl1/pub?gid=2132425827&single=true&output=csv" target="_blank" rel="noopener">buka sheet</a>) &bull; <span id="progresUpdatedAt">belum dimuat</span></p>
 </div>
-<div class="flex flex-wrap justify-end gap-2 sm:gap-4">
+</div>
+<div class="flex flex-wrap gap-2">
 <button class="w-full sm:w-auto flex items-center gap-2 bg-tertiary text-on-tertiary font-semibold py-2.5 px-5 rounded-lg hover:opacity-90 shadow-sm" onclick="getProgresData()">
 <span class="material-symbols-outlined text-sm">refresh</span>
             Muat Ulang
@@ -864,15 +897,15 @@
 </div>
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4" id="progresSummary">
 <div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant flex items-center gap-3">
-<div class="w-10 h-10 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center"><span class="material-symbols-outlined">groups</span></div>
+<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 text-white flex items-center justify-center shadow"><span class="material-symbols-outlined">groups</span></div>
 <div><p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Total Existing</p><p class="text-xl font-black text-on-surface" id="progresSumExisting">-</p></div>
 </div>
 <div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant flex items-center gap-3">
-<div class="w-10 h-10 rounded-lg bg-secondary-container text-on-secondary-container flex items-center justify-center"><span class="material-symbols-outlined">how_to_reg</span></div>
+<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white flex items-center justify-center shadow"><span class="material-symbols-outlined">how_to_reg</span></div>
 <div><p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Konfirmasi Lanjut</p><p class="text-xl font-black text-on-surface" id="progresSumKonfirmasi">-</p></div>
 </div>
 <div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant flex items-center gap-3">
-<div class="w-10 h-10 rounded-lg bg-tertiary-container text-tertiary flex items-center justify-center"><span class="material-symbols-outlined">emoji_events</span></div>
+<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-600 text-white flex items-center justify-center shadow"><span class="material-symbols-outlined">emoji_events</span></div>
 <div><p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Est. Murid Baru</p><p class="text-sm font-bold text-on-surface">Form Inc. Booking: <span class="font-black" id="progresSumEstForm">-</span></p><p class="text-sm font-bold text-on-surface">Booking: <span class="font-black" id="progresSumEstBooking">-</span></p></div>
 </div>
 </div>
@@ -896,6 +929,16 @@
 <!-- LANJUTAN TAB CONTENT -->
 <div class="hidden animate-in fade-in slide-in-from-bottom-4 duration-300" id="tabLanjutan">
 <form class="space-y-6" id="lanjutanForm" onsubmit="submitLanjutanForm(event)">
+<div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-700 text-white p-4 md:p-5 shadow-lg">
+<div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full"></div>
+<div class="relative flex items-center gap-3">
+<div class="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[26px]">escalator_warning</span></div>
+<div class="flex-1 min-w-0">
+<h2 class="text-lg md:text-xl font-black leading-tight">Siswa Lanjutan</h2>
+<p class="text-xs md:text-sm opacity-85">Konfirmasi kelanjutan siswa internal Madania.</p>
+</div>
+</div>
+</div>
 <!-- Card: Informasi Siswa Lanjutan -->
 <div class="bg-surface-container-lowest p-4 md:p-6 rounded-xl border border-outline-variant shadow-sm">
 <div class="flex items-center gap-3 mb-6 border-b border-outline-variant pb-4">
@@ -1103,24 +1146,44 @@
 </div>
 <!-- UPDATE SEARCH BOX (now part of the tab) -->
 <div class="hidden mb-8 animate-in fade-in slide-in-from-bottom-2 duration-300" id="tabUpdate">
-<div class="bg-primary-container p-4 md:p-6 rounded-xl border border-primary-container flex flex-col md:flex-row gap-4 items-end">
+<div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-orange-500 to-orange-700 text-white p-4 md:p-5 shadow-lg">
+<div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full"></div>
+<div class="relative flex items-center gap-3 mb-4">
+<div class="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[26px]">manage_search</span></div>
+<div class="flex-1 min-w-0">
+<h2 class="text-lg md:text-xl font-black leading-tight">Search &amp; Update</h2>
+<p class="text-xs md:text-sm opacity-85">Cari data pendaftar, lalu perbarui lewat formulir di bawah.</p>
+</div>
+</div>
+<div class="relative flex flex-col md:flex-row gap-3 items-stretch md:items-end">
 <div class="flex-1 w-full">
-<label class="block text-sm font-semibold text-primary mb-2">Pencarian Data</label>
+<label class="block text-xs font-bold text-white/90 mb-1.5">Pencarian Data</label>
 <div class="relative">
 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
 <input class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-outline-variant focus:outline-none focus:ring-2 focus:ring-primary" id="searchId" placeholder="Masukkan ID Pendaftaran atau Nama Siswa" type="text">
 </div>
 </div>
-<button class="w-full md:w-auto bg-primary hover:bg-primary-container hover:text-on-primary-container text-white font-bold py-2.5 px-8 rounded-lg transition-all shadow-md flex items-center justify-center gap-2" onclick="cariDataGAS()">
+<button class="w-full md:w-auto bg-white hover:bg-white/90 text-orange-700 font-bold py-2.5 px-8 rounded-lg transition-all shadow-md flex items-center justify-center gap-2" onclick="cariDataGAS()">
 <span class="material-symbols-outlined text-[18px]">search</span>
             Cari Data
           </button>
+</div>
 </div>
 <input id="rowIndex" type="hidden">
 <input id="idPendaftaranUpdate" type="hidden">
 </div>
 <!-- MAIN FORM -->
 <form class="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 hidden" id="mainForm" onsubmit="submitForm(event)">
+<div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-green-600 to-emerald-700 text-white p-4 md:p-5 shadow-lg">
+<div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full"></div>
+<div class="relative flex items-center gap-3">
+<div class="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-[26px]">person_add</span></div>
+<div class="flex-1 min-w-0">
+<h2 class="text-lg md:text-xl font-black leading-tight">Formulir Pendaftaran</h2>
+<p class="text-xs md:text-sm opacity-85">Lengkapi data murid di bawah dengan teliti.</p>
+</div>
+</div>
+</div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
 <!-- Card: Informasi Murid -->
 <div class="bg-surface-container-lowest p-4 md:p-6 rounded-xl border border-outline-variant shadow-sm h-full">
