@@ -2003,11 +2003,17 @@
             }
         }
 
+        const isSibling = kondisi === 'sibling';
+        const promoHasStack = !overridden && (
+            (isJoyful && level !== 'Early Years' && studentType !== 'Lanjutan') ||
+            isOH || isOH2
+        );
         let finalBaseRate = baseRate;
-        if (kondisi === 'sibling') finalBaseRate += 5;
+        let collapsedSibling = false;
+        let collapsedDetail = '';
 
-        const primaryAmt = baseFee * (finalBaseRate / 100);
-        const afterPrimary = baseFee - primaryAmt;
+        let primaryAmt = baseFee * (baseRate / 100);
+        let afterPrimary = baseFee - primaryAmt;
         let secondAmt = 0, thirdAmt = 0, fourthAmt = 0, secondDetail = '', hasUniform = false;
         if (!overridden && isJoyful) {
             if (level !== 'Early Years' && studentType !== 'Lanjutan') {
@@ -2063,6 +2069,52 @@
             }
         }
 
+        if (!overridden && isSibling && promoHasStack && baseFee > 0) {
+            const fmtPct = function (x) { return parseFloat(x.toFixed(3)).toString().replace('.', ',') + '%'; };
+            if (isOH2) {
+                // OH2 + Sibling dua tahap: (1) Joyful+Sib digabung di dasar,
+                // (2) lapisan tambahan OH2 dihitung berurutan dari hasilnya.
+                const isBaruNonEY = (studentType !== 'Lanjutan' && level !== 'Early Years');
+                let jsb, joyChain, extra, extraChain;
+                if (oh2Cond === 'full' && isBaruNonEY) {
+                    // Full Baru: dasar 35% (bukan Joyful), +Sib = 40%
+                    jsb = 0.40; joyChain = '35%'; extra = [0.05, 0.025]; extraChain = ' + 5% + 2,5%';
+                    collapsedDetail = '((35%+Sib 5% = 40%)' + extraChain + ')';
+                } else {
+                    if (level === 'Early Years') { jsb = 0.25; joyChain = '20%'; }
+                    else if (studentType === 'Lanjutan') { jsb = 0.45; joyChain = '40%'; }
+                    else { jsb = 0.385; joyChain = '30% + 5%'; }
+                    if (oh2Cond === 'commitment') { extra = [0.05]; extraChain = ' + 5%'; }
+                    else if (oh2Cond === 'half') {
+                        if (isBaruNonEY) { extra = [0.05, 0.025]; extraChain = ' + 5% + 2,5%'; }
+                        else { extra = [0.05]; extraChain = ' + 5%'; }
+                    } else { extra = [0.05, 0.025]; extraChain = ' + 5% + 2,5%'; }
+                    collapsedDetail = '((Joyful ' + joyChain + ')+Sib 5% = ' + fmtPct(jsb * 100) + ')' + extraChain;
+                }
+                finalBaseRate = jsb * 100;
+                primaryAmt = baseFee * jsb;
+                let curFee = baseFee - primaryAmt;
+                secondAmt = 0; thirdAmt = 0; fourthAmt = 0;
+                if (extra.length > 0) { secondAmt = curFee * extra[0]; curFee -= secondAmt; }
+                if (extra.length > 1) { thirdAmt = curFee * extra[1]; curFee -= thirdAmt; }
+                afterPrimary = baseFee - primaryAmt;
+                collapsedSibling = true;
+            } else {
+                const effDisc = primaryAmt + secondAmt + thirdAmt + fourthAmt;
+                const effRate = (effDisc / baseFee) * 100;
+                finalBaseRate = effRate + 5;
+                collapsedDetail = '((' + baseRate + '%' + secondDetail + ')+5% = ' + fmtPct(finalBaseRate) + ')';
+                collapsedSibling = true;
+                primaryAmt = baseFee * (finalBaseRate / 100);
+                afterPrimary = baseFee - primaryAmt;
+                secondAmt = 0; thirdAmt = 0; fourthAmt = 0;
+            }
+        } else if (isSibling && !promoHasStack) {
+            finalBaseRate = baseRate + 5;
+            primaryAmt = baseFee * (finalBaseRate / 100);
+            afterPrimary = baseFee - primaryAmt;
+        }
+
         let currentFee = afterPrimary - secondAmt - thirdAmt - fourthAmt;
         let totalDisc = primaryAmt + secondAmt + thirdAmt + fourthAmt;
         const names = [], details = [];
@@ -2079,8 +2131,14 @@
             names.push('Anak Dosen/Guru'); details.push('10% dari sisa');
         }
         if (finalBaseRate > 0) {
-            details.unshift((finalBaseRate > baseRate ? baseRate + '%+5%' : baseRate + '%') + secondDetail);
-            names.unshift(baseName);
+            if (collapsedSibling) {
+                details.unshift(collapsedDetail);
+                names.unshift(baseName);
+                names.push('Sibling');
+            } else {
+                details.unshift((finalBaseRate > baseRate ? baseRate + '%+5%' : baseRate + '%') + secondDetail);
+                names.unshift(baseName);
+            }
         }
         let finalName = [...new Set(names.filter(n => n !== 'Harga Normal'))].join(' + ') || 'Harga Normal';
         let finalDetail = details.join(' + ');
