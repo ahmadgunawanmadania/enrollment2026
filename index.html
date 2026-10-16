@@ -592,6 +592,8 @@
 <label class="flex items-center gap-2 text-sm"><input class="h-4 w-4" name="sim-main-promo" type="radio" value="none" checked> Harga Normal</label>
 <label class="flex items-center gap-2 text-sm"><input class="h-4 w-4" name="sim-main-promo" type="radio" value="b2sFreedom"> Promo B2S Freedom Deals</label>
 <label class="flex items-center gap-2 text-sm"><input class="h-4 w-4" name="sim-main-promo" type="radio" value="openHousePromo"> Promo Open House</label>
+<label class="flex items-center gap-2 text-sm"><input class="h-4 w-4" name="sim-main-promo" type="radio" value="joyful"> Promo The Joyful Learning Season</label>
+<label class="flex items-center gap-2 text-sm"><input class="h-4 w-4" name="sim-main-promo" type="radio" value="openHouse2"> Promo Open House 2</label>
 </div>
 <div class="hidden ml-2 md:ml-6 p-4 rounded-lg border border-outline-variant bg-surface-container-low mb-4" id="sim-oh-sub">
 <p class="text-sm font-semibold text-on-surface-variant mb-3">Ketentuan Pembayaran Open House:</p>
@@ -599,6 +601,14 @@
 <label class="flex items-start gap-2"><input class="h-4 w-4 mt-0.5" name="sim-oh-condition" type="radio" value="commitment" checked> <span>Komitmen fee dibayar maks 5 hari → B2S Freedom Deals + <strong>5%</strong> + 1 set seragam</span></label>
 <label class="flex items-start gap-2"><input class="h-4 w-4 mt-0.5" name="sim-oh-condition" type="radio" value="half"> <span>Bayar 50% tgl 29 Agustus 2026 (khusus Murid Baru Eksternal Primary-Secondary): 35%+5%+2.5% + 1 set seragam</span></label>
 <label class="flex items-start gap-2"><input class="h-4 w-4 mt-0.5" name="sim-oh-condition" type="radio" value="full"> <span>Bayar 100% tgl 29 Agustus 2026: Early Years 20%+5%+2.5% + seragam | Baru Eksternal Primary-Secondary 40%+2.5% + seragam</span></label>
+</div>
+</div>
+<div class="hidden ml-2 md:ml-6 p-4 rounded-lg border border-outline-variant bg-surface-container-low mb-4" id="sim-oh2-sub">
+<p class="text-sm font-semibold text-on-surface-variant mb-3">Ketentuan Pembayaran Open House 2 (kegiatan 17 Okt 2026):</p>
+<div class="space-y-3 text-sm">
+<label class="flex items-start gap-2"><input class="h-4 w-4 mt-0.5" name="sim-oh2-condition" type="radio" value="commitment" checked> <span>Komitmen fee maks 5 hari → Joyful + <strong>5%</strong>: EY 20%+5% | Lanjutan 40%+5% | Baru Eksternal 30%+5%+5% + seragam</span></label>
+<label class="flex items-start gap-2"><input class="h-4 w-4 mt-0.5" name="sim-oh2-condition" type="radio" value="half"> <span>Flash Reg Half – bayar min 50% tgl 17 Okt 2026 (khusus Baru Eksternal Primary-Secondary): (30%+5%)+5%+2.5% + seragam</span></label>
+<label class="flex items-start gap-2"><input class="h-4 w-4 mt-0.5" name="sim-oh2-condition" type="radio" value="full"> <span>Flash Reg Full – bayar 100% tgl 17 Okt 2026: EY 20%+5%+2.5% | Baru Eksternal 35%+5%+2.5% + seragam</span></label>
 </div>
 </div>
 <h3 class="text-base font-bold text-on-surface mb-4">A. Kondisi Khusus (pilih salah satu)</h3>
@@ -1805,6 +1815,8 @@
     const SIM_ACCORDION = [
         { title: 'Promo B2S Freedom Deals', content: '<ul class="list-disc list-inside space-y-2 text-sm text-on-surface-variant"><li><b>Early Years:</b> Diskon 20%.</li><li><b>Murid Lanjutan (Primary-Secondary):</b> Diskon 45%.</li><li><b>Murid Baru Eksternal (Primary-Secondary):</b> Diskon 35%.</li></ul>' },
         { title: 'Promo Open House', content: '<ul class="list-disc list-inside space-y-2 text-sm text-on-surface-variant"><li><b>Komitmen fee maks 5 hari:</b> B2S + <b>5%</b> (dari sisa) + <b>1 set seragam</b>.</li><li><b>Bayar 50% tgl 29 Agustus 2026</b> (Baru Eksternal Primary-Secondary): 35% + 5% + 2,5% + seragam.</li><li><b>Bayar 100% tgl 29 Agustus 2026:</b> Early Years 20%+5%+2,5% + seragam | Baru Eksternal Primary-Secondary 40%+2,5% + seragam.</li></ul><p class="text-xs text-outline mt-2 italic">*Kondisi Khusus A dan Tambahan B tetap berlaku.</p>' },
+        { title: 'Promo The Joyful Learning Season', content: '<ul class="list-disc list-inside space-y-2 text-sm text-on-surface-variant"><li><b>Early Years:</b> Diskon 20%.</li><li><b>Murid Lanjutan (Primary-Secondary):</b> Diskon 40%.</li><li><b>Murid Baru Eksternal (Primary-Secondary):</b> Diskon 30% + 5% (dari sisa).</li></ul><p class="text-xs text-outline mt-2 italic">*Kondisi Khusus A dan Tambahan B tetap berlaku.</p>' },
+        { title: 'Promo Open House 2 (17 Okt 2026)', content: '<ul class="list-disc list-inside space-y-2 text-sm text-on-surface-variant"><li><b>Komitmen fee maks 5 hari (Joyful + 5%):</b> Early Years 20%+5% | Lanjutan 40%+5% | Baru Eksternal 30%+5%+5% + seragam.</li><li><b>Flash Reg Half – bayar min 50% tgl 17 Okt 2026</b> (khusus Baru Eksternal Primary-Secondary): (30%+5%)+5%+2,5% + seragam.</li><li><b>Flash Reg Full – bayar 100% tgl 17 Okt 2026:</b> Early Years 20%+5%+2,5% | Baru Eksternal 35%+5%+2,5% + seragam.</li><li><b>Voucher:</b> free 1 pasang seragam bagi pendaftar 17 Okt 2026.</li></ul><p class="text-xs text-outline mt-2 italic">*Kondisi Khusus A dan Tambahan B tetap berlaku.</p>' },
         { title: 'A. Kondisi Khusus (Pilih Salah Satu)', content: '<ul class="list-disc list-inside space-y-2 text-sm text-on-surface-variant"><li><b>Murid cabang/franchise:</b> tarif diskon lanjutan.</li><li><b>Sibling:</b> +5% di atas diskon berlaku.</li><li><b>Sepupu:</b> +2,5% dari sisa.</li><li><b>Kolektif min 5 orang:</b> tarif diskon 50%.</li><li><b>Khusus Kelas 4 dan 5:</b> lunas di awal 60%, tidak 40%.</li></ul>' },
         { title: 'B. Kondisi Tambahan', content: '<ul class="list-disc list-inside space-y-2 text-sm text-on-surface-variant"><li><b>Anak Dosen/Guru Tetap/Dokter Mitra:</b> +10% dari sisa.</li></ul>' },
         { title: 'Insentif Referensi (Internal)', content: '<p class="text-sm text-on-surface-variant mb-2">Insentif uang pembinaan (setelah murid melunasi Uang Pangkal).</p><table class="w-full text-left text-sm"><thead><tr class="bg-surface-container text-on-surface-variant text-xs uppercase"><th class="p-2">Jml Murid</th><th class="p-2">Per Murid</th><th class="p-2">Total</th></tr></thead><tbody class="text-on-surface-variant"><tr class="border-b border-outline-variant"><td class="p-2">1</td><td class="p-2">750.000</td><td class="p-2">750.000</td></tr><tr class="border-b border-outline-variant"><td class="p-2">2</td><td class="p-2">1.000.000</td><td class="p-2">2.000.000</td></tr><tr class="border-b border-outline-variant"><td class="p-2">3</td><td class="p-2">1.250.000</td><td class="p-2">3.750.000</td></tr><tr class="border-b border-outline-variant"><td class="p-2">4</td><td class="p-2">1.500.000</td><td class="p-2">6.000.000</td></tr><tr class="border-b border-outline-variant"><td class="p-2">5</td><td class="p-2">1.750.000</td><td class="p-2">8.750.000</td></tr><tr><td class="p-2">6+</td><td class="p-2" colspan="2">Rp 1.750.000 per murid</td></tr></tbody></table>' }
@@ -1862,6 +1874,7 @@
         if (simPeriod) simPeriod.addEventListener('change', updateSimBaseFee);
         document.querySelectorAll('input[name="sim-level"]').forEach(r => r.addEventListener('change', updateSimBaseFee));
         document.querySelectorAll('input[name="sim-oh-condition"]').forEach(r => r.addEventListener('change', calculateSimDiscount));
+        document.querySelectorAll('input[name="sim-oh2-condition"]').forEach(r => r.addEventListener('change', calculateSimDiscount));
         const sibForm = document.getElementById('sim-sib-form');
         if (sibForm) sibForm.querySelectorAll('input, select').forEach(el => {
             el.addEventListener('change', function () {
@@ -1931,7 +1944,9 @@
     function handleSimPromo() {
         const sel = document.querySelector('input[name="sim-main-promo"]:checked');
         const sub = document.getElementById('sim-oh-sub');
+        const sub2 = document.getElementById('sim-oh2-sub');
         if (sub) sub.classList.toggle('hidden', !sel || sel.value !== 'openHousePromo');
+        if (sub2) sub2.classList.toggle('hidden', !sel || sel.value !== 'openHouse2');
         calculateSimDiscount();
     }
     function calculateSimDiscount() {
@@ -1945,6 +1960,7 @@
         const payEl = document.getElementById('sim-payment-status');
         const teachEl = document.getElementById('sim-teacher');
         const ohEl = document.querySelector('input[name="sim-oh-condition"]:checked');
+        const oh2El = document.querySelector('input[name="sim-oh2-condition"]:checked');
         const level = levelEl ? levelEl.value : '';
         const studentType = typeEl ? typeEl.value : 'Eksternal';
         const mainPromo = promoEl ? promoEl.value : 'none';
@@ -1952,6 +1968,7 @@
         const paymentStatus = payEl ? payEl.value : 'Belum Lunas';
         const isTeacher = teachEl ? teachEl.checked : false;
         const ohCond = ohEl ? ohEl.value : 'commitment';
+        const oh2Cond = oh2El ? oh2El.value : 'commitment';
 
         let baseRate = 0;
         let baseName = 'Harga Normal';
@@ -1961,11 +1978,29 @@
 
         const isB2S = mainPromo === 'b2sFreedom';
         const isOH = mainPromo === 'openHousePromo';
-        if (!overridden && (isB2S || isOH)) {
-            baseName = isB2S ? 'Promo B2S Freedom Deals' : 'Promo Open House';
-            if (level === 'Early Years') baseRate = 20;
-            else if (studentType === 'Lanjutan') baseRate = 45;
-            else baseRate = (isOH && ohCond === 'full') ? 40 : 35;
+        const isJoyful = mainPromo === 'joyful';
+        const isOH2 = mainPromo === 'openHouse2';
+        if (!overridden && (isB2S || isOH || isJoyful || isOH2)) {
+            baseName = isB2S ? 'Promo B2S Freedom Deals' : (isJoyful ? 'Promo The Joyful Learning Season' : (isOH2 ? 'Promo Open House 2' : 'Promo Open House'));
+            if (isOH2) {
+                if (oh2Cond === 'full') {
+                    if (level === 'Early Years') baseRate = 20;
+                    else if (studentType === 'Lanjutan') baseRate = 40;
+                    else baseRate = 35;
+                } else if (oh2Cond === 'half') {
+                    if (level !== 'Early Years' && studentType !== 'Lanjutan') baseRate = 30;
+                    else if (level === 'Early Years') baseRate = 20;
+                    else baseRate = 40;
+                } else {
+                    if (level === 'Early Years') baseRate = 20;
+                    else if (studentType === 'Lanjutan') baseRate = 40;
+                    else baseRate = 30;
+                }
+            } else {
+                if (level === 'Early Years') baseRate = 20;
+                else if (studentType === 'Lanjutan') baseRate = isJoyful ? 40 : 45;
+                else baseRate = isJoyful ? 30 : ((isOH && ohCond === 'full') ? 40 : 35);
+            }
         }
 
         let finalBaseRate = baseRate;
@@ -1973,7 +2008,13 @@
 
         const primaryAmt = baseFee * (finalBaseRate / 100);
         const afterPrimary = baseFee - primaryAmt;
-        let secondAmt = 0, thirdAmt = 0, secondDetail = '', hasUniform = false;
+        let secondAmt = 0, thirdAmt = 0, fourthAmt = 0, secondDetail = '', hasUniform = false;
+        if (!overridden && isJoyful) {
+            if (level !== 'Early Years' && studentType !== 'Lanjutan') {
+                secondAmt = afterPrimary * 0.05;
+                secondDetail = ' + 5%';
+            }
+        }
         if (!overridden && isOH) {
             if (ohCond === 'commitment') { secondAmt = afterPrimary * 0.05; secondDetail = ' + 5%'; hasUniform = true; }
             else if (ohCond === 'half') {
@@ -1994,11 +2035,39 @@
             }
         }
 
-        let currentFee = afterPrimary - secondAmt - thirdAmt;
-        let totalDisc = primaryAmt + secondAmt + thirdAmt;
+        if (!overridden && isOH2) {
+            hasUniform = true;
+            if (oh2Cond === 'commitment') {
+                if (studentType !== 'Lanjutan' && level !== 'Early Years') {
+                    secondAmt = afterPrimary * 0.05;
+                    thirdAmt = (afterPrimary - secondAmt) * 0.05;
+                    secondDetail = ' + 5% + 5%';
+                } else {
+                    secondAmt = afterPrimary * 0.05;
+                    secondDetail = ' + 5%';
+                }
+            } else if (oh2Cond === 'half') {
+                if (studentType !== 'Lanjutan' && level !== 'Early Years') {
+                    secondAmt = afterPrimary * 0.05;
+                    thirdAmt = (afterPrimary - secondAmt) * 0.05;
+                    fourthAmt = (afterPrimary - secondAmt - thirdAmt) * 0.025;
+                    secondDetail = ' + 5% + 5% + 2,5%';
+                } else {
+                    secondAmt = afterPrimary * 0.05;
+                    secondDetail = ' + 5%';
+                }
+            } else if (oh2Cond === 'full') {
+                secondAmt = afterPrimary * 0.05;
+                thirdAmt = (afterPrimary - secondAmt) * 0.025;
+                secondDetail = ' + 5% + 2,5%';
+            }
+        }
+
+        let currentFee = afterPrimary - secondAmt - thirdAmt - fourthAmt;
+        let totalDisc = primaryAmt + secondAmt + thirdAmt + fourthAmt;
         const names = [], details = [];
         let note = '';
-        if (hasUniform) note = 'Manfaat tambahan: Free 1 set seragam.';
+        if (hasUniform) note = isOH2 ? 'Manfaat tambahan: Free 1 pasang seragam (pendaftaran 17 Okt 2026).' : 'Manfaat tambahan: Free 1 set seragam.';
         if (kondisi === 'sepupu' && currentFee > 0) {
             const d = currentFee * 0.025;
             currentFee -= d; totalDisc += d;
