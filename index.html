@@ -640,8 +640,8 @@
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-center">
 <div class="p-4 rounded-lg bg-white/10"><span class="block text-xs uppercase opacity-80">Diskon Berlaku</span><span class="text-base font-bold" id="sim-discount-name">-</span></div>
 <div class="p-4 rounded-lg bg-white/10"><span class="block text-xs uppercase opacity-80">Besaran Diskon</span><span class="text-base font-bold" id="sim-discount-detail">-</span></div>
-<div class="p-4 rounded-lg bg-white/10"><span class="block text-xs uppercase opacity-80">Jumlah Potongan</span><span class="text-xl font-black" id="sim-discount-amount">Rp 0</span></div>
-<div class="p-4 rounded-lg bg-white text-primary"><span class="block text-xs font-bold uppercase">Total Bayar</span><span class="text-xl font-black" id="sim-final-fee">Rp 0</span></div>
+<div class="p-4 rounded-lg bg-white/10"><span class="block text-xs uppercase opacity-80">Jumlah Potongan (dibulatkan)</span><span class="text-xl font-black" id="sim-discount-amount">Rp 0</span><span class="block text-xs mt-1 opacity-80" id="sim-discount-exact"></span></div>
+<div class="p-4 rounded-lg bg-white text-primary"><span class="block text-xs font-bold uppercase">Total Bayar (dibulatkan)</span><span class="text-xl font-black" id="sim-final-fee">Rp 0</span><span class="block text-xs mt-1 opacity-70" id="sim-final-exact"></span></div>
 </div>
 <p class="mt-3 text-center text-sm italic opacity-90" id="sim-note"></p>
 <input id="sim-discount-value" type="hidden" value="0">
@@ -2089,10 +2089,14 @@
 
         const roundedFinal = Math.ceil(Math.max(0, currentFee) / 1000) * 1000;
         const roundedDisc = Math.max(0, baseFee - roundedFinal);
+        const exactFinal = Math.max(0, currentFee);
+        const exactDisc = Math.max(0, totalDisc);
         const nEl = document.getElementById('sim-discount-name');
         const dEl = document.getElementById('sim-discount-detail');
         const aEl = document.getElementById('sim-discount-amount');
         const fEl = document.getElementById('sim-final-fee');
+        const aExEl = document.getElementById('sim-discount-exact');
+        const fExEl = document.getElementById('sim-final-exact');
         const tEl = document.getElementById('sim-note');
         const hvEl = document.getElementById('sim-discount-value');
         const hbEl = document.getElementById('sim-base-value');
@@ -2100,7 +2104,9 @@
         if (dEl) dEl.textContent = finalDetail;
         if (aEl) aEl.textContent = formatSimRp(roundedDisc);
         if (fEl) fEl.textContent = formatSimRp(roundedFinal);
-        if (tEl) tEl.textContent = note;
+        if (aExEl) aExEl.textContent = (baseFee > 0) ? ('Exact: ' + formatSimRp(exactDisc)) : '';
+        if (fExEl) fExEl.textContent = (baseFee > 0) ? ('Exact: ' + formatSimRp(exactFinal)) : '';
+        if (tEl) tEl.textContent = note + ((baseFee > 0 && roundedFinal !== Math.round(exactFinal)) ? ' Dibulatkan ke atas ke ribuan.' : '');
         if (hvEl) hvEl.value = String(roundedDisc);
         if (hbEl) hbEl.value = String(baseFee);
     }
