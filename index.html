@@ -1408,6 +1408,10 @@
 <span class="absolute left-4 top-1/2 -translate-y-1/2 text-error text-sm font-semibold">-Rp</span>
 <input class="w-full pl-12 pr-4 py-3 rounded-lg border border-outline-variant text-right font-semibold text-error" id="diskon" name="diskon" oninput="handleCurrencyInput(this)" type="text" value="0" data-numeric-value="0">
 </div>
+  <button class="w-full mt-2 px-3 py-2 bg-amber-50 text-amber-700 font-bold rounded-lg border border-amber-200 hover:bg-amber-100 transition-all text-sm flex items-center justify-center gap-2" onclick="ambilDiskonDariSimulator()" type="button">
+    <span class="material-symbols-outlined">import_contacts</span>
+    Ambil Diskon dari Simulator
+  </button>
 </div>
 <div class="bg-primary-container p-3 rounded-lg border border-primary-container">
 <label class="block text-xs font-bold text-primary uppercase tracking-wider mb-2">Tarif Nett Akhir</label>
@@ -4019,6 +4023,37 @@
       const panel = document.getElementById('notification-panel');
       panel.innerHTML = `<div class="p-5 text-center text-sm text-error">Gagal memuat log.</div>`;
     }
+  </script>
+
+function ambilDiskonDariSimulator() {
+  const hvEl = document.getElementById("sim-discount-value");
+  const nominal = hvEl ? (parseFloat(hvEl.value) || 0) : 0;
+  if (!nominal || nominal <= 0) {
+    showToast("Simulator belum menghasilkan diskon. Buka tab Simulator Diskon dahulu.", "error");
+    return;
+  }
+  const diskonEl = document.getElementById("diskon");
+  const pctEl = document.getElementById("diskonPersen");
+  const tarifEl = document.getElementById("tarifSSP");
+  const tarif = tarifEl ? (parseFloat(tarifEl.dataset.numericValue) || 0) : 0;
+
+  if (diskonEl) {
+    const numericValue = parseFloat(nominal) || 0;
+    diskonEl.dataset.numericValue = numericValue;
+    diskonEl.value = numericValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    diskonEl.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+
+  if (pctEl && tarif > 0) {
+    pctEl.value = ((nominal / tarif) * 100).toFixed(2);
+  }
+
+  if (typeof calcKeuangan === "function") {
+    calcKeuangan();
+  }
+
+  showToast("Diskon Rp " + nominal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " dari simulator diterapkan ke form.", "success");
+}
   </script>
 <script>
     // DASHBOARD CHART FUNCTIONS
