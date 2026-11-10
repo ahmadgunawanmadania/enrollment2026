@@ -2753,7 +2753,7 @@
         dataObj.Tarif_SSP = tarifSSP;
         dataObj.Diskon = diskon;
         dataObj.Tarif_Nett = tarifNett;
-        dataObj.Total_Bayar = (dataObj.Metode_Bayar_SSP && dataObj.Metode_Bayar_SSP.startsWith('Lunas')) ? tarifNett : ((parseFloat(dataObj.termin1) || 0) + (parseFloat(dataObj.termin2) || 0) + (parseFloat(dataObj.termin3) || 0));
+        dataObj.Total_Bayar = (dataObj.metodeBayar && dataObj.metodeBayar.startsWith('Lunas')) ? tarifNett : ((parseFloat(dataObj.termin1 || 0) || 0) + (parseFloat(dataObj.termin2 || 0) || 0) + (parseFloat(dataObj.termin3 || 0) || 0));
         dataObj.Persentase_Bayar = (tarifNett > 0) ? (dataObj.Total_Bayar / tarifNett) * 100 : 0;
         dataObj.Timestamp = firebase.firestore.FieldValue.serverTimestamp(); // Use server timestamp
         if (dataObj.nama) {
@@ -3642,7 +3642,7 @@
             const totalBayar = parseFloat(row.Total_Bayar) || 0;
             const tarifNett = parseFloat(row.Tarif_Nett) || 0;
             const sisaBayar = tarifNett - totalBayar;
-            const persentase = parseFloat(row.Persentase_Bayar) || 0;
+            const persentase = tarifNett > 0 ? (totalBayar / tarifNett) * 100 : 0;
 
             const sisaBayarText = (row.status === 'Lanjut' && sisaBayar <= 0) 
                             ? '<span class="font-bold text-green-600">Lunas</span>' 
