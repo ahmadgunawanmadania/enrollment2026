@@ -2995,7 +2995,8 @@
         const totalBayar = parseFloat(row.Total_Bayar) || 0;
         const tarifNett = parseFloat(row.Tarif_Nett) || 0;
         const sisaBayar = tarifNett - totalBayar;
-        const persentase = parseFloat(row.Persentase_Bayar) || 0;
+        // Hitung ulang persentase dari nilai aktual agar konsisten, tidak andalkan data tersimpan
+        const persentase = tarifNett > 0 ? (totalBayar / tarifNett) * 100 : 0;
         const sisaBayarText = sisaBayar <= 0 ? '<span class="font-bold text-green-600">Lunas</span>' : `Rp ${formatRupiah(sisaBayar)}`;
         return `
                 <tr class="hover:bg-surface-container transition-colors group text-xs sm:text-sm">
