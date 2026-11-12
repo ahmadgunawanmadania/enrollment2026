@@ -1485,37 +1485,35 @@
 </form>
 </main>
 <!-- Bottom Navigation (Mobile) -->
-<div id="mobile-nav" class="lg:hidden sticky bottom-0 z-50 w-full border-t border-outline-variant bg-surface-container-lowest shadow-[0_-4px_16px_rgba(26,27,33,0.06)]">
-<div class="flex justify-evenly items-center px-2 py-2">
-<button id="mobile-btnHome" onclick="switchTab('tabHome')" class="w-1/7 flex flex-col items-center justify-center gap-1 px-1 py-2.5 rounded-xl text-primary bg-primary/10 transition-all">
+<div id="mobile-nav" class="lg:hidden sticky bottom-0 z-50 w-full border-t border-outline-variant bg-surface-container-lowest shadow-[0_-4px_16px_rgba(26,27,33,0.06)] flex flex-row items-center justify-evenly px-2 py-2">
+<button id="mobile-btnHome" onclick="switchTab('tabHome')" class="flex-1 flex flex-col items-center justify-center gap-1 px-1 py-2.5 rounded-xl text-primary bg-primary/10 border-b-2 border-primary transition-all">
 <span class="material-symbols-outlined text-xl">home</span>
 <span class="text-[10px] font-bold leading-none">Beranda</span>
 </button>
-<button id="mobile-btnDaftar" onclick="switchTab('tabDaftar')" class="w-1/7 flex flex-col items-center justify-center gap-1 px-1 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container transition-all">
+<button id="mobile-btnDaftar" onclick="switchTab('tabDaftar')" class="flex-1 flex flex-col items-center justify-center gap-1 px-1 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container transition-all">
 <span class="material-symbols-outlined text-xl">person_add</span>
 <span class="text-[10px] font-medium leading-none">Daftar</span>
 </button>
-<button id="mobile-btnLanjutan" onclick="switchTab('tabLanjutan')" class="w-1/7 flex flex-col items-center justify-center gap-1 px-1 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container transition-all">
+<button id="mobile-btnLanjutan" onclick="switchTab('tabLanjutan')" class="flex-1 flex flex-col items-center justify-center gap-1 px-1 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container transition-all">
 <span class="material-symbols-outlined text-xl">escalator_warning</span>
 <span class="text-[10px] font-medium leading-none">Lanjutan</span>
 </button>
-<button id="mobile-btnDashboard" onclick="switchTab('tabDashboard')" class="w-1/7 flex flex-col items-center justify-center gap-1 px-1 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container transition-all">
+<button id="mobile-btnDashboard" onclick="switchTab('tabDashboard')" class="flex-1 flex flex-col items-center justify-center gap-1 px-1 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container transition-all">
 <span class="material-symbols-outlined text-xl">monitoring</span>
 <span class="text-[10px] font-medium leading-none">Dash</span>
 </button>
-<button id="mobile-btnRekap" onclick="switchTab('tabRekap')" class="w-1/7 flex flex-col items-center justify-center gap-1 px-1 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container transition-all">
+<button id="mobile-btnRekap" onclick="switchTab('tabRekap')" class="flex-1 flex flex-col items-center justify-center gap-1 px-1 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container transition-all">
 <span class="material-symbols-outlined text-xl">analytics</span>
 <span class="text-[10px] font-medium leading-none">Rekap</span>
 </button>
-<button id="mobile-btnLanjutanRekap" onclick="switchTab('tabLanjutanRekap')" class="w-1/7 flex flex-col items-center justify-center gap-1 px-1 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container transition-all">
+<button id="mobile-btnLanjutanRekap" onclick="switchTab('tabLanjutanRekap')" class="flex-1 flex flex-col items-center justify-center gap-1 px-1 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container transition-all">
 <span class="material-symbols-outlined text-xl">list_alt</span>
 <span class="text-[10px] font-medium leading-none">L-Rekap</span>
 </button>
-<button id="mobile-btnUpdate" onclick="switchTab('tabUpdate')" class="w-1/7 flex flex-col items-center justify-center gap-1 px-1 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container transition-all">
+<button id="mobile-btnUpdate" onclick="switchTab('tabUpdate')" class="flex-1 flex flex-col items-center justify-center gap-1 px-1 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container transition-all">
 <span class="material-symbols-outlined text-xl">manage_search</span>
 <span class="text-[10px] font-medium leading-none">Update</span>
 </button>
-</div>
 </div>
 <script>
     // ============================================================
@@ -1718,13 +1716,13 @@
       const mobileNav = document.getElementById('mobile-nav');
       if (mobileNav) {
           Array.from(mobileNav.children).forEach(btn => {
-              btn.className = "w-1/7 flex flex-col items-center justify-center gap-1 px-1 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container transition-all";
+              btn.className = "flex-1 flex flex-col items-center justify-center gap-1 px-1 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container transition-all";
           });
       }
       
       // --- Define active classes ---
       const activeDesktopBase = "nav-transition w-full flex items-center gap-3 px-4 py-3 rounded-lg font-semibold ";
-      const activeMobileBase = "w-1/7 flex flex-col items-center justify-center gap-1 px-1 py-2.5 rounded-xl text-primary bg-primary/10 border-b-2 border-primary transition-all";
+      const activeMobileBase = "flex-1 flex flex-col items-center justify-center gap-1 px-1 py-2.5 rounded-xl text-primary bg-primary/10 border-b-2 border-primary transition-all";
 
       // --- Hide all tab content divs ---
       boxUpdate.classList.add('hidden');
