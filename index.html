@@ -184,7 +184,7 @@
 </div>
 </aside>
 <!-- Main Content Area -->
-<main class="ml-0 flex flex-col min-h-screen pb-20 lg:pb-0">
+<main class="ml-0 flex flex-col min-h-screen pb-24 lg:pb-0">
 <!-- Header/TopBar -->
 <header class="h-16 border-b border-outline-variant bg-surface px-4 lg:px-8 flex items-center justify-between sticky top-0 z-30">
 <div class="flex items-center gap-2">
@@ -1485,35 +1485,37 @@
 </form>
 </main>
 <!-- Bottom Navigation (Mobile) -->
-<div id="mobile-nav" class="lg:hidden sticky bottom-0 bg-surface-container-lowest border-t border-outline-variant flex justify-evenly z-50 shadow-[0_-2px_12px_rgba(26,27,33,0.08)]">
-<button id="mobile-btnHome" onclick="switchTab('tabHome')" class="flex-1 flex flex-col items-center justify-center gap-0.5 py-2 text-primary font-bold">
-<span class="material-symbols-outlined text-2xl">home</span>
-<span class="text-[9px] font-semibold leading-none">Beranda</span>
+<div id="mobile-nav" class="lg:hidden sticky bottom-0 z-50 w-full border-t border-outline-variant bg-surface-container-lowest shadow-[0_-4px_16px_rgba(26,27,33,0.06)]">
+<div class="flex justify-evenly items-center px-2 py-2">
+<button id="mobile-btnHome" onclick="switchTab('tabHome')" class="w-1/7 flex flex-col items-center justify-center gap-1 px-1 py-2.5 rounded-xl text-primary bg-primary/10 transition-all">
+<span class="material-symbols-outlined text-xl">home</span>
+<span class="text-[10px] font-bold leading-none">Beranda</span>
 </button>
-<button id="mobile-btnDaftar" onclick="switchTab('tabDaftar')" class="flex-1 flex flex-col items-center justify-center gap-0.5 py-2 text-on-surface-variant">
-<span class="material-symbols-outlined text-2xl">person_add</span>
-<span class="text-[9px] font-semibold leading-none">Daftar</span>
+<button id="mobile-btnDaftar" onclick="switchTab('tabDaftar')" class="w-1/7 flex flex-col items-center justify-center gap-1 px-1 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined text-xl">person_add</span>
+<span class="text-[10px] font-medium leading-none">Daftar</span>
 </button>
-<button id="mobile-btnLanjutan" onclick="switchTab('tabLanjutan')" class="flex-1 flex flex-col items-center justify-center gap-0.5 py-2 text-on-surface-variant">
-<span class="material-symbols-outlined text-2xl">escalator_warning</span>
-<span class="text-[9px] font-semibold leading-none">Lanjutan</span>
+<button id="mobile-btnLanjutan" onclick="switchTab('tabLanjutan')" class="w-1/7 flex flex-col items-center justify-center gap-1 px-1 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined text-xl">escalator_warning</span>
+<span class="text-[10px] font-medium leading-none">Lanjutan</span>
 </button>
-<button id="mobile-btnDashboard" onclick="switchTab('tabDashboard')" class="flex-1 flex flex-col items-center justify-center gap-0.5 py-2 text-on-surface-variant">
-<span class="material-symbols-outlined text-2xl">monitoring</span>
-<span class="text-[9px] font-semibold leading-none">Dash</span>
+<button id="mobile-btnDashboard" onclick="switchTab('tabDashboard')" class="w-1/7 flex flex-col items-center justify-center gap-1 px-1 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined text-xl">monitoring</span>
+<span class="text-[10px] font-medium leading-none">Dash</span>
 </button>
-<button id="mobile-btnRekap" onclick="switchTab('tabRekap')" class="flex-1 flex flex-col items-center justify-center gap-0.5 py-2 text-on-surface-variant">
-<span class="material-symbols-outlined text-2xl">analytics</span>
-<span class="text-[9px] font-semibold leading-none">Rekap</span>
+<button id="mobile-btnRekap" onclick="switchTab('tabRekap')" class="w-1/7 flex flex-col items-center justify-center gap-1 px-1 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined text-xl">analytics</span>
+<span class="text-[10px] font-medium leading-none">Rekap</span>
 </button>
-<button id="mobile-btnLanjutanRekap" onclick="switchTab('tabLanjutanRekap')" class="flex-1 flex flex-col items-center justify-center gap-0.5 py-2 text-on-surface-variant">
-<span class="material-symbols-outlined text-2xl">list_alt</span>
-<span class="text-[9px] font-semibold leading-none">L-Rekap</span>
+<button id="mobile-btnLanjutanRekap" onclick="switchTab('tabLanjutanRekap')" class="w-1/7 flex flex-col items-center justify-center gap-1 px-1 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined text-xl">list_alt</span>
+<span class="text-[10px] font-medium leading-none">L-Rekap</span>
 </button>
-<button id="mobile-btnUpdate" onclick="switchTab('tabUpdate')" class="flex-1 flex flex-col items-center justify-center gap-0.5 py-2 text-on-surface-variant">
-<span class="material-symbols-outlined text-2xl">manage_search</span>
-<span class="text-[9px] font-semibold leading-none">Update</span>
+<button id="mobile-btnUpdate" onclick="switchTab('tabUpdate')" class="w-1/7 flex flex-col items-center justify-center gap-1 px-1 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined text-xl">manage_search</span>
+<span class="text-[10px] font-medium leading-none">Update</span>
 </button>
+</div>
 </div>
 <script>
     // ============================================================
@@ -1716,13 +1718,13 @@
       const mobileNav = document.getElementById('mobile-nav');
       if (mobileNav) {
           Array.from(mobileNav.children).forEach(btn => {
-              btn.className = "flex-1 flex flex-col items-center justify-center gap-0.5 py-2 text-on-surface-variant";
+              btn.className = "w-1/7 flex flex-col items-center justify-center gap-1 px-1 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container transition-all";
           });
       }
       
       // --- Define active classes ---
       const activeDesktopBase = "nav-transition w-full flex items-center gap-3 px-4 py-3 rounded-lg font-semibold ";
-      const activeMobileClass = "flex-1 flex flex-col items-center justify-center gap-0.5 py-2 text-primary font-bold";
+      const activeMobileBase = "w-1/7 flex flex-col items-center justify-center gap-1 px-1 py-2.5 rounded-xl text-primary bg-primary/10 border-b-2 border-primary transition-all";
 
       // --- Hide all tab content divs ---
       boxUpdate.classList.add('hidden');
@@ -1739,14 +1741,14 @@
       if (tabName === 'tabHome') {
         modeSaatIni = 'home';
         if (btnHome) btnHome.className = activeDesktopBase + "bg-primary-container text-on-primary-container";
-        if (document.getElementById('mobile-btnHome')) document.getElementById('mobile-btnHome').className = activeMobileClass;
+        if (document.getElementById('mobile-btnHome')) document.getElementById('mobile-btnHome').className = activeMobileBase;
         if (tabHomeDiv) tabHomeDiv.classList.remove('hidden');
         currentTabLabel.innerText = "Beranda";
       } else if (tabName === 'tabDaftar') {
         modeSaatIni = 'daftar';
         resetFormLokal();
         btnDaftar.className = activeDesktopBase + "bg-primary-container text-on-primary-container";
-        if (document.getElementById('mobile-btnDaftar')) document.getElementById('mobile-btnDaftar').className = activeMobileClass;
+        if (document.getElementById('mobile-btnDaftar')) document.getElementById('mobile-btnDaftar').className = activeMobileBase;
         mainForm.classList.remove('hidden');
         keteranganDiv.classList.add('hidden');
         keteranganInput.removeAttribute('required');
@@ -1757,7 +1759,7 @@
         modeSaatIni = 'update';
         resetFormLokal();
         btnUpdate.className = activeDesktopBase + "bg-secondary-container text-on-secondary-container";
-        if (document.getElementById('mobile-btnUpdate')) document.getElementById('mobile-btnUpdate').className = activeMobileClass;
+        if (document.getElementById('mobile-btnUpdate')) document.getElementById('mobile-btnUpdate').className = activeMobileBase;
         boxUpdate.classList.remove('hidden');
         mainForm.classList.remove('hidden');
         keteranganDiv.classList.remove('hidden');
@@ -1768,7 +1770,7 @@
       } else if (tabName === 'tabRekap') {
         modeSaatIni = 'rekap';
         btnRekap.className = activeDesktopBase + "bg-tertiary-container text-on-tertiary-container";
-        if (document.getElementById('mobile-btnRekap')) document.getElementById('mobile-btnRekap').className = activeMobileClass;
+        if (document.getElementById('mobile-btnRekap')) document.getElementById('mobile-btnRekap').className = activeMobileBase;
         boxRekap.classList.remove('hidden');
         currentTabLabel.innerText = "Data Recapitulation";
         getRekapData();
@@ -1776,21 +1778,21 @@
         modeSaatIni = 'lanjutan';
         resetLanjutanForm();
         btnLanjutan.className = activeDesktopBase + "bg-secondary-container text-on-secondary-container";
-        if (document.getElementById('mobile-btnLanjutan')) document.getElementById('mobile-btnLanjutan').className = activeMobileClass;
+        if (document.getElementById('mobile-btnLanjutan')) document.getElementById('mobile-btnLanjutan').className = activeMobileBase;
         boxLanjutan.classList.remove('hidden');
         currentTabLabel.innerText = "Continuing Student Registration";
         getSiswaLanjutanList(); // Initial load for dropdown
       } else if (tabName === 'tabLanjutanRekap') {
         modeSaatIni = 'lanjutanRekap';
         btnLanjutanRekap.className = activeDesktopBase + "bg-tertiary-container text-on-tertiary-container";
-        if (document.getElementById('mobile-btnLanjutanRekap')) document.getElementById('mobile-btnLanjutanRekap').className = activeMobileClass;
+        if (document.getElementById('mobile-btnLanjutanRekap')) document.getElementById('mobile-btnLanjutanRekap').className = activeMobileBase;
         tabLanjutanRekapDiv.classList.remove('hidden');
         currentTabLabel.innerText = "Continuing Students Recapitulation";
         getLanjutanRekapData();
       } else if (tabName === 'tabDashboard') {
         modeSaatIni = 'dashboard';
         btnDashboard.className = activeDesktopBase + "bg-primary-container text-on-primary-container";
-        if (document.getElementById('mobile-btnDashboard')) document.getElementById('mobile-btnDashboard').className = activeMobileClass;
+        if (document.getElementById('mobile-btnDashboard')) document.getElementById('mobile-btnDashboard').className = activeMobileBase;
         tabDashboardDiv.classList.remove('hidden');
         currentTabLabel.innerText = "Dashboard";
         getDashboardData();
